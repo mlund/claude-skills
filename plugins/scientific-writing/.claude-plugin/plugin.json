@@ -1,0 +1,15 @@
+{
+  "name": "scientific-writing",
+  "description": "Write and revise clear, concise, reader-focused scientific prose, combining Nature Masterclasses, Strunk & White, and The Economist Style Guide.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mikael Lund"
+  },
+  "keywords": [
+    "writing",
+    "scientific-writing",
+    "editing",
+    "style",
+    "readability"
+  ]
+}

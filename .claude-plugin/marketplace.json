@@ -1,0 +1,17 @@
+{
+  "name": "claude-skills",
+  "owner": {
+    "name": "mlund"
+  },
+  "metadata": {
+    "description": "Mikael Lund's collection of Claude Code skills.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "scientific-writing",
+      "source": "./plugins/scientific-writing",
+      "description": "Write and revise clear, concise, reader-focused scientific prose, combining Nature Masterclasses, Strunk & White, and The Economist Style Guide."
+    }
+  ]
+}
