@@ -1,6 +1,6 @@
 # claude-skills
 
-Mikael Lund's collection of [Claude Code](https://claude.com/claude-code) skills,
+Mikael's collection of [Claude Code](https://claude.com/claude-code) skills,
 distributed as a plugin marketplace.
 
 ## Install
