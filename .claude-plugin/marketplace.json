@@ -12,6 +12,11 @@
       "name": "scientific-writing",
       "source": "./plugins/scientific-writing",
       "description": "Write and revise clear, concise, reader-focused scientific prose, combining Nature Masterclasses, Strunk & White, and The Economist Style Guide."
+    },
+    {
+      "name": "faunus",
+      "source": "./plugins/faunus",
+      "description": "Author Faunus YAML input files and build, run, profile, and debug Faunus molecular simulations."
     }
   ]
 }

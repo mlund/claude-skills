@@ -1,0 +1,16 @@
+{
+  "name": "faunus",
+  "description": "Set up and run Faunus molecular simulations: author and validate YAML input files, then build, run, profile, and debug simulations.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mikael Lund"
+  },
+  "keywords": [
+    "faunus",
+    "molecular-simulation",
+    "monte-carlo",
+    "molecular-dynamics",
+    "yaml",
+    "rust"
+  ]
+}

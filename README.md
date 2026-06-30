@@ -8,6 +8,7 @@ distributed as a plugin marketplace.
 ```
 /plugin marketplace add mlund/claude-skills
 /plugin install scientific-writing
+/plugin install faunus
 ```
 
 Update later by re-running `/plugin marketplace add mlund/claude-skills` (or pulling this repo).
@@ -27,6 +28,19 @@ A skill for writing and revising clear, concise, reader-focused scientific prose
 The skill triggers automatically when drafting or editing scholarly text, or on
 request to make writing clearer, tighter, or higher-impact.
 
+### faunus
+
+Two skills for [Faunus](https://github.com/mlund/faunus-rs), a Monte Carlo and
+molecular dynamics simulation code:
+
+- **faunus-input** — create, validate, and explain Faunus YAML input files
+  (atoms, molecules, energy terms, MC moves, analysis).
+- **faunus-run** — build, run, profile, and debug simulations; manage state
+  files and equilibration.
+
+Both read documentation and example inputs from a local Faunus checkout, so on
+first use they ask for the path to your Faunus source directory.
+
 ## Layout
 
 ```
@@ -34,11 +48,20 @@ claude-skills/                      # this repo = a marketplace
 ├── .claude-plugin/
 │   └── marketplace.json            # lists the plugins
 └── plugins/
-    └── scientific-writing/         # one plugin
+    ├── scientific-writing/         # one plugin = one skill
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   └── skills/
+    │       └── scientific-writing/
+    │           └── SKILL.md
+    └── faunus/                     # one plugin = two skills
         ├── .claude-plugin/
         │   └── plugin.json
         └── skills/
-            └── scientific-writing/
+            ├── faunus-input/
+            │   ├── SKILL.md
+            │   └── reference.md
+            └── faunus-run/
                 └── SKILL.md
 ```
 
