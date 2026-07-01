@@ -51,6 +51,9 @@ they state the take-home message, and is it the one you intended?**
 ## 5. Text & typography
 - [ ] Axis titles give **quantity + units**; dimensionless quantities carry no
       units (no "a.u." for absorbance).
+- [ ] Notation correct: variables italic, unit symbols upright, space between
+      number and unit; math (e.g. *f*(*x*)) set in math mode, not ASCII; real
+      `−`/`×`/superscript glyphs; no `1e-3`-style tick litter.
 - [ ] Sans-serif; ≤ 3 sizes; legible at final print size (≥ ~5–7 pt); tick labels
       1–2 pt smaller than titles.
 - [ ] Labels horizontal (no rotated tick labels, no diagonal text).

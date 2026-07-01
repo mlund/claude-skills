@@ -85,6 +85,49 @@ parameters and watch the fit); propagate errors for multi-measurement quantities
   define which in the caption. Include a y-scale (or scale bar) so the reader can
   judge magnitude.
 
+## Unit and quantity notation (SI / IUPAC typography)
+
+Get the fine typography right — reviewers and copy-editors notice, and wrong
+style can change meaning (italic *m* = mass, roman m = metre).
+
+- **Variables/quantities are italic; unit symbols are upright (roman).**
+  *T*, *c*, *x*, *p* are italic; `s`, `kg`, `Hz`, `mol`, `K` are never italic.
+  This is the single most common slip when labels are set in math mode (below).
+- **Thin space between number and unit:** `5 kg`, `25 °C`, `10 µs` — not `5kg`
+  or `25°C`. Exceptions set close: percent `50%` and plane-angle degrees `90°`
+  (but temperature keeps the space: `25 °C`).
+- **Prefix binds to the unit, no space:** `nm`, `kHz`, `MPa`. Mind the prefix
+  case: `m` milli vs `M` mega, `µ` micro (µ or u, not "mu"), `n` nano, `p` pico.
+- **Compound units:** separate factors with a space or middle dot — `N m` or
+  `N·m` (not `Nm`); prefer **negative exponents** over slashes in formal style
+  (`mol L⁻¹`, `J mol⁻¹ K⁻¹`), and use **at most one solidus** if you do use `/`
+  (`m/s`, never `m/s/s`).
+- **Unit symbols don't pluralize and take no period:** `5 kg`, not `5 kgs` or
+  `5 kg.` (except at a sentence end).
+- **Subscripts:** italic if the subscript is itself a variable (*x*_*i*), upright
+  if it's a descriptive label (*c*_in, *E*_max, *k*_B).
+
+## Setting math on labels (don't ship ASCII math)
+
+Axis titles, tick labels, and annotations that contain math must be *typeset*
+as math, not left as literal keyboard text. Use the tool's math mode (matplotlib
+mathtext/LaTeX `$...$`, LaTeX, or the vector editor's equation support).
+
+- **`f(x)` should render with an italic *f*** and an italic argument — via math
+  mode — not a plain upright "f(x)". Same for *k*(*t*), *P*(*E*), *y* = *f*(*x*).
+- **But keep upright, even inside math mode:** unit symbols and multi-letter
+  operator/function names — `sin`, `cos`, `log`, `exp`, `max`, the differential
+  `d` in `d*x*`, and `Δ`, `∂`. In LaTeX use `\mathrm{}`/`\text{}` /
+  `\sin`; the classic error is math mode italicizing *everything*, turning `sin`
+  into *s·i·n*.
+- **Use real typographic glyphs:** minus sign `−` (U+2212), not hyphen `-`;
+  multiplication `×` or `·`, not the letter `x` or `*`; proper super/subscripts
+  (`10⁻³`, not `10^-3`, `10E-3`, or `1e-3`); the micro sign `µ`, the degree `°`,
+  and Greek letters (`λ`, `Δ`) as symbols, not spelled out.
+- **Fix the offset/scientific-notation default:** avoid `1e6` / `1.0×10^6`
+  litter on the axis. Move the common factor into the axis title —
+  `Intensity (×10³ counts)` or `Energy / keV` — and keep the ticks plain.
+
 ## Standard, well-understood forms
 
 Prefer histograms, dot plots, boxplots, line plots, scatterplots — readers decode

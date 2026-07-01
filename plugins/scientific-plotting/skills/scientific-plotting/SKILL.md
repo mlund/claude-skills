@@ -100,6 +100,10 @@ Typography (`design-principles.md`, `journal-specs.md`):
 - Sans-serif; size at **final print size** (≥ ~5–7 pt); ≤ 3 sizes; tick labels
   smaller than axis titles; text horizontal. Axis titles = **quantity + units**;
   dimensionless quantities carry no units (never "a.u." for absorbance).
+- **Notation:** variables italic, unit symbols upright, a space between number
+  and unit; set math (e.g. *f*(*x*)) in **math mode**, not literal ASCII, and use
+  real `−`/`×`/superscript glyphs. Full SI/IUPAC rules in
+  `statistics-and-uncertainty.md`.
 - Keep every text/size/color choice **consistent across all figures** in the
   manuscript.
 
