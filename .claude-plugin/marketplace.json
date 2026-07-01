@@ -17,6 +17,11 @@
       "name": "faunus",
       "source": "./plugins/faunus",
       "description": "Author Faunus YAML input files and build, run, profile, and debug Faunus molecular simulations."
+    },
+    {
+      "name": "scientific-plotting",
+      "source": "./plugins/scientific-plotting",
+      "description": "Design, create, and review plots and data visualizations for scientific journals, from chart choice and faithful encoding to journal artwork specs."
     }
   ]
 }

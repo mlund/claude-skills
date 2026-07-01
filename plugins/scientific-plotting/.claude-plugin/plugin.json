@@ -1,0 +1,17 @@
+{
+  "name": "scientific-plotting",
+  "description": "Design, create, and review plots and data visualizations for scientific journals: chart choice, faithful encoding, color, uncertainty, typography, and journal artwork specs.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mikael Lund"
+  },
+  "keywords": [
+    "plotting",
+    "data-visualization",
+    "figures",
+    "scientific-figures",
+    "charts",
+    "matplotlib",
+    "ggplot2"
+  ]
+}

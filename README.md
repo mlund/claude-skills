@@ -8,6 +8,7 @@ distributed as a plugin marketplace.
 ```
 /plugin marketplace add mlund/claude-skills
 /plugin install scientific-writing
+/plugin install scientific-plotting
 /plugin install faunus
 ```
 
@@ -27,6 +28,29 @@ A skill for writing and revising clear, concise, reader-focused scientific prose
 
 The skill triggers automatically when drafting or editing scholarly text, or on
 request to make writing clearer, tighter, or higher-impact.
+
+### scientific-plotting
+
+A skill for designing, creating, and reviewing plots and data visualizations for
+scientific journals. It walks a three-phase workflow — **design** (message,
+audience, chart choice), **create** (faithful encoding, color, uncertainty,
+typography), and **review** (a structured critique checklist) — and draws its
+guidance together from:
+
+- **Perceptual foundations** — the Cleveland–McGill accuracy hierarchy and
+  Tufte's data-ink principle (position/length over angle/area/color; maximize
+  data-ink; avoid chartjunk).
+- **Better-figures guidance** — Rougier et al.'s "Ten Simple Rules for Better
+  Figures," a designing-effective-figures workshop, and the Royal Statistical
+  Society guide.
+- **Statistical honesty** — Gordon & Finch's "Statistician, Heal Thyself" (show
+  raw data, points not bars, define your error bars, CIs over p-stars).
+- **Journal production specs** — artwork guidelines for Nature, Science, Cell,
+  and ACS (size, DPI, fonts, line weights, file formats, color mode).
+
+Reference files cover chart selection, color/accessibility, design principles,
+statistics & uncertainty, journal specs, and a review checklist. The skill
+triggers when making or critiquing a figure for a paper, poster, or talk.
 
 ### faunus
 
@@ -54,6 +78,13 @@ claude-skills/                      # this repo = a marketplace
     │   └── skills/
     │       └── scientific-writing/
     │           └── SKILL.md
+    ├── scientific-plotting/        # one plugin = one skill (+ references)
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   └── skills/
+    │       └── scientific-plotting/
+    │           ├── SKILL.md
+    │           └── references/
     └── faunus/                     # one plugin = two skills
         ├── .claude-plugin/
         │   └── plugin.json
