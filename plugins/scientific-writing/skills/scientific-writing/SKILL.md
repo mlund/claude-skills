@@ -114,6 +114,16 @@ Never make them guess.
   reader's *many*. Be **quantitative** whenever possible.
 - **Subjective words.** Avoid *interestingly, surprisingly, strikingly*.
   Scientific writing is objective; let readers decide what's interesting.
+- **Puffery & empty framing.** Cut words that add stance but no information.
+  *To be honest, honestly, frankly, in all honesty* imply the rest of the paper is
+  *not* honest — delete them; the same goes for calling a result, caveat, or
+  limitation "honest." *Clearly, obviously, of course, it goes without saying,
+  needless to say* either state the obvious or, if it is not obvious, dismiss the
+  reader who needed it. Self-praise (*novel, elegant, powerful, robust,
+  state-of-the-art*) is for the reader to conclude from the evidence, not for the
+  author to assert (see §4, "don't be pleased with yourself"). Filler intensifiers
+  (*very, quite, really, rather, importantly, notably*) usually weaken rather than
+  strengthen — cut them or replace with a number.
 
 ### 1.6 Signposting — guide the reader
 Tell readers where you're taking them; lost readers quit.
@@ -242,7 +252,8 @@ Work top-down — structure before sentences, sentences before words:
 7. **Conciseness:** Delete needless words and filler phrases — cut 10–20% on
    this pass alone (§1.4, Strunk Rule 13).
 8. **Specificity:** No ambiguous *this/that/these*; vague quantifiers replaced
-   with numbers; subjective words removed (§1.5).
+   with numbers; subjective words, puffery, and empty framing (*honestly,
+   clearly, novel*) removed (§1.5).
 9. **Usage & consistency:** misused words (§3), one term per concept, tense
    consistency, acronyms defined, citations at claims.
 10. **Claims & tone:** every claim calibrated to and supported by its evidence;
