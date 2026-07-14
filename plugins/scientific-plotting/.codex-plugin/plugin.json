@@ -1,0 +1,36 @@
+{
+  "name": "scientific-plotting",
+  "version": "0.1.0",
+  "description": "Design, create, and review plots and data visualizations for scientific journals: chart choice, faithful encoding, color, uncertainty, typography, and journal artwork specs.",
+  "author": {
+    "name": "Mikael Lund",
+    "url": "https://github.com/mlund"
+  },
+  "repository": "https://github.com/mlund/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "plotting",
+    "data-visualization",
+    "figures",
+    "scientific-figures",
+    "charts",
+    "matplotlib",
+    "ggplot2"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Scientific Plotting",
+    "shortDescription": "Design, create, and review publication-quality scientific figures.",
+    "longDescription": "Reusable guidance for scientific plots and data visualizations, covering chart selection, faithful data encoding, color and accessibility, uncertainty, typography, captions, and journal artwork specifications.",
+    "developerName": "Mikael Lund",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use Scientific Plotting to review this figure.",
+      "Use Scientific Plotting to design a journal plot."
+    ]
+  }
+}

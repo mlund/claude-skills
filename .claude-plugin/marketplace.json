@@ -4,14 +4,14 @@
     "name": "mlund"
   },
   "metadata": {
-    "description": "Mikael Lund's collection of Claude Code skills.",
+    "description": "Mikael Lund's collection of Claude Code and Codex skills.",
     "version": "0.1.0"
   },
   "plugins": [
     {
       "name": "scientific-writing",
       "source": "./plugins/scientific-writing",
-      "description": "Write and revise clear, concise, reader-focused scientific prose, combining Nature Masterclasses, Strunk & White, and The Economist Style Guide."
+      "description": "Write and revise clear, concise, reader-focused scientific prose, combining Nature Masterclasses, Strunk & White, The Economist Style Guide, and Kirkwood-Shumaker-style theoretical exposition."
     },
     {
       "name": "faunus",

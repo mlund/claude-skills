@@ -6,7 +6,8 @@ description: >-
   scholarly text, or when the user asks to make writing more scientific,
   clearer, tighter, more readable, or higher-impact. Combines Nature
   Masterclasses' "Writing for Greater Impact" readability principles, Strunk &
-  White's Elements of Style, and The Economist Style Guide.
+  White's Elements of Style, The Economist Style Guide, and a
+  Kirkwood-Shumaker model for theoretical exposition.
 ---
 
 # Scientific writing
@@ -17,12 +18,17 @@ around heavy workloads; if they get confused, they stop reading. The enemy is
 not informality — it is *friction*, the effort the reader spends extracting your
 meaning. Always put the audience first. Every rule below removes friction.
 
-Three sources, used together:
+Three style sources plus one worked exemplar, used together:
 - **Nature Masterclasses, "Writing for Greater Impact" (Dr Jeffrey Robens)** —
   six readability levers: active voice, strong verbs, simple words,
   conciseness, specificity, signposting (§1).
 - **Strunk & White, *Elements of Style*** — the sentence and the word (§2–§3).
 - **The Economist Style Guide** — tone and the shape of the whole piece (§4).
+- **Kirkwood & Shumaker (1952)** — a model for staging theoretical papers:
+  start from the accepted mechanism and evidence, identify the regime where it
+  is incomplete, introduce the new mechanism, state assumptions before
+  derivation, decompose equations into named terms, interpret limiting cases,
+  and mark speculation as speculation (§5).
 
 ## How to use this skill
 
@@ -234,6 +240,41 @@ write something barbarous*. What this source adds beyond §1–§3:
 - **One term per concept.** "Elegant variation" (renaming the same thing to
   avoid repetition) confuses technical readers; consistent repetition of the key
   term is a virtue (see §1.5).
+- **Keep the curiosity; cut the throat-clearing.** Terse prose can still
+  inspire when it opens on the gap, tension, scale, or unresolved mechanism
+  rather than generic background. Let precise facts carry wonder: a number,
+  limit, timescale, barrier, or failure mode is stronger than an adjective.
+  Do not narrate a figure when the reader can see it; state the finding or
+  interpretation the figure supports. Use rhetorical questions sparingly: they
+  fit reviews, grants, talks, and perspective-style openings, but primary
+  research is usually stronger when the question becomes a declarative tension
+  (*X must happen under constraint Y, yet the mechanism is unknown*). Save one
+  wider register shift for the Discussion or final paragraph, where a precise
+  implication or open question can name why the result matters.
+- **Make the reader want the next sentence.** Treat sentences, paragraphs, and
+  sections as a chain of necessary steps. A paragraph opening should orient the
+  reader to the next topic; its ending should land on consequence, tension,
+  unresolved mechanism, or the next question. Put the strongest new element in
+  the stress position. Never announce that something is "interesting"; show the
+  constraint, scale, or consequence that makes it so.
+- **For theory and mathematical papers, stage the argument before the algebra.**
+  The Kirkwood-Shumaker pattern is:
+  1. Open with the scientific force or phenomenon, then the evidence that makes
+     it important.
+  2. Separate known regimes from the gap: when one mechanism dominates, say so;
+     when structure or boundary conditions matter, say so; then name the new
+     mechanism or term the paper will analyze.
+  3. Define variables and averages immediately before they enter an equation.
+  4. State assumptions, approximations, and omitted interactions before using
+     them. Do not let the reader discover them after the derivation.
+  5. After a decomposition, name what each term means physically. A dense
+     equation should be followed by prose that maps terms to mechanisms.
+  6. Narrow scope explicitly: identify the dominant term, limiting case, or
+     regime that justifies detailed analysis.
+  7. Translate each result into behavior: sign, scaling, range, asymptotic
+     limit, and dependence on the key control variables.
+  8. Keep caveats and speculation separate. Mark speculative mechanisms as
+     possible until structure, data, or calculation can test them.
 
 ## 6. Revision checklist (one pass per concern)
 
@@ -242,21 +283,30 @@ Work top-down — structure before sentences, sentences before words:
 1. **Message & opening:** Can you state the single main message in one sentence?
    Do the title and abstract deliver it? Does the piece get straight in — no
    throat-clearing (§4)?
-2. **Paragraphs:** One idea each, four or five sentences, topic sentence first?
-3. **Flow:** Does each sentence end (stress position) on the idea the next one
-   picks up? Are transitions carried by structure, not just linking words?
-4. **Active voice:** ~75/25 active/passive? Every passive deliberate (§1.1)?
-5. **Verbs:** Zombie nouns converted back to strong verbs (§1.2)?
-6. **Simplicity & length:** Complex words simplified? Read each sentence aloud —
+2. **Curiosity & stakes:** Does the opening show the gap, tension, scale, or
+   unresolved mechanism; use precise facts instead of inspirational adjectives;
+   avoid rhetorical questions unless the genre benefits; and show, rather than
+   announce, what is interesting (§5)?
+3. **Paragraphs:** One idea each, four or five sentences, topic sentence first?
+4. **Flow:** Does each sentence end (stress position) on the idea the next one
+   picks up? Does each paragraph end on consequence or tension rather than
+   digression or detail? Are transitions carried by structure, not just linking
+   words?
+5. **Active voice:** ~75/25 active/passive? Every passive deliberate (§1.1)?
+6. **Verbs:** Zombie nouns converted back to strong verbs (§1.2)?
+7. **Simplicity & length:** Complex words simplified? Read each sentence aloud —
    any over ~20 words / needing a breath gets split or cut.
-7. **Conciseness:** Delete needless words and filler phrases — cut 10–20% on
+8. **Conciseness:** Delete needless words and filler phrases — cut 10–20% on
    this pass alone (§1.4, Strunk Rule 13).
-8. **Specificity:** No ambiguous *this/that/these*; vague quantifiers replaced
+9. **Specificity:** No ambiguous *this/that/these*; vague quantifiers replaced
    with numbers; subjective words, puffery, and empty framing (*honestly,
    clearly, novel*) removed (§1.5).
-9. **Usage & consistency:** misused words (§3), one term per concept, tense
+10. **Theory/math exposition:** if equations carry the argument, are variables
+   defined near use; assumptions stated before derivation; terms interpreted in
+   prose; limiting cases explained; and speculative extensions labeled (§5)?
+11. **Usage & consistency:** misused words (§3), one term per concept, tense
    consistency, acronyms defined, citations at claims.
-10. **Claims & tone:** every claim calibrated to and supported by its evidence;
+12. **Claims & tone:** every claim calibrated to and supported by its evidence;
     arguing from evidence, not asserting or boasting (§4).
 
 > Strunk's caveat: the best writers sometimes break these rules, but only with a
@@ -277,3 +327,8 @@ Work top-down — structure before sentences, sentences before words:
   conciseness matters.
 - *The Economist Style Guide*, 12th ed. (2018), "The essence of style" — Orwell's
   six rules, tone, the essay shape; complemented by Strunk's rule-breaking caveat.
+- J. G. Kirkwood & J. B. Shumaker, "Forces between Protein Molecules in
+  Solution Arising from Fluctuations in Proton Charge and Configuration,"
+  *Proceedings of the National Academy of Sciences* 38:863–871 (1952) —
+  theoretical exposition: staging regimes, assumptions, decompositions, limiting
+  cases, and caveats.

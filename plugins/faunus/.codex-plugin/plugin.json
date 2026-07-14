@@ -1,0 +1,36 @@
+{
+  "name": "faunus",
+  "version": "0.1.0",
+  "description": "Set up and run Faunus molecular simulations: author and validate YAML input files, then build, run, profile, and debug simulations.",
+  "author": {
+    "name": "Mikael Lund",
+    "url": "https://github.com/mlund"
+  },
+  "repository": "https://github.com/mlund/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "faunus",
+    "molecular-simulation",
+    "monte-carlo",
+    "molecular-dynamics",
+    "yaml",
+    "rust"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Faunus",
+    "shortDescription": "Author, validate, build, run, and debug Faunus simulations.",
+    "longDescription": "Reusable workflows for Faunus molecular simulations, including YAML input authoring, validation against local examples, builds, runs, profiling, equilibration, and simulation-output debugging.",
+    "developerName": "Mikael Lund",
+    "category": "Science",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Run"
+    ],
+    "defaultPrompt": [
+      "Use Faunus to create a simulation input.",
+      "Use Faunus to debug this simulation output."
+    ]
+  }
+}

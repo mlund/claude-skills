@@ -1,0 +1,34 @@
+{
+  "name": "scientific-writing",
+  "version": "0.1.0",
+  "description": "Write and revise clear, concise, reader-focused scientific prose, combining Nature Masterclasses, Strunk & White, The Economist Style Guide, and Kirkwood-Shumaker-style theoretical exposition.",
+  "author": {
+    "name": "Mikael Lund",
+    "url": "https://github.com/mlund"
+  },
+  "repository": "https://github.com/mlund/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "writing",
+    "scientific-writing",
+    "editing",
+    "style",
+    "readability"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Scientific Writing",
+    "shortDescription": "Write and revise clear, concise, reader-focused scientific prose.",
+    "longDescription": "Reusable guidance for drafting and revising scholarly prose, combining readability principles, sentence-level style, scientific tone, and theory-paper exposition patterns.",
+    "developerName": "Mikael Lund",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use Scientific Writing to revise this abstract.",
+      "Use Scientific Writing to tighten this manuscript."
+    ]
+  }
+}
