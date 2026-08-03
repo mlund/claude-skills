@@ -1,8 +1,8 @@
 # claude-skills
 
-MLund's collection of scientific and Faunus agent skills, distributed as both
-a [Claude Code](https://claude.com/claude-code) plugin marketplace and a Codex
-plugin marketplace.
+MLund's collection of scientific, Faunus, and retrocomputing agent skills,
+distributed as both a [Claude Code](https://claude.com/claude-code) plugin
+marketplace and a Codex plugin marketplace.
 
 ## Install
 
@@ -13,6 +13,7 @@ plugin marketplace.
 /plugin install scientific-writing
 /plugin install scientific-plotting
 /plugin install faunus
+/plugin install llvm-mos
 ```
 
 Update later by re-running `/plugin marketplace add mlund/claude-skills` (or pulling this repo).
@@ -89,6 +90,34 @@ molecular dynamics simulation code:
 Both read documentation and example inputs from a local Faunus checkout, so on
 first use they ask for the path to your Faunus source directory.
 
+### llvm-mos
+
+A skill for writing, debugging, and optimizing C, C++, and assembly for
+6502-family CPUs with the [llvm-mos](https://github.com/llvm-mos/llvm-mos)
+toolchain and [llvm-mos-sdk](https://github.com/llvm-mos/llvm-mos-sdk). It
+starts from the mental model that explains most surprises — a real optimizing
+LLVM backend aimed at a CPU with three 8-bit registers, using zero-page
+"imaginary registers" as its register file — and covers:
+
+- **Inline assembly** — the constraint and clobber tables, the decision
+  procedure for what to declare, worked patterns, and the crash modes that
+  surface at *link* time under the default LTO.
+- **The calling convention** — argument and return slots, caller/callee-saved
+  registers, the soft stack and static stack allocation, manual interrupt
+  prologues.
+- **Linker scripts** — `MEMORY`/`SECTIONS`, the `c.ld` machinery, zero-page and
+  imaginary-register placement, `OUTPUT_FORMAT` for producing PRG/XEX/iNES
+  images directly, and banking.
+- **Platforms** — the shared Commodore layer (C64, C128, VIC-20, PET, CX16) and
+  the MEGA65/45GS02 CPU, including the Q pseudo-register, 28-bit addressing,
+  `MAP`/`EOM`, and the Z=0 invariant that silently corrupts memory if broken.
+- **cc65/ca65 migration** — syntax and segment mapping, compatibility headers,
+  and which cc65-era optimization habits now hurt.
+
+Claims in the reference files are checked against the toolchain and the upstream
+opcode tests rather than the project wiki, which has been observed to be stale.
+The skill triggers on 6502 work even when llvm-mos isn't named explicitly.
+
 ## Layout
 
 ```
@@ -116,17 +145,26 @@ claude-skills/                      # this repo = a marketplace
     │       └── scientific-plotting/
     │           ├── SKILL.md
     │           └── references/
-    └── faunus/                     # one plugin = two skills
+    ├── faunus/                     # one plugin = two skills
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   └── skills/
+    │       ├── faunus-input/
+    │       │   ├── SKILL.md
+    │       │   └── reference.md
+    │       └── faunus-run/
+    │           └── SKILL.md
+    └── llvm-mos/                   # one plugin = one skill (+ references)
         ├── .codex-plugin/
         │   └── plugin.json
         ├── .claude-plugin/
         │   └── plugin.json
         └── skills/
-            ├── faunus-input/
-            │   ├── SKILL.md
-            │   └── reference.md
-            └── faunus-run/
-                └── SKILL.md
+            └── llvm-mos/
+                ├── SKILL.md
+                └── references/
 ```
 
 More skills can be added under `plugins/` (each its own plugin) and listed in

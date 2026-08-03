@@ -1,0 +1,40 @@
+{
+  "name": "llvm-mos",
+  "version": "0.1.0",
+  "description": "Write, debug, and optimize C, C++, and assembly for 6502-family CPUs with the llvm-mos toolchain and SDK: inline-asm constraints and clobbers, the calling convention, linker scripts, banking, and cc65/ca65 migration.",
+  "author": {
+    "name": "Mikael Lund",
+    "url": "https://github.com/mlund"
+  },
+  "repository": "https://github.com/mlund/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "llvm-mos",
+    "6502",
+    "65c02",
+    "45gs02",
+    "retrocomputing",
+    "commodore",
+    "mega65",
+    "nes",
+    "inline-assembly",
+    "linker-scripts",
+    "cc65"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "llvm-mos",
+    "shortDescription": "C, C++, and assembly for 6502-family CPUs with the llvm-mos toolchain.",
+    "longDescription": "Reusable guidance for the llvm-mos LLVM backend and llvm-mos-sdk, covering the imaginary-register mental model, inline-assembly constraints and clobber discipline, the calling convention, linker scripts and OUTPUT_FORMAT, banking and zero-page allocation, Commodore and MEGA65 platform support, and migration from cc65/ca65.",
+    "developerName": "Mikael Lund",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use llvm-mos to review this inline assembly block.",
+      "Use llvm-mos to write a linker script for this target."
+    ]
+  }
+}

@@ -22,6 +22,11 @@
       "name": "scientific-plotting",
       "source": "./plugins/scientific-plotting",
       "description": "Design, create, and review plots and data visualizations for scientific journals, from chart choice and faithful encoding to journal artwork specs."
+    },
+    {
+      "name": "llvm-mos",
+      "source": "./plugins/llvm-mos",
+      "description": "Write, debug, and optimize C, C++, and assembly for 6502-family CPUs with the llvm-mos toolchain and SDK: inline-asm constraints, the calling convention, linker scripts, banking, and cc65/ca65 migration."
     }
   ]
 }
