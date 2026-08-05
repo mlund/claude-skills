@@ -214,6 +214,20 @@ Two causes, and they can both apply:
 
 The same mechanism is useful deliberately. Collection works per section, so a library of hand-written assembly routines sharing one `.section .text` is all-or-nothing: every target that calls one routine links them all. Give each entry point `.section .text.<name>,"ax",@progbits` and the unused ones drop. Check `--gc-sections` is on the link line first — the optimisation level does not imply it.
 
+Data needs the same treatment, and the collection patterns already allow for it:
+
+| section | pattern in the SDK's scripts |
+|---|---|
+| `.text.<name>` | `*(.text .text.*)` |
+| `.bss.<name>` | `*(.bss .bss.* BSS COMMON)` |
+| `.data.<name>` | `*(.data .data.* DATA)` |
+| `.zp.bss.<name>` | `*(.zp.bss .zp.bss.*)` |
+| `.zp.data.<name>` | `*(.zp.data .zp.data.* .zp.rodata .zp.rodata.*)` |
+
+A scratch variable in a shared `.zp.bss` is retained by any reference to anything else in that section, and zero page is the one budget where a wasted byte is felt. Put a string or buffer used by exactly one routine inside that routine's section rather than a section of its own — a relocation from live code keeps it, and there is no separate name to maintain.
+
+Section names are a linker-side concept only. They control collection, `--icf` folding and placement; they have nothing to do with inlining, which is settled during codegen. `-ffunction-sections` is already the default for C, so this is a concern for hand-written assembly alone.
+
 ---
 
 ## 9. Custom scripts on top of a platform target
