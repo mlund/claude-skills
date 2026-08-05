@@ -110,6 +110,11 @@ The SDK's section scripts already accept the standard cc65 segment names as inpu
 
 Custom segments need a `SECTIONS` entry in your linker script. Remember the two output-visibility rules from `linker-scripts.md`: mark it allocatable (`"a"`) and keep it alive (`"R"` flag or `KEEP()`), or it silently won't appear.
 
+Two habits carry over from ca65 and are worth breaking during the port:
+
+- **Rename `.s` to `.S`.** ca65 has no preprocessor, so cc65 projects put shared constants in an `.inc` full of `.equ` and `.include` it. Keeping the lowercase extension keeps that limitation: only `.S` is preprocessed, and only then can one header of `#define`s serve both the C and the assembly side — which is what lets you delete the hand-maintained C mirror of the constants. The failure mode if you convert the header but not the extension is `undefined symbol` at link time, because the assembler reads `#define` lines as comments.
+- **Split the `.text`.** ca65 encourages one segment per file; ld.lld collects at section granularity. A single `.section .text` covering a whole file of routines is linked in full by every target that touches any of it. One `.section .text.<name>,"ax",@progbits` per entry point lets `--gc-sections` drop the rest.
+
 ---
 
 ## 5. Compatibility headers

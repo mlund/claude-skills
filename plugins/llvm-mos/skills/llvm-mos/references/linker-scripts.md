@@ -212,6 +212,8 @@ Two causes, and they can both apply:
 1. **Not allocatable.** For non-standard section names in hand-written assembly, allocatable is not the default. Write `.section name,"a"` (add `x` for code: `"ax"`, `z` for zero page: `"az"`). Note that clang's `__attribute__((section(...)))` does emit `"a"` automatically — this bites in `.s` files, not in C.
 2. **Garbage collected.** If nothing reachable references a symbol in the section, the linker drops it. Fix with the retain flag — `.section name,"aR"` — or `KEEP(*(name))` in the linker script.
 
+The same mechanism is useful deliberately. Collection works per section, so a library of hand-written assembly routines sharing one `.section .text` is all-or-nothing: every target that calls one routine links them all. Give each entry point `.section .text.<name>,"ax",@progbits` and the unused ones drop. Check `--gc-sections` is on the link line first — the optimisation level does not imply it.
+
 ---
 
 ## 9. Custom scripts on top of a platform target

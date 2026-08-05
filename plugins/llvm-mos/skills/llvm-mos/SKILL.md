@@ -80,6 +80,18 @@ The carry case is worth stating precisely, because it is usually mis-stated. **Y
 
 **Don't reach for a real function just because there's a lot of assembly — the deciding factor is body size and expressibility, not "how much asm".** A C prototype can only promise the ABI's clobber set (A, X, Y, `__rc2`–`__rc19`); inline asm states exactly what the block touches, so for a short body the allocator gets strictly better information. Measured on a CHROUT loop, inline asm beat an `extern` prototype 83 B to 87 B, and the gap *widened* to 188 B vs 236 B across 12 call sites — the prototype's call boundary forces loop variables into callee-saved registers that then spill to the hardware stack. Duplicating a 3-byte `jsr` is cheap by comparison. The crossover is body size: at ~20 instructions × 12 sites, a real function won 347 B to 592 B. So keep inline asm for short bodies with statable clobbers; switch to a `.s` file or module-level `asm()` when the body is large, or when you're describing more state than you're computing (the soft stack and imaginary registers beyond your operands have no constraint).
 
+**These are not exclusive: put the inline asm in a C function and decide the inlining yourself.** That keeps the precise clobbers and lets constraints place operands where the routine wants them, while `noinline` keeps a single out-of-line copy so a short body is not duplicated per call site. Gate it on the optimisation mode — clang defines `__OPTIMIZE_SIZE__` for `-Os` and `-Oz`, not for `-O2`:
+
+```c
+#if defined(__OPTIMIZE_SIZE__)
+#define ASM_FN  static inline __attribute__((noinline))
+#else
+#define ASM_FN  static inline __attribute__((always_inline))
+#endif
+```
+
+Do not assume LTO gets this right on its own: measured on a short ROM-call wrapper with three call sites, explicit `noinline` beat both forced inlining and leaving the decision to the LTO inliner. The win from constraints is in the body — when the routine wants its arguments somewhere other than where the ABI delivered them, constraints let the compiler put them there, collapsing the `phx/tay/pla/tax` shuffle a hand-written version needs. Where the ABI and the routine genuinely disagree, the shuffle survives, correctly.
+
 There is also a **third technique the SDK actually prefers**: declare the ROM routine as an ordinary C prototype at its absolute address and let the compiler emit the `jsr` — no inline asm at all. Each platform's `kernal.S` exports `__CHROUT` etc. as weak absolute symbols via a `weakdef` macro, and 20 of the 21 `commodore/cbm_k_*.c` wrappers are just `extern void __CHROUT(unsigned char) __attribute__((leaf));` plus a one-line call. Reach for inline asm when a value lands where the ABI has no name for it — `cbm_k_load.c` needs the carry, `cx16_k_joystick_get.c` returns three values at once in A/X/Y — and for a `.s` file when the ROM's convention needs real translation. `references/inline-asm.md` §7 has the full comparison.
 
 ## Assembly files
@@ -88,6 +100,9 @@ The assembler is GNU-syntax with 6502 conveniences: `$` works as a hex prefix al
 
 - Sections, not segments: `.section .prg_rom_1` rather than `.segment "PRG_ROM_1"`.
 - No leading underscore on C symbols. C's `score` is `score` in asm.
+- **`.S`, not `.s`, if you want the C preprocessor.** The driver runs it only for the uppercase extension. A `.s` file gets assembler directives alone — `.include`, `.equ`, `.macro`; a `.S` file gets `#include`, `#define` and `#ifdef` as well, so one header of `#define`s can serve both C and assembly. cc65 projects use `.s` universally, so a literal port inherits the lowercase name and quietly forfeits that.
+
+  Getting this wrong fails late and misleadingly. `.include`ing a `#define`-based header from a `.s` file is not an error: the assembler treats `#` lines as comments, so every constant becomes an *undefined external symbol* and the first complaint is `undefined symbol` from the linker. Suspect the extension before the header. Note also that macros shared with assembly must not be parenthesised — `(expr)` is indirect addressing, so `#define BUF (0x0400 + 0x40)` assembles `sta BUF` to something other than what you meant.
 
 **Zero page addressing is a hint problem, not an addressing problem.** The assembler must choose the 1-byte or 2-byte encoding before the linker knows the address. Force zero page by defining the symbol as a constant expression, putting it in a `.zp`/`.zeropage`/`.directpage` section, marking the section with the `z` flag (`.section .lowmem,"az",@nobits`), or declaring `.zeropage <symbol>`. Otherwise everything defaults to 16-bit — safe, bigger.
 
@@ -128,6 +143,8 @@ OUTPUT_FORMAT { FULL(ram) SHORT(_start) }
 Four things are doing the work. `REGION_ALIAS` for `c_readonly`/`c_writeable` is how `c.ld` knows where to put C sections. `__rc0` plus `INCLUDE imag-regs.ld` places the imaginary registers (set only even registers; odd ones must follow their pair). `__stack` feeds the `init-stack` library. And `OUTPUT_FORMAT { }` — an llvm-mos extension — is a small script that emits the actual binary: `BYTE`/`SHORT`/`LONG`/`QUAD` for header fields computed from link-time symbols, and `FULL(region)`/`TRIM(region)` to dump a memory region padded or trailing-trimmed. This is how PRG, XEX, iNES, and cartridge formats are produced without any post-processing tool.
 
 Optional libraries are selected per target by linking them: `-lexit-loop`, `-lexit-return`, `-lexit-custom`, `-linit-stack`. Without an exit library, returning from `main` runs off the end.
+
+**Section granularity decides what `--gc-sections` can drop.** The compiler emits one section per function, so C code is already at the right granularity; hand-written assembly usually is not. A `.s` file with a single `.section .text` at the top is one indivisible unit, and every target that links it takes all of it, however little it calls. Give each entry point its own `.section .text.<name>,"ax",@progbits` — as the SDK's own libraries do — and unreferenced ones drop out. Worth checking `--gc-sections` is actually on the link line; it is not implied by `-Os`/`-Oz`.
 
 **If a section doesn't appear in the output**, it's one of two causes: it wasn't marked allocatable (add `"a"` to the `.section` flags — this is not the default for non-standard names in hand-written asm), or it was garbage-collected because nothing referenced it (add the `R` retain flag, or `KEEP()` it in the linker script).
 

@@ -325,6 +325,22 @@ The breakage is in the backend, so it is **identical in C and in C++** — same 
 
 ---
 
+## 6b. Controlling inlining of an asm wrapper
+
+Wrapping a block in a `static` function is not a third option so much as a way to take the best of the first two: the asm keeps its exact clobbers and constraints, and you choose whether the body is duplicated. Attach the decision to the optimisation mode rather than hoping the inliner agrees:
+
+```c
+#if defined(__OPTIMIZE_SIZE__)     /* -Os and -Oz; not -O2 */
+#define ASM_FN  static inline __attribute__((noinline))
+#else
+#define ASM_FN  static inline __attribute__((always_inline))
+#endif
+```
+
+`inline` suppresses the unused-function warning in headers; `noinline` is what actually forces one out-of-line copy. Under `-Oz`, measured on a short ROM-call wrapper with three call sites, explicit `noinline` was smallest — forced inlining and the LTO inliner's own choice were both worse. LTO seeing the whole program does not make the attribute redundant.
+
+The reason to bother at all is the body, not the call: constraints let the compiler deliver arguments in whichever registers the routine wants, so the shuffling an assembly implementation performs to get values out of the C ABI disappears. A routine wanting a 16-bit argument's low byte in Y and high in X, called with the ABI's A/X pair, needs one `tay` — where the assembly version pushed and pulled through the stack to achieve the same thing.
+
 ## 7. Choosing between inline asm, a real function, and an absolute-symbol declaration
 
 There are **three** ways to reach assembly from C, not two. Pick on measured cost, not on "how much assembly is involved".
