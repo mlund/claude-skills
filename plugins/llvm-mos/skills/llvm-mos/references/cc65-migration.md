@@ -24,6 +24,12 @@ The productive sequence: **port the algorithm as plain, clean C; build with the 
 
 Do keep the genuinely architectural cc65 advice, which is about data layout rather than the compiler: struct-of-arrays over array-of-structs, keep indices under 256, prefer 8-bit types where the range allows.
 
+**What to expect in bytes.** A seven-target port measured against the shipped cc65 binaries came out at **44–82%** of the original: 44% (audio mixer), 51% (disk-image builder, ROM loader), 62% (sprite editor), 66% (system info), 82% (the main menu, which is mostly data). Take a ratio near 50% as normal and anything above 85% as a sign the port kept cc65 idioms it did not need to. The one target that exceeded its cc65 size had gained features; measured against the commit before those, it was 51% like the rest.
+
+**The port is when you find the bugs the original shipped with.** cc65's diagnostics are weak, so a codebase that has worked for years can carry defects that llvm-mos plus `-Wall -Wextra` plus clang-tidy surface immediately. In one port those included a condition written `!flags & 0xf0`, which parses as `(!flags) & 0xf0` and is always false — a status marker that had never once drawn — and a register pair displayed with its bytes swapped. Budget time for this: the findings are real, they are not regressions you introduced, and each one raises the question of whether to fix the port only or the original too. Decide that once, early, and record it, because the answer changes what "diverging from upstream" means for every later fix.
+
+**Reused file-scope scratch variables are also a type problem, not just an allocation one.** The cc65 habit of one `static unsigned int i` shared across a file means the *widest* use sets the type for every use. Narrowing it is then unsafe — one loop may genuinely need 16 bits — so the byte-wide uses silently carry wide arithmetic. Give each use its own correctly-typed local instead; on a 16-bit-`int` target that is worth real bytes, and `-Wconversion` will point at exactly these sites.
+
 ---
 
 ## 2. C-level differences
