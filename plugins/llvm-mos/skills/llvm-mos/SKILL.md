@@ -31,12 +31,23 @@ mos-clang -c my-asm-file.s                 # the assembler, via the same driver
 
 `-Os` and `-flto` are on by default via the `.cfg` files. Keep them. LLVM-MOS generates markedly better code optimizing for size than speed, and LTO is what enables zero-page allocation and the static stack analysis.
 
-**Gotcha worth knowing up front:** because LTO is the default, `-S` emits LLVM IR, not assembly. To read the generated 6502, add `-fno-lto`:
+LTO also **merges identical `static` globals across translation units**, which is worth knowing before you contort a design to avoid duplication: a generated table header `#include`d by two `.c` files yields one copy in the binary, confirmed by link map.
+
+The boundary itself is close to free for code too — splitting a module out measured **−1 byte** once its interface matched what the code was already doing. What costs is the *interface you invent to cross it*: a first attempt at the same split came in **+376** because the extracted function took a pointer out-param and restarted its work on each call, where the single-file loop had kept the state in registers. LTO will inline across the boundary; it cannot undo an interface that is algorithmically worse. So when a split measures expensive, look at the signature before concluding the boundary is to blame.
+
+A related trap when attributing size changes: a semantically-null narrowing can move codegen far from where you wrote it. Declaring a constant `unsigned char` with a value ≥ 0x80 and storing it into a `char` array measured **+17 bytes** against the same value written as a plain literal — identical semantics, since both promote to `int` for the store. The diff was not an extra store but different register allocation inside a large inlined function: a `phy`/`ply` pair appeared and one `inw` split into two `inc`s. So before attributing a small delta to the line you changed, check *where* the bytes went (`llvm-nm --print-size --size-sort` on the ELF, or the `asm-printer` optimization remarks); at this scale ±20 bytes is often the allocator, not your edit.
+
+**Gotcha worth knowing up front:** because LTO is the default, `-S` emits LLVM IR, not assembly. There are three ways to read the generated 6502, and they are not interchangeable:
 
 ```sh
-mos-c64-clang -Os -fno-lto -S -o - foo.c    # actual 6502 asm
-mos-c64-clang -Os -o foo.elf foo.c && llvm-objdump -d --print-imm-hex foo.elf
+mos-c64-clang -Os -fno-lto -S -o - foo.c              # a DIFFERENT build: no LTO
+mos-c64-clang -Os -Wl,--lto-emit-asm -o foo.prg foo.c # the real LTO output -> foo.prg.lto.s
+llvm-objdump -d --print-imm-hex foo.elf               # only if you actually have an ELF
 ```
+
+`-fno-lto -S` is the convenient one, but it compiles a different pipeline. It cannot show anything LTO does — zero-page allocation, static stack placement, cross-module inlining — so a bug that only appears in the real build will not be there, and its absence proves nothing. **`-Wl,--lto-emit-asm` is what shows the code that actually ships**; the linker writes `<output>.lto.s` next to the output. Use it whenever you are comparing optimization levels, chasing a miscompile, or checking which instructions the backend chose.
+
+The third line has a trap: **for a complete target the link output is usually a flat binary** (PRG, XEX, iNES — whatever `OUTPUT_FORMAT` produces), not an ELF, whatever you name it. `llvm-objdump -d` then fails with *"file was not recognized as a valid object file"*. Piping that into `grep -c` silently reports zero matches, which reads exactly like "the instruction isn't there" — an easy way to talk yourself out of a real finding. Check the tool's exit status, or use `--lto-emit-asm` and read the assembly directly.
 
 Select the CPU with `-mcpu=` (`mos6502`, `mos6502x`, `mos65c02`, `mosr65c02`, `mosw65c02`, `mos65ce02`, `mos4510`, `mos45gs02`, `mos65el02`, `mos65dtv02`, `mosw65816`, `moshuc6280`, `mosspc700`, `mossweet16`). Each defines `__mos__` plus a macro per compatible CPU.
 
@@ -48,8 +59,33 @@ These rules come from the project's own optimization guide; the reasoning matter
 - **Use `-fnonreentrant` (or `__attribute__((nonreentrant))`) when you use function pointers.** Indirect calls defeat the call-graph analysis, so the compiler conservatively falls back to the soft stack for everything reachable. This flag is frequently the single biggest speed/size win in a program with a jump table or callback.
 - **Mark assembly-implemented functions `__attribute__((leaf))`.** Same reason: an opaque `jsr` might call anything, including back into C, which forces soft-stack allocation up the call graph. `leaf` promises it doesn't re-enter C. The SDK uses this on essentially every KERNAL/BIOS wrapper.
 - **Make function-local constant arrays `static`.** Otherwise the C standard requires a fresh copy per invocation, and the compiler emits the copy.
-- **Prefer structs of arrays.** Absolute-indexed addressing needs a constant base plus an 8-bit index; an array of 5-byte structs needs a multiply. `#include <soa.h>` provides `soa::Array<T, N>` in C++ which does the byte-striping for you while looking like a normal array.
+- **Prefer structs of arrays.** Absolute-indexed addressing needs a constant base plus an 8-bit index; an array of structs needs a multiply by the stride. That is worse than "a multiply" sounds — a non-power-of-two stride emits a *call*, and drags the routine into the link:
+
+  ```asm
+  pick:                  ; TABLE[i].field, where sizeof(struct) == 11
+      ldx #11
+      stx __rc2
+      ldx #0
+      jsr __mulhi3       ; on every index, plus ~50 bytes of __mulhi3 linked in
+  ```
+
+  Padding the struct to 8 or 16 bytes turns that into `asl`/`rol` pairs, which is the escape hatch if you must keep the struct — at the price of the padding. `#include <soa.h>` provides `soa::Array<T, N>` in C++ which does the byte-striping for you while looking like a normal array.
 - **Keep array indices under 256**, and don't compute in wide types unless you consume the wide result.
+- **Don't force `noinline` on small C helpers.** At `-Os`/`-Oz` the inliner already picks correctly for them, and overriding it measured worse in nine cases out of nine — from +1 byte on a 256-iteration search to +236 on a parser, and +293 for four helpers at once. Getting a pointer argument into imaginary registers and returning through them costs more than a body of a handful of instructions. Note this is the *opposite* of the inline-asm case below, where `noinline` wins: an asm wrapper's body is opaque and its clobbers are already stated, so duplicating it buys nothing.
+- **Avoid variable-count loops over small fixed sizes.** A `read(bytes, count)` that shifts and ors `count` times costs far more than straight-line code for the widths you actually use. Replacing one with a fixed 16-bit read plus a single branch for the rare wider case measured **−272 bytes** in one function.
+- **Fixed-width string tables need character lists.** clang 23 makes a NUL-less string initialiser an error, so the obvious way to drop the terminators no longer compiles:
+
+  ```c
+  static const char NAMES[3][3] = { "ADC", "AND" };            // error:
+                                     // -Wunterminated-string-initialization
+  static const char NAMES[3][3] = { {'A','D','C'}, ... };      // fine
+  static const char NAMES[] = "ADC" "AND" "ASL";               // fine, index by stride
+  ```
+- **Don't carry a type wider than the value needs — it costs bytes, not just style.** `int` is 16 bits here and `long` is 32, so an over-wide variable turns every use into wider arithmetic. Measured on one program: a screen-position global that only ever held 16 bits, declared `long`, cost **78 bytes**; a loop counter borrowed for a byte-wide hardware index cost **13**; four addresses cast to `long` for a function taking `unsigned int` cost **22**. Each was found by `-Wconversion` and each got *smaller* when the type was corrected rather than cast. On a 16-bit-`int` target `-Wconversion` is partly a size tool, which is not how it reads on a 32-bit host.
+
+  Enable its narrowing half and leave the rest: `-Wconversion -Wno-sign-conversion`. `-Wsign-conversion` fires on ordinary hardware-register code, because C promotes every `uint8_t` operand to signed `int` before any operator — measured at 226 findings against 148 for the narrowing half in the same program.
+- **`char` is unsigned on llvm-mos.** Verify rather than assume — `_Static_assert((char)-1 < 0, "signed")` fails here — because it decides whether `-Wchar-subscripts` is a real hazard or noise. A `char` subscript is 0–255 and cannot go negative, so those warnings are inapplicable rather than latent bugs.
+- **Don't assume `-Wall` is on.** Nothing in the llvm-mos toolchain or the usual CMake setup enables it. Switching it on for the first time in a mature codebase is cheap and finds real things: in one case a function that unconditionally called itself (8 call sites, shipped, and invisible to clang-tidy because `misc-no-recursion` had been excluded), plus dead code and a conditionally-uninitialised read.
 - **Infinite loops need a side effect.** `while (1);` is undefined behavior and gets deleted. Write `for (;;) asm volatile("");` or spin on a `volatile` object.
 
 For hardware registers, `volatile` is the contract that an access happens exactly where you wrote it. Note two 6502-specific subtleties: indexed addressing can emit a spurious read one page *below* the target, so avoid pointer arithmetic that lands one page above read-sensitive I/O; and the compiler deliberately avoids RMW instructions (`INC`) on volatile objects because those double-access.
@@ -174,7 +210,13 @@ This is **entirely manual — the toolchain offers no support at all**: no `z`/`
 
 ## Tooling
 
-Everything is ELF, so the standard LLVM tools work: `llvm-objdump -d --print-imm-hex`, `llvm-nm`, `llvm-readelf`, `llvm-size`, `llvm-objcopy`, `llvm-strip`, `llvm-mc`. `llvm-mlb` emits Mesen label files for NES debugging. Compile with `-g` for DWARF and source-level debugging under emulators with a GDB stub.
+Object files and unlinked intermediates are ELF, so the standard LLVM tools work on them: `llvm-objdump -d --print-imm-hex`, `llvm-nm`, `llvm-readelf`, `llvm-size`, `llvm-objcopy`, `llvm-strip`, `llvm-mc`. `llvm-mlb` emits Mesen label files for NES debugging. Compile with `-g` for DWARF and source-level debugging under emulators with a GDB stub.
+
+The *final link output* of a complete target is generally not ELF — `OUTPUT_FORMAT` emits a flat binary, so `llvm-nm`/`llvm-objdump` reject it no matter what you called the file. Build systems often keep the ELF alongside (CMake leaves `foo.prg.elf` next to `foo.prg`); disassemble that, or use `-Wl,--lto-emit-asm` and read `<output>.lto.s`. See the gotcha under **Toolchain basics** — the failure mode is a silently empty search, not an error you notice.
+
+**To disassemble a raw binary, use `llvm-mc`, not `llvm-objdump`.** Wrapping the file in an ELF with `llvm-objcopy -I binary` and disassembling that looks right and is not: the synthesised ELF's `e_flags` say plain 6502, `--mcpu=` does not override them, and every newer instruction comes out as `<unknown>` while the rest decodes plausibly. Feed the bytes to `llvm-mc -disassemble -triple mos --mcpu=…` instead.
+
+`llvm-mc -disassemble` **decodes each input line independently**, which makes it a batch oracle rather than a one-shot tool: put one encoding per line and thousands come back in a single invocation. That is enough to enumerate an entire opcode space — generate a table from the assembler itself, then diff a decoder against it over a whole ROM — and it is much faster than one process per instruction. Two caveats when comparing: it prints operands in decimal unless you pass `--print-imm-hex`, and it prints branch operands as raw offsets rather than resolved targets.
 
 For editor support, point clangd at the SDK's own binary and pass `--query-driver=/path/to/llvm-mos-sdk/bin/*clang*` (literal asterisks) so it can discover target headers.
 
