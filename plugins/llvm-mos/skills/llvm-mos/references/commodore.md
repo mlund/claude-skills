@@ -195,6 +195,39 @@ The `U` prefix is required — translation happens at compile time from UTF-32 s
 
 The mappings follow the Unicode "Symbols For Legacy Computing" block, so box-drawing and graphics characters map correctly. CX16 additionally supports `_i` for ISO-8859-15 mode.
 
+### The literal operators lose the length
+
+Each is `template <charset_impl::…String S> constexpr auto operator""_uv() { return S.Str; }` — returning an array by `auto`, which **decays**. So the result is a pointer, not an array:
+
+```cpp
+static_assert(std::is_same_v<decltype("AB"_uv), const char *>);  // passes
+static_assert(sizeof("AB"_uv) == 2);                             // passes: a pointer
+```
+
+That is fine for `cputs()`, and fatal if you need the length at compile time — to build a fixed-size table, emit a run-length, or size a `struct`. Note also that `strlen` is not a fallback for `_uv`/`_sv` output: `@` is screen code `0x00`, so a legitimate string can contain an embedded NUL.
+
+**Use the underlying string type directly.** It is what the literal operator is built from, it keeps `N`, and taking the literal as `const char (&)[N]` deduces it:
+
+```cpp
+template <size_t N>
+consteval auto encode(const char (&text)[N]) {
+  charset_impl::UnshiftedVideoString<N> codes{text};   // N-1 chars plus NUL
+  …                                                     // codes.Str[i] is the screen code
+}
+```
+
+The constructors are `constexpr` and overloaded for `char`, `char16_t` and `char32_t`, so the `U` prefix is needed only when the source literal actually contains non-ASCII. Types: `UnshiftedString`, `ShiftedString`, `UnshiftedVideoString`, `ShiftedVideoString`, and the `…ReverseVideoString` pair.
+
+**It also reports errors far better.** An unmappable character through the literal operator gives only:
+
+```
+error: no matching literal operator for call to 'operator""_uv'
+```
+
+because the header's `throw` makes the constructor non-constant, so template argument deduction fails and the real reason is never printed. Through the constructor, clang reports the throw itself with the `charset.h` line: *"use U prefix for unicode string literals"*, or *"Unsupported"* for a character with no mapping. Same rejection, and the difference between a fixable error and a puzzle.
+
+Both routes work under **`-fno-exceptions`** — the `throw` is only ever constant-evaluated, and bad characters are still rejected at compile time.
+
 ---
 
 ## 6. Startup/shutdown hooks and `.init.NNN`

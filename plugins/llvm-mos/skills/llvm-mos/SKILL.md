@@ -69,8 +69,31 @@ These rules come from the project's own optimization guide; the reasoning matter
       jsr __mulhi3       ; on every index, plus ~50 bytes of __mulhi3 linked in
   ```
 
-  Padding the struct to 8 or 16 bytes turns that into `asl`/`rol` pairs, which is the escape hatch if you must keep the struct — at the price of the padding. `#include <soa.h>` provides `soa::Array<T, N>` in C++ which does the byte-striping for you while looking like a normal array.
+  Padding the struct to 8 or 16 bytes turns that into `asl`/`rol` pairs, which is the escape hatch if you must keep the struct — at the price of the padding. `#include <soa.h>` provides `soa::Array<T, N>` in C++ which does the byte-striping for you while looking like a normal array; LTO mixes C and C++ freely, so reaching for it does not mean rewriting the project.
+
+  All of that is about indexing *per access*. When the index is used **once** — take `&TABLE[i]` into a pointer, then walk the members sequentially — the multiply happens once and the advice inverts. Measured on a 16-entry, 3-byte-per-entry table read at startup: padding each entry to 4 (stride 48 → 64, so the index became a shift) cost **+28 to +32 bytes on every one of seven targets** and saved nothing, because the padding is pure data and the single multiply was already cheap. Check which case you are in before padding.
 - **Keep array indices under 256**, and don't compute in wide types unless you consume the wide result.
+- **`const` does not keep a table out of zero page, and zero page is not free.** The LTO allocator may put a `static const`/`constexpr` table in `.zp.data`, which costs twice: the data needs a startup copy (`__copy_zp_data`), and every byte it occupies is a byte the allocator cannot give to imaginary registers. That second cost is the large one and it lands in `.text`, far from the table. Measured on a 96-byte startup-only table:
+
+  | | `.zp.data` | `.zp` (imaginary regs) | `.rodata` | `.text` | binary |
+  |---|---|---|---|---|---|
+  | as written | 117 | 37 | 767 | 17762 | 20363 |
+  | `__attribute__((section(".rodata")))` | 21 | 133 | 863 | 17473 | **20074** |
+
+  The table's own 96 bytes merely moved section; the **−289** is code that got smaller once the allocator had 96 more zero-page bytes. Pin startup-only tables to `.rodata` and measure. Spot it with `llvm-nm`: symbol type `d` is writable data (including `.zp.data`), `r` is read-only; `llvm-readelf --section-headers` gives the section sizes. Note `.zp` saturates whatever `-mlto-zp` and the linker script's `__basic_zp_end` allow, so its *size* alone tells you nothing — only the byte count does.
+
+  **Guard the attribute if the file also builds for the host.** Bare section names are an ELF assumption: Mach-O requires `"segment,section"`, so a shared `.c` with unit tests on macOS stops compiling the moment you pin a table (`error: argument to 'section' attribute is not valid for this target: mach-o section specifier requires a segment and section separated by a comma`). Keep the pin target-only:
+
+  ```c
+  #if defined(__mos__)
+  #define RODATA __attribute__((section(".rodata")))
+  #else
+  #define RODATA
+  #endif
+  ```
+
+  `__mos__` is defined by every llvm-mos `-mcpu`, so this is the reliable discriminator. The host build is exactly where you notice — a target-only build passes and the breakage surfaces in the test suite.
+- **C23 `constexpr` on aggregates works, and costs exactly what `static const` costs.** clang 23 accepts `constexpr struct T ARR[N] = {…}` with designated initialisers, and taking `&ARR[i]` at runtime is fine. Measured byte-for-byte identical to `static const` across seven targets, so choose on what it says, not on what it emits — and note it does *not* imply `.rodata` placement (see above).
 - **Don't force `noinline` on small C helpers.** At `-Os`/`-Oz` the inliner already picks correctly for them, and overriding it measured worse in nine cases out of nine — from +1 byte on a 256-iteration search to +236 on a parser, and +293 for four helpers at once. Getting a pointer argument into imaginary registers and returning through them costs more than a body of a handful of instructions. Note this is the *opposite* of the inline-asm case below, where `noinline` wins: an asm wrapper's body is opaque and its clobbers are already stated, so duplicating it buys nothing.
 - **Avoid variable-count loops over small fixed sizes.** A `read(bytes, count)` that shifts and ors `count` times costs far more than straight-line code for the widths you actually use. Replacing one with a fixed 16-bit read plus a single branch for the rare wider case measured **−272 bytes** in one function.
 - **Fixed-width string tables need character lists.** clang 23 makes a NUL-less string initialiser an error, so the obvious way to drop the terminators no longer compiles:
@@ -86,7 +109,7 @@ These rules come from the project's own optimization guide; the reasoning matter
   Enable its narrowing half and leave the rest: `-Wconversion -Wno-sign-conversion`. `-Wsign-conversion` fires on ordinary hardware-register code, because C promotes every `uint8_t` operand to signed `int` before any operator — measured at 226 findings against 148 for the narrowing half in the same program.
 - **`char` is unsigned on llvm-mos.** Verify rather than assume — `_Static_assert((char)-1 < 0, "signed")` fails here — because it decides whether `-Wchar-subscripts` is a real hazard or noise. A `char` subscript is 0–255 and cannot go negative, so those warnings are inapplicable rather than latent bugs.
 - **Don't assume `-Wall` is on.** Nothing in the llvm-mos toolchain or the usual CMake setup enables it. Switching it on for the first time in a mature codebase is cheap and finds real things: in one case a function that unconditionally called itself (8 call sites, shipped, and invisible to clang-tidy because `misc-no-recursion` had been excluded), plus dead code and a conditionally-uninitialised read.
-- **Infinite loops need a side effect.** `while (1);` is undefined behavior and gets deleted. Write `for (;;) asm volatile("");` or spin on a `volatile` object.
+- **Infinite loops need a side effect.** `while (1);` is undefined behavior and gets deleted. Write `for (;;) asm volatile("");` or spin on a `volatile` object. A *condition* is not a side effect: `while (1 || msg) {}`, a common way to silence an unused-parameter warning while halting, is the same undefined loop dressed up — a deliberate halt written that way may not halt.
 
 For hardware registers, `volatile` is the contract that an access happens exactly where you wrote it. Note two 6502-specific subtleties: indexed addressing can emit a spurious read one page *below* the target, so avoid pointer arithmetic that lands one page above read-sensitive I/O; and the compiler deliberately avoids RMW instructions (`INC`) on volatile objects because those double-access.
 

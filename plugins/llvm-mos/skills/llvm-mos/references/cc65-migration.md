@@ -7,6 +7,7 @@ Contents:
 4. Segments → sections
 5. Compatibility headers
 6. Incremental migration: linking ca65 objects directly
+7. Memory shared with a non-CPU agent must be `volatile`
 
 ---
 
@@ -49,6 +50,29 @@ Do keep the genuinely architectural cc65 advice, which is about data layout rath
 Interrupt handlers need real attributes now (`interrupt`, `interrupt_norecurse`, `no_isr`) — cc65's convention of "just write a function and point the vector at it" is undefined behavior on llvm-mos because of the static stack analysis.
 
 C99/C11/C++ actually work, including much of the C++ standard library's freestanding portion. Templates, `constexpr`, and user-defined literals are all usable and often produce *smaller* code than the C equivalent because computation moves to compile time. `<soa.h>` and `<charset.h>` both exploit this — note `soa.h` is common to every target, while `charset.h` is per-platform (c64, vic20, pet, cx16, atari8; MEGA65 gets the c64 one via its include path) and simply doesn't exist on targets without a native character set.
+
+**The bundled standard library is small and not always conforming — read the header before relying on one.** `mos-platform/common/include/array` declares its storage `private`, so `std::array` here is **not an aggregate** and cannot be brace-initialised at all:
+
+```cpp
+std::array<uint8_t, 4> a{1, 2, 3, 4};   // error: no matching constructor
+```
+
+The diagnostic lists only the implicit copy/move/default constructors, which reads like a missing include rather than a library difference. Value-initialisation (`std::array<uint8_t, N> a{};`) does work. For compile-time table building, a plain `template <size_t N> struct Bytes { uint8_t data[N]; };` is an aggregate, is constexpr-friendly, and avoids the question.
+
+**Adding a first `.cpp` to a C project silently loses your CPU selection.** The common CMake shape scopes the flag to C:
+
+```cmake
+target_compile_options(prog PRIVATE $<$<COMPILE_LANGUAGE:C>:-mcpu=${C_MCPU}>)
+```
+
+A `.cpp` added later compiles for the default `mos6502` with no diagnostic, and the difference is real codegen, not a formality. Same function, `unsigned f(unsigned *p){ return ++*p; }`:
+
+| | emitted |
+|---|---|
+| `-mcpu=mos45gs02` | `lda (__rc2)` … implied `inc` |
+| default | `ldy #0` / `lda (__rc2),y` / `ldx #0` / `stx` … |
+
+Zero-page indirect without `Y` and accumulator-implied `inc` don't exist on a plain 6502, so the default build is longer everywhere it would have used them. Set `CMAKE_CXX_FLAGS` alongside `CMAKE_C_FLAGS`, add `CXX` to `LANGUAGES`, and check the emitted asm rather than assuming the flag propagated. Note inline asm will *not* catch this — the assembler accepts a `map` mnemonic regardless of `-mcpu`.
 
 ---
 
@@ -139,6 +163,7 @@ Hardware access differs in style: instead of cc65's `#define VIC (*(struct __vic
 ---
 
 ## 6. Incremental migration: linking ca65 objects directly
+7. Memory shared with a non-CPU agent must be `volatile`
 
 You don't have to convert everything at once. LLD can link `xo65` object files (ca65's native format) by shelling out to `od65` and `ld65`. It searches `PATH` for them, or you can point at them explicitly:
 
@@ -160,3 +185,64 @@ Limitations worth knowing before relying on this:
 - ELF section names encode type and flags that xo65 segment names can't hold, so an underscore escaping scheme is used (`__`→`_`, `_d`→`$`, `_h`→`-`, `_p`→`.`, `_xXX`→byte, `_tn`/`_tp`→section type, `_fw`/`_fx`→write/exec flags).
 
 This is a good way to move a large project function-by-function while keeping it building at every step.
+
+---
+
+## 7. Memory shared with a non-CPU agent must be `volatile`
+
+The single highest-consequence difference, and the one a working cc65 codebase
+is most likely to trip over. cc65 does not optimise hard enough to punish an
+omission here; LLVM does.
+
+DMA controllers, ROM/supervisor calls, coprocessors and blitters read and write
+memory the compiler cannot see. If nothing in C reads an object, its stores are
+dead by the optimiser's reckoning. The canonical failure is a descriptor filled
+with plain stores and then triggered through a hardware register:
+
+```c
+job.count = n;              /* plain stores ... */
+job.dest  = addr;
+POKE(TRIGGER_REG, go);      /* volatile store to MMIO */
+```
+
+A volatile store to a hardware register **does not order plain stores to other
+objects**. Two back-to-back operations therefore emit *one* descriptor and *two*
+triggers: the second population overwrites the first before any observable read,
+so the first is deleted, and that operation runs on whatever the previous job
+left behind. Mark the descriptor `volatile`, and likewise any byte the agent
+writes back — a status word or staging variable — or a plain read of it folds to
+the value C last stored there.
+
+Note this is a *different* rule from `volatile` on hardware registers. The
+registers are usually already correct, because a platform header declared them;
+it is the ordinary-looking struct in RAM that gets missed.
+
+**A buffer needs a barrier, not just `volatile` on the descriptor.** `volatile`
+on the descriptor protects the descriptor and nothing else. A buffer filled by C
+and consumed only by the agent has no observable reader either. Put the barrier
+in the function that triggers the transfer:
+
+```c
+void start_job(void) {
+    __asm__ volatile("" ::: "memory");   /* the agent touches memory here */
+    POKE(TRIGGER_REG, go);
+}
+```
+
+Such stores often survive without it, because dead-store elimination must prove
+the store is overwritten before any read, and loops plus `ptrtoint` escapes
+defeat that. Surviving by luck is not surviving; budget a few percent of code
+size for the fix.
+
+**Verify rather than assume.** Populations and triggers must be equal in the
+disassembly:
+
+```sh
+llvm-objdump -d --print-imm-hex prog.elf | grep -c '<job>'        # populations
+llvm-objdump -d --print-imm-hex prog.elf | grep -c 'trigger_addr' # triggers
+```
+
+A platform library that supports both toolchains often encodes the whole rule in
+one line — a declaration guarded by `#ifdef __clang__` that adds `volatile` only
+for the optimising compiler. Where a dependency carries such a guard, read it as
+a map of what your own code needs.
