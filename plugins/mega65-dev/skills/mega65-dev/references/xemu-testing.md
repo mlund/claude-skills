@@ -102,9 +102,17 @@ Writing a code there is indistinguishable from a physical key press, so a menu-d
 program can be exercised through its real input path rather than through a test-only
 back door. Hold a modifier by putting it in a second slot; release by writing `$7F`.
 
+All three slots are real and symmetric: `$D615`–`$D617` reach `virtual_key1..3` in
+`iomapper.vhdl`, which feed `virtual_to_matrix.vhdl`, where each is compared against
+the scan phase and pulls its matrix line low independently. Two further slots carry
+touch input, so five positions can be held at once. xemu implements the same three
+(`virtkey_state[3]` in `targets/mega65/input_devices.c`, decoded at
+`io_mapper.c:592`), masking to 7 bits and ignoring codes ≥ 72.
+
 **The codes are keyboard-matrix positions, not ASCII or PETSCII.** `m` is `$24`
-because of where the key sits in the matrix. The matrix is defined in
-`mega65-core/src/vhdl/matrix_to_ascii.vhdl`.
+because of where the key sits in the matrix. The injection mechanism is
+`mega65-core/src/vhdl/virtual_to_matrix.vhdl`; the position-to-character mapping is
+the `matrix_normal` and `matrix_shift` tables in `matrix_to_ascii.vhdl`.
 
 This gives a complete loop for testing an interactive program:
 
@@ -119,9 +127,9 @@ Practical notes:
 
 - **Socket paths must be short.** `AF_UNIX` caps near 104 characters, so the socket
   cannot live under a long temporary directory.
-- **RESTORE cannot be injected this way** — it is an NMI, not a matrix key. In the GUI
-  it is **PageDown** (explicitly not Tab, since C65-style keyboards have their own
-  Tab), and it must be *held*: the trap fires only after roughly 20 frames.
+- **RESTORE is a special case, and the emulator does not implement it** (§6). In the
+  xemu GUI it is **PageDown** — explicitly not Tab, since C65-style keyboards have
+  their own Tab — and it must be *held*: the trap fires only after roughly 20 frames.
 - State that persists in the SD-card image — an attached disk image, a freeze slot —
   can be created once by hand and reused as a fixture.
 
@@ -147,6 +155,12 @@ string into the binary lets a script compare before uploading and skip identical
 Emulator agreement is not hardware agreement. Known divergences, worth treating as
 emulator-passes-hardware-fails candidates:
 
+- **RESTORE can be injected through the synthetic keyboard on hardware, but not in
+  xemu.** `virtual_to_matrix.vhdl` special-cases two values in *any* of the three
+  slots: `$52` holds RESTORE down, and `$72` taps it with a ~100-cycle timeout. xemu's
+  `virtkey()` has no such case — it treats every value as a plain matrix scancode. So
+  a test that drives RESTORE this way passes on hardware and does nothing under the
+  emulator, which is the inverse of the usual failure direction.
 - **The `$DE00` sector-buffer mapping uses a fixed buffer pointer in xemu**, so
   `BUFSEL` (`$D689` bit 7) mistakes go unnoticed there and fail on hardware
   (`registers.md` §7).

@@ -30,7 +30,8 @@ Which file answers which question:
 | VIC-IV register behaviour | `mega65-core/src/vhdl/viciv.vhdl` |
 | Which device answers at an address | `mega65-core/src/vhdl/iomapper.vhdl` |
 | SD controller and sector buffers | `mega65-core/src/vhdl/sdcardio.vhdl` |
-| Keyboard matrix positions | `mega65-core/src/vhdl/matrix_to_ascii.vhdl` |
+| Keyboard matrix positions | `mega65-core/src/vhdl/matrix_to_ascii.vhdl` (`matrix_normal`, `matrix_shift`) |
+| Synthetic/virtual key injection | `mega65-core/src/vhdl/virtual_to_matrix.vhdl` |
 | What freezing saves and restores | `mega65-core/src/hyppo/freeze.asm` |
 | Register *names* and prose | the Book's LaTeX register appendices |
 | KERNAL and BASIC behaviour | `mega65-rom` sources |
