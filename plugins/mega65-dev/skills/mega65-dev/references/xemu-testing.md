@@ -10,6 +10,33 @@ what an option really does**, since the help text is terse and sometimes stale.
 
 ---
 
+## 0. First, decide what actually needs the machine
+
+Much of a MEGA65 program is not hardware access: it is arithmetic over formats the
+machine defines — FAT32 records, D81/D65 geometry, freeze-slot region walks, register
+field packing, PETSCII conversion. Code compiled from C or C++ can be split into its
+own translation unit and run natively, which is far faster to exercise than any
+emulator and points at a line rather than a hung machine. For the mechanics — the
+split, the harness, and the `char`/`int` width gaps that make a host pass meaningless
+— see `host-testing.md` in the `llvm-mos` skill. Everything below covers the half that
+genuinely needs the machine.
+
+The part of that which is MEGA65 knowledge is **where the expected values come from**.
+These formats are defined by the core, not by your program, so an oracle exists
+independently of it — and a test whose expectations were transcribed from the core
+catches the implementation being wrong in the first place, where one copied out of the
+implementation only catches later edits to it.
+
+| Question | Source |
+|---|---|
+| D81/D65 image sizes a mount will accept | `mega65-core/src/hyppo/dos.asm`, `dos_checkimage` |
+| What a freeze slot contains, and in what order | `mega65-core/src/hyppo/freeze.asm`, `freeze_mem_list` |
+| Register field positions and widths | `mega65-core/iomap.txt` |
+| Hardware behaviour behind an encoding | `mega65-core/src/vhdl/*.vhdl` |
+| Keyboard matrix positions | `matrix_to_ascii.vhdl` (`matrix_normal`, `matrix_shift`) |
+
+---
+
 ## 1. Options that matter for automation
 
 | Option | Effect |

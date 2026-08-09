@@ -256,6 +256,8 @@ The *final link output* of a complete target is generally not ELF — `OUTPUT_FO
 
 For editor support, point clangd at the SDK's own binary and pass `--query-driver=/path/to/llvm-mos-sdk/bin/*clang*` (literal asterisks) so it can discover target headers.
 
+**Test the format arithmetic on the host, not in the emulator.** Most of a 6502 program is encoding and decoding formats something else defines — disk layouts, register packings, text conversions, tables — and none of that needs the target. Split it into its own translation unit and run it natively, where it is orders of magnitude faster to exercise and a failure names a line instead of hanging a machine. Two things make a host pass meaningless if ignored: `char` is **unsigned** and `int` is **16 bits** on this target, against signed/32-bit on a typical host, so `char` comparisons and anything near 16-bit overflow must still be checked on the machine. `references/host-testing.md` has the split, the oracle discipline, the harness shape, and the `__mos__` guard for ELF-only section attributes.
+
 ## Reference files
 
 - `references/inline-asm.md` — constraints, clobbers, the decision procedure, worked examples, crash modes
@@ -264,6 +266,7 @@ For editor support, point clangd at the SDK's own binary and pass `--query-drive
 - `references/45gs02.md` — MEGA65 CPU: Q register, Z=0 invariant, 28-bit addressing, MAP/EOM
 - `references/cc65-migration.md` — ca65↔llvm-mos syntax, segments, headers, incremental linking
 - `references/abi.md` — full calling convention: argument registers, return values, caller/callee-saved
+- `references/host-testing.md` — running format/logic code natively, and the `char`/`int` gaps that make a host pass meaningless
 
 ## Upstream sources
 
