@@ -40,6 +40,12 @@ Arguments are assigned left to right. The return value is assigned exactly as if
 
 **Overflow** goes on the soft stack (managed through `__rs0`).
 
+### What an argument byte costs
+
+A and X are real registers, so the first two byte-sized slots are usually free. Every byte after that lands in zero page, and the 6502 has neither a zero-page-to-zero-page move nor a store-immediate, so getting one there is `lda zp`/`sta zp` or `ldx #imm`/`stx zp` — **4 bytes of code per argument byte, at every call site**, whether the value is computed or a literal. A pointer parameter therefore costs 8 bytes per call; so does a `long`, two of whose four bytes ride in A and X.
+
+Two consequences. Argument *count* is the cost driver, not order — narrowing a parameter that never needed its width saves 8 bytes at each call site. And a value that stays live across a call is parked in a callee-saved imaginary register, then copied back into an argument register when passed, 4 bytes a time; those copies are not coalescable, since the destination is fixed by this ABI, so no compiler improvement removes them.
+
 ### Aggregates
 
 - **≤ 4 bytes**: split into constituent values and passed in registers by the rules above. Returned the same way.
