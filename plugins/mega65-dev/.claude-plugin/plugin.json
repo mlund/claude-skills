@@ -1,0 +1,21 @@
+{
+  "name": "mega65-dev",
+  "description": "Systems-level MEGA65 development: the 45GS02 memory model, the MAP register and banking, 28-bit addressing and DMAgic, MEGA65/C65 hardware registers, the KERNAL jump table and its zero-page and Z-register hazards, the Hyppo hypervisor traps, and emulator-based testing under xemu. Toolchain-neutral, with claims checked against mega65-core, the MEGA65 Book, and the ROM sources.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mikael Lund"
+  },
+  "keywords": [
+    "mega65",
+    "45gs02",
+    "c65",
+    "commodore",
+    "retrocomputing",
+    "banking",
+    "memory-map",
+    "vic-iv",
+    "dmagic",
+    "hypervisor",
+    "kernal"
+  ]
+}

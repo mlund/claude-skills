@@ -1,0 +1,42 @@
+{
+  "name": "mega65-dev",
+  "version": "0.1.0",
+  "description": "Systems-level MEGA65 development: the 45GS02 memory model, the MAP register and banking, 28-bit addressing and DMAgic, MEGA65/C65 hardware registers, the KERNAL jump table and its zero-page and Z-register hazards, the Hyppo hypervisor traps, and emulator-based testing under xemu. Toolchain-neutral, with claims checked against mega65-core, the MEGA65 Book, and the ROM sources.",
+  "author": {
+    "name": "Mikael Lund",
+    "url": "https://github.com/mlund"
+  },
+  "repository": "https://github.com/mlund/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "mega65",
+    "45gs02",
+    "c65",
+    "commodore",
+    "retrocomputing",
+    "banking",
+    "memory-map",
+    "vic-iv",
+    "dmagic",
+    "hypervisor",
+    "kernal"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "mega65-dev",
+    "shortDescription": "Systems-level MEGA65 development: memory model, MAP and banking, hardware registers, KERNAL, hypervisor.",
+    "longDescription": "Reusable, evidence-backed guidance for programming the MEGA65 at the systems level. Covers the 28-bit address space and Chip/Attic RAM map, the four address-translation layers and their precedence, the MAP register including the extended 28-bit form and its interrupt semantics, banking patterns and their failure modes, hardware registers for the VIC-IV, DMAgic, MATH unit and SD/floppy controller together with a lookup recipe for the VHDL-generated register master list, the KERNAL jump table with its MAP preconditions and Z-register hazards, the Hyppo hypervisor trap interface, and scripted testing under the xemu emulator including self-checking harnesses and known emulator-versus-hardware divergences. Examples are plain 45GS02 assembly; no toolchain is assumed. Sources are the mega65-core VHDL, the MEGA65 Book, and the ROM sources, in that order of authority.",
+    "developerName": "Mikael Lund",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use mega65-dev to design a MAP-based banking layout for this program.",
+      "Use mega65-dev to explain what this MEGA65 register write does.",
+      "Use mega65-dev to check whether this KERNAL call is safe to make from banked code.",
+      "Use mega65-dev to set up a scripted xemu test for this program."
+    ]
+  }
+}

@@ -14,6 +14,7 @@ marketplace and a Codex plugin marketplace.
 /plugin install scientific-plotting
 /plugin install faunus
 /plugin install llvm-mos
+/plugin install mega65-dev
 ```
 
 Update later by re-running `/plugin marketplace add mlund/claude-skills` (or pulling this repo).
@@ -118,6 +119,35 @@ Claims in the reference files are checked against the toolchain and the upstream
 opcode tests rather than the project wiki, which has been observed to be stale.
 The skill triggers on 6502 work even when llvm-mos isn't named explicitly.
 
+### mega65-dev
+
+A skill for systems-level [MEGA65](https://mega65.org) development — the machine
+rather than the toolchain. Where `llvm-mos` covers the compiler, this one covers
+what the compiler is pointed at. Examples are plain 45GS02 assembly, so it is
+equally useful from C, assembly, or any other language:
+
+- **Memory model** — the 28-bit address space, the Chip RAM map and its stability
+  contract, ROM banks, Attic RAM, the 32KB colour RAM, and the four I/O
+  personalities.
+- **MAP and banking** — the four address-translation layers and their precedence,
+  the exact MAP register encoding, the extended 28-bit form and its escape value,
+  the interrupt semantics that catch people out, banking layout patterns, and a
+  symptom-to-cause table for when a bank switch goes wrong.
+- **Hardware registers** — curated tables for the VIC-IV, DMAgic, the MATH unit
+  and the SD/floppy controller, hot-register behaviour, plus a lookup recipe for
+  `iomap.txt`, the register master list generated from the VHDL.
+- **KERNAL** — jump table, MAP and base-page preconditions, zero-page allocation,
+  and the Z-register hazard (`STZ` stores Z, not zero, on this CPU).
+- **Hypervisor** — the `$D640`–`$D67F` trap interface, ROM write-protect, SD-card
+  file services, freeze slots, and secure mode.
+- **Emulator testing** — running and debugging under `xemu`, including self-checking
+  test harnesses and the places where the emulator is known to diverge from hardware.
+
+Claims are checked against `mega65-core` (VHDL and `iomap.txt`), the MEGA65 Book,
+and the ROM sources, in that order of authority; known contradictions between them
+are recorded rather than papered over. The skill asks for paths to those
+repositories on first use and records nothing about the local setup.
+
 ## Layout
 
 ```
@@ -156,13 +186,24 @@ claude-skills/                      # this repo = a marketplace
     │       │   └── reference.md
     │       └── faunus-run/
     │           └── SKILL.md
-    └── llvm-mos/                   # one plugin = one skill (+ references)
+    ├── llvm-mos/                   # one plugin = two skills (+ references)
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   └── skills/
+    │       ├── llvm-mos/
+    │       │   ├── SKILL.md
+    │       │   └── references/
+    │       └── llvm-mos-dev/
+    │           └── SKILL.md
+    └── mega65-dev/                 # one plugin = one skill (+ references)
         ├── .codex-plugin/
         │   └── plugin.json
         ├── .claude-plugin/
         │   └── plugin.json
         └── skills/
-            └── llvm-mos/
+            └── mega65-dev/
                 ├── SKILL.md
                 └── references/
 ```
