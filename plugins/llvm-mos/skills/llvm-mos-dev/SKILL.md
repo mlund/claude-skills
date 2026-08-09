@@ -66,8 +66,13 @@ the tool that test actually drives:
 | `lld/test/ELF/*mos*` | `lld`, plus `llvm-mc`, `llvm-objdump`, `llvm-objcopy`, `llvm-readelf` |
 
 A tool that is simply *absent* from `build/bin` also fails tests for reasons
-unrelated to the code (`'llvm-objcopy': command not found`). Build it and re-run
-before diagnosing anything.
+unrelated to the code (`'llvm-objcopy': command not found`, `'split-file':
+command not found`). Build it and re-run before diagnosing anything.
+
+**Run each suite in its own lit invocation.** Passing LLVM and lld paths to one
+`llvm-lit` command silently drops the lld arguments — the run reports a plausible
+total and a clean result while never executing the lld tests at all. Check that
+the discovered count matches the sum of the suites you meant to run.
 
 ### LTO and plugin provenance
 

@@ -1,6 +1,6 @@
 {
   "name": "llvm-mos",
-  "description": "Write, debug, and optimize C, C++, and assembly for 6502-family CPUs with the llvm-mos toolchain and SDK: inline-asm constraints and clobbers, the calling convention, linker scripts, banking, and cc65/ca65 migration.",
+  "description": "Write, debug, and optimize C, C++, and assembly for 6502-family CPUs with the llvm-mos toolchain and SDK: inline-asm constraints and clobbers, the calling convention, linker scripts, banking, and cc65/ca65 migration. Also covers hacking on the toolchain itself: the MOS backend and MC layer, lld relocations, tablegen, and simulator-backed testing.",
   "version": "0.1.0",
   "author": {
     "name": "Mikael Lund"

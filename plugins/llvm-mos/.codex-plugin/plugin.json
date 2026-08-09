@@ -1,7 +1,7 @@
 {
   "name": "llvm-mos",
   "version": "0.1.0",
-  "description": "Write, debug, and optimize C, C++, and assembly for 6502-family CPUs with the llvm-mos toolchain and SDK: inline-asm constraints and clobbers, the calling convention, linker scripts, banking, and cc65/ca65 migration.",
+  "description": "Write, debug, and optimize C, C++, and assembly for 6502-family CPUs with the llvm-mos toolchain and SDK: inline-asm constraints and clobbers, the calling convention, linker scripts, banking, and cc65/ca65 migration. Also covers hacking on the toolchain itself: the MOS backend and MC layer, lld relocations, tablegen, and simulator-backed testing.",
   "author": {
     "name": "Mikael Lund",
     "url": "https://github.com/mlund"
@@ -25,7 +25,7 @@
   "interface": {
     "displayName": "llvm-mos",
     "shortDescription": "C, C++, and assembly for 6502-family CPUs with the llvm-mos toolchain.",
-    "longDescription": "Reusable guidance for the llvm-mos LLVM backend and llvm-mos-sdk, covering the imaginary-register mental model, inline-assembly constraints and clobber discipline, the calling convention, linker scripts and OUTPUT_FORMAT, banking and zero-page allocation, Commodore and MEGA65 platform support, and migration from cc65/ca65.",
+    "longDescription": "Reusable guidance for the llvm-mos LLVM backend and llvm-mos-sdk, covering the imaginary-register mental model, inline-assembly constraints and clobber discipline, the calling convention, linker scripts and OUTPUT_FORMAT, banking and zero-page allocation, Commodore and MEGA65 platform support, and migration from cc65/ca65. A second skill covers development of the toolchain itself: navigating the MOS subset of the LLVM monorepo, keeping an encoding convention consistent across the assembler, relaxation, linker and disassembler, MOS tablegen pitfalls, and the MC/lld/CodeGen/simulator test ladder.",
     "developerName": "Mikael Lund",
     "category": "Productivity",
     "capabilities": [
@@ -34,7 +34,8 @@
     ],
     "defaultPrompt": [
       "Use llvm-mos to review this inline assembly block.",
-      "Use llvm-mos to write a linker script for this target."
+      "Use llvm-mos to write a linker script for this target.",
+      "Use llvm-mos-dev to add a relocation to the MOS backend and test it."
     ]
   }
 }
