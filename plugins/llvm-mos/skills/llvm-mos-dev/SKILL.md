@@ -84,6 +84,23 @@ and confirm its timestamp or version before interpreting the result. When
 switching branches, also verify that the compiler, linker, SDK libraries, and
 simulator belong to the intended build rather than relying on a shared install.
 
+### A toolchain is more than its compiler
+
+Rebuilding `clang` and `lld` updates neither the clang resource directory nor the
+SDK's prebuilt `mos-platform` libraries, so an install can be half old. An LLVM
+major version bump is the sharp case: `clang -print-resource-dir` moves to the
+new major, the old `lib/clang/<major>` no longer matches, and every compile fails
+with `'stdarg.h' file not found`. That reads as a broken include path, not as a
+version mismatch, and it can take out most of a test suite at once. Copy the new
+resource directory across, and carry over its `lib/` subtree —
+`libclang_rt.builtins.a` is built by the SDK, not by the LLVM build, so copying
+only from the LLVM build tree leaves it missing.
+
+**A smoke test that includes no header does not test an install.** A translation
+unit like `int main(void) { return 0; }` links happily with the resource
+directory absent. Include `<stdint.h>` or `<stdarg.h>` in whatever you use to
+declare a toolchain working.
+
 ## One convention, four implementations
 
 The defect pattern that recurs in this backend: a rule about encoding is fixed
@@ -211,6 +228,17 @@ change shifts every subsequent address and buries the real delta. Instruction
 counts from a simulator trace (`--trace`) are a fast way to tell "lost output"
 from "diverged control flow".
 
+### Reducing a layout-sensitive bug
+
+When a failure appears and disappears with source edits that have nothing to do
+with it, suspect memory layout rather than the edit, and sweep `-mlto-zp` across
+its range. The zero-page budget moves every LTO-allocated object, so a bug that
+depends on where something lands shows up as a sharp threshold: correct below
+some byte count, broken at and above it. That turns an intermittent failure into
+a one-integer reproducer with source, compiler and every other flag held fixed —
+which is what makes diffing the two builds worthwhile, since they will differ
+only in the allocation that matters.
+
 ## Contributing upstream
 
 Before finalizing a fix, inspect related open changes touching the same
@@ -226,3 +254,27 @@ is LLVM-formatted.
 
 Build parallelism is worth capping explicitly on a laptop; a full-width LLVM
 build will saturate the machine.
+
+## Maintaining this skill
+
+When adding to or correcting this file:
+
+- **Evidence or nothing.** A new claim needs a citation: a
+  `llvm/lib/Target/MOS/<file>:<line>`, a lit test, a datasheet plus a second
+  implementation, or a measurement you took. Say what you ran and what it
+  reported.
+- **Two sources for ISA behaviour.** Datasheets disagree with silicon. Cite the
+  core (`gs4510.vhdl`), an emulator (`xemu/xemu/cpu65.c`), or a second
+  simulator alongside the datasheet, and record contradictions rather than
+  picking a side silently.
+- **Generic, not autobiographical.** No dates, no branch or PR numbers, no local
+  paths, no "we found". A rule a stranger can apply, not an account of how it
+  was found.
+- **Brief.** One idea per entry. Delete anything a reader gets from one grep of
+  the tree, unless it is a trap.
+- **Traps earn their space.** Prefer the failure mode that looks like success —
+  a green run with the wrong denominator, a stale binary, a plausible wrong
+  answer. Those are what this file is for.
+- **Using the toolchain belongs in `llvm-mos`.** This file covers changing it.
+- **Prune.** When the backend changes or a claim proves wrong, fix or remove it.
+  A stale rule is worse than no rule.
