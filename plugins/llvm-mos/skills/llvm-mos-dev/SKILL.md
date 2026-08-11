@@ -85,6 +85,13 @@ command not found`). Build it and re-run before diagnosing anything.
 total and a clean result while never executing the lld tests at all. Check that
 the discovered count matches the sum of the suites you meant to run.
 
+**A plausible external explanation is how a stale binary survives scrutiny.**
+When a failing test can be blamed on an unrelated open change, rebuild the tool
+that test drives before accepting that story. An `llvm/test/MC/MOS` failure in a
+tree where only `llc` was rebuilt will happily be attributed to whichever branch
+owns the corresponding fix, and the attribution is checkable in seconds while the
+belief survives for hours.
+
 ### LTO and plugin provenance
 
 The executable that drives a test is not always the component whose source was
@@ -194,6 +201,15 @@ topology, so it can affect reservation logic, pressure heuristics, and code
 that assumes the first super-register has a particular class. Match by class
 and subregister index rather than relying on iterator order.
 
+**The `Reserved` bitvector is not the whole story about which registers are
+pinned.** A register can also be fixed by hard-coded uses elsewhere:
+`MOSRegisterInfo`'s constructor reserves one pointer as the scavenger temporary,
+and `MOSCallLowering` then synthesizes an absolute `JMP` by writing its opcode
+into that pointer's high byte, relying on adjacency to the next pointer register;
+`MOSFrameLowering` names the same two bytes when saving an interrupt handler.
+Grep a register's name before assuming it is relocatable or that its aliases are
+free for a wider class.
+
 Before exposing a wider class, sweep register banks, inline-asm register counts
 and constraints, reserved aliases, copy costs, spills and reloads, post-RA
 expansion, CSR/zero-page allocation, asm lowering, and debug/DWARF numbering.
@@ -242,6 +258,13 @@ Work up it — each rung catches what the one below cannot.
    with `-mcpu=`. Regenerate expectations with `update_mir_test_checks.py`.
 4. **Runtime** — the only rung that proves the bytes execute correctly. Build a
    test under llvm-test-suite and run it under `mos-sim`.
+
+**A `-run-pass` or `-start-before` test exercises only the pass you already
+thought about.** Extending an expansion function without extending the cost
+function it pairs with leaves an `llvm_unreachable` in an earlier pass, and a
+test pinned to the expansion pass never reaches it — the suite stays green while
+the compiler aborts on the first real input. Any new register class or operand
+kind needs at least one case that runs the full pipeline.
 
 ### Designing a runtime probe
 
@@ -313,6 +336,12 @@ Before finalizing a fix, inspect related open changes touching the same
 convention or source hunk. A neighboring change may add diagnostics, tests, or
 an intentionally temporary XFAIL and may be designed to rebase on this fix.
 Keep complementary changes separate, but make their tests compose cleanly.
+
+Keep a test in the project whose tool it drives. Nothing in `llvm/test/`'s lit
+configuration declares a dependency on lld, so a CodeGen test that invokes
+`ld.lld` passes in a monorepo build and fails in an LLVM-only one. Split such a
+case: the object-inspection half stays in `llvm/test/CodeGen/MOS`, the link half
+moves to `lld/test/ELF/`.
 
 Commit subject is a short imperative with a bracketed component tag — `[MOS] …`,
 `[65CE02] …`, `[sim] …`. Match the file's own formatting rather than the repo
