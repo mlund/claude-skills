@@ -369,6 +369,11 @@ When adding to or correcting this file:
   was found.
 - **Brief.** One idea per entry. Delete anything a reader gets from one grep of
   the tree, unless it is a trap.
+- **Teach the interrogation, don't transcribe the snapshot.** Where a fact can
+  be read out of the tree, a build or a tool, give the command that extracts it
+  and say how to read the result. A copied table is stale the day the thing it
+  copied changes, and worse, it is stale silently. Record the shape of the
+  answer and the trap in reading it; leave the values where they live.
 - **Traps earn their space.** Prefer the failure mode that looks like success —
   a green run with the wrong denominator, a stale binary, a plausible wrong
   answer. Those are what this file is for.

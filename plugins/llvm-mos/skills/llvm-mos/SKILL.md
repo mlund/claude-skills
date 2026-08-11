@@ -188,6 +188,8 @@ Handlers must be annotated or the static stack analysis will place a frame that 
 - `__attribute__((interrupt_norecurse))` — same, but not self-recursive. Use this when the source is masked while handling. It keeps static stack allocation, so prefer it when true.
 - `no_isr` added to either — returns with `rts` and emits no save/restore, for when you write the prologue yourself in assembly. The ABI effects still apply.
 
+Writing that prologue by hand means saving the imaginary registers a called C function may clobber, not a guessed few: `abi.md` has the worked sequence and its cost. Pick the subset by eye and it survives until codegen next changes which register the callee reaches for.
+
 It is undefined behavior for anything asynchronous to call a C function lacking one of these attributes.
 
 ## Linker scripts
@@ -246,13 +248,24 @@ This is **entirely manual — the toolchain offers no support at all**: no `z`/`
 
 ## Tooling
 
-Object files and unlinked intermediates are ELF, so the standard LLVM tools work on them: `llvm-objdump -d --print-imm-hex`, `llvm-nm`, `llvm-readelf`, `llvm-size`, `llvm-objcopy`, `llvm-strip`, `llvm-mc`. `llvm-mlb` emits Mesen label files for NES debugging. Compile with `-g` for DWARF and source-level debugging under emulators with a GDB stub.
+The standard LLVM tools — `llvm-objdump -d --print-imm-hex`, `llvm-nm`, `llvm-readelf`, `llvm-size`, `llvm-objcopy`, `llvm-strip`, `llvm-mc` — need an ELF, and **`-c` does not produce one under the default LTO**: it writes LLVM IR bitcode, which every one of them rejects as "not recognized as a valid object file". `-fno-lto -c` gives a real ELF relocatable, at the cost of no longer being the pipeline that ships. `llvm-mlb` emits Mesen label files for NES debugging. Compile with `-g` for DWARF and source-level debugging under emulators with a GDB stub.
 
 **`-finstrument-functions` gives call tracing on a target with no debugger**, through the usual `__cyg_profile_func_enter`/`__cyg_profile_func_exit` hooks — enough to record a call stack and print a backtrace from an assertion handler. Two conditions. Mark the hooks `__attribute__((no_instrument_function))`, or they instrument themselves and recurse. And have them **ignore the `call_site` argument**: clang supplies it with `llvm.returnaddress`, which this backend cannot legalize, so that call has to be optimized away as dead. The consequence is that instrumentation links at `-O1` and above but fails at `-O0`, with `LLVM ERROR: unable to legalize instruction: … llvm.returnaddress` reported at *link* time against no source line. The same limitation means `__builtin_return_address()` does not work here at all. To recover the call site anyway, read it off the hardware stack — `tsx`, then the return address at `$0100+S` — which works because `jsr` still pushes there even though frames live on the soft stack.
 
-The *final link output* of a complete target is generally not ELF — `OUTPUT_FORMAT` emits a flat binary, so `llvm-nm`/`llvm-objdump` reject it no matter what you called the file. Build systems often keep the ELF alongside (CMake leaves `foo.prg.elf` next to `foo.prg`); disassemble that, or use `-Wl,--lto-emit-asm` and read `<output>.lto.s`. See the gotcha under **Toolchain basics** — the failure mode is a silently empty search, not an error you notice.
+The *final link output* of a complete target is generally not ELF — `OUTPUT_FORMAT` emits a flat binary, so `llvm-nm`/`llvm-objdump` reject it no matter what you called the file. Build systems often keep the ELF alongside (CMake leaves `foo.prg.elf` next to `foo.prg`); disassemble that, or use `-Wl,--lto-emit-asm` and read `<output>.lto.s`.
 
-`-Wl,-Map,<file>` sidesteps that entirely by writing a link map. Because the output is not ELF and `llvm-nm` cannot read it, the map is the straightforward route to an address→symbol table — for a build-time size audit, or compiled back into the program so on-target diagnostics can name a function instead of printing a bare address.
+**`--lto-emit-asm` replaces the link output rather than accompanying it.** The link exits 0 and writes `<output>.lto.s`, and no binary and no map file appear — including when you asked for one with `-Wl,-Map` in the same command. Reuse a build command with that flag left in and the build reports success while producing nothing to run; a stale binary from the previous build is still sitting there to be tested. Emit assembly in a separate invocation from the one that produces the artifact. See also the gotcha under **Toolchain basics** — the failure mode is a silently empty search, not an error you notice.
+
+**`-Wl,-Map,<file>` sidesteps the whole problem by writing a link map.** Because the output is not ELF and `llvm-nm` cannot read it, the map is the straightforward route to an address→symbol table — for a build-time size audit, for an emulator test script or debugger symbol file, or compiled back into the program so on-target diagnostics can name a function instead of printing a bare address. Symbol lines carry the VMA in the first column and the name in the last, so extracting one is a filter:
+
+```sh
+mos-sim-clang -Os -o prog prog.c -Wl,-Map,prog.map
+awk 'NF==5 && $NF ~ /^[A-Za-z_][A-Za-z0-9_]*$/ {print $NF, $1}' prog.map
+```
+
+Section names appear in the same shape as symbol names, so filter to the symbols you asked for rather than trusting the whole list. Regenerate on every build and have the consumer fail loudly when a name it needs is missing: an external script holding a hand-copied address is not wrong until the day the layout shifts, and then it reads a plausible value from whatever moved into that byte. The same argument applies to the scripts themselves — a check that rejects literal addresses in them keeps the map the single source of truth.
+
+A map also makes **placement assertions** cheap enough to run on every build: that a symbol landed in the section you meant, that a region stayed inside its budget, that the free-RAM headroom above `__heap_start` is still there. Those are the invariants a linker script cannot express and a successful link will not check for you.
 
 **To disassemble a raw binary, use `llvm-mc`, not `llvm-objdump`.** Wrapping the file in an ELF with `llvm-objcopy -I binary` and disassembling that looks right and is not: the synthesised ELF's `e_flags` say plain 6502, `--mcpu=` does not override them, and every newer instruction comes out as `<unknown>` while the rest decodes plausibly. Feed the bytes to `llvm-mc -disassemble -triple mos --mcpu=…` instead.
 
@@ -261,6 +274,8 @@ The *final link output* of a complete target is generally not ELF — `OUTPUT_FO
 For editor support, point clangd at the SDK's own binary and pass `--query-driver=/path/to/llvm-mos-sdk/bin/*clang*` (literal asterisks) so it can discover target headers.
 
 **Test the format arithmetic on the host, not in the emulator.** Most of a 6502 program is encoding and decoding formats something else defines — disk layouts, register packings, text conversions, tables — and none of that needs the target. Split it into its own translation unit and run it natively, where it is orders of magnitude faster to exercise and a failure names a line instead of hanging a machine. Two things make a host pass meaningless if ignored: `char` is **unsigned** and `int` is **16 bits** on this target, against signed/32-bit on a typical host, so `char` comparisons and anything near 16-bit overflow must still be checked on the machine. `references/host-testing.md` has the split, the oracle discipline, the harness shape, and the `__mos__` guard for ELF-only section attributes.
+
+**When the question is what the *generated code* does, run it under `mos-sim`.** It executes the 6502 the compiler emitted and counts cycles, with no hardware and no emulator, so correctness and cost come out of the same run — and the type model is the target's, which is what a host pass could not establish. `mos-sim --cycles` covers the whole program including startup and `printf`, so bracket the code under test with the `sim` platform's `reset_clock()`/`clock()` instead; one measured pair came out 820 cycles against 309 inside a run whose total was 24358. `references/simulator-testing.md` covers region timing, `--profile` for per-address cycle attribution, and the boundary of what this proves.
 
 ## Reference files
 
@@ -271,6 +286,7 @@ For editor support, point clangd at the SDK's own binary and pass `--query-drive
 - `references/cc65-migration.md` — ca65↔llvm-mos syntax, segments, headers, incremental linking
 - `references/abi.md` — full calling convention: argument registers, return values, caller/callee-saved
 - `references/host-testing.md` — running format/logic code natively, and the `char`/`int` gaps that make a host pass meaningless
+- `references/simulator-testing.md` — `mos-sim`: cycle counts on real codegen, region timing, `--profile`, and what a simulator pass does not prove
 
 ## Upstream sources
 
@@ -280,3 +296,35 @@ Two repositories, and it matters which one a question belongs to:
 - **[llvm-mos-sdk](https://github.com/llvm-mos/llvm-mos-sdk)** — the platform libraries, headers, and linker scripts under `mos-platform/`, which is what the reference files here cite.
 
 Prefer these over the project wiki when they disagree — the wiki has been observed to be stale (e.g. it documents a `-f[no-]emit-frame-pointer` flag that the driver rejects; see `abi.md`).
+
+## Maintaining this skill
+
+When adding to or correcting this file or its reference files:
+
+- **Evidence or nothing.** A new claim needs a citation: an `mos-platform/<path>`
+  in llvm-mos-sdk, a path into the backend, a datasheet plus a second
+  implementation, or a measurement you took. Say what you ran and what it
+  reported. Sizes and cycle counts are this skill's currency — quote the number,
+  not "smaller".
+- **Two sources for ISA behaviour.** Datasheets disagree with silicon. Cite the
+  core (`gs4510.vhdl`), an emulator (`xemu/xemu/cpu65.c`), or a second
+  simulator alongside the datasheet, and record contradictions rather than
+  picking a side silently.
+- **Generic, not autobiographical.** No dates, no branch or PR numbers, no local
+  paths, no "we found". A rule a stranger can apply, not an account of how it
+  was found. A project that prompted a finding is not a citation for it —
+  re-derive the claim against the toolchain and cite that.
+- **Brief.** One idea per entry. Delete anything a reader gets from one grep of
+  the tree, unless it is a trap.
+- **Teach the interrogation, don't transcribe the snapshot.** Where a fact can
+  be read out of the tree, a build or a tool, give the command that extracts it
+  and say how to read the result. A copied table is stale the day the thing it
+  copied changes, and worse, it is stale silently. Record the shape of the
+  answer and the trap in reading it; leave the values where they live.
+- **Traps earn their space.** Prefer the failure mode that looks like success —
+  a link that emits no binary, a search that comes back empty because the tool
+  rejected the file, a host pass that the target contradicts. Those are what
+  these files are for.
+- **Changing the toolchain belongs in `llvm-mos-dev`.** These files cover using it.
+- **Prune.** When the toolchain changes or a claim proves wrong, fix or remove
+  it. A stale rule is worse than no rule.

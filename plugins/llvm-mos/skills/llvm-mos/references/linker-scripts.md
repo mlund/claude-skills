@@ -168,6 +168,11 @@ The `common` target ships only what C strictly requires. The rest are opt-in:
 | `exit-return` | `exit` returns from `_start` to the caller/OS |
 | `exit-custom` | you supply the exit routine (e.g. a `brk` into a monitor) |
 | `init-stack` | initializes the soft stack pointer from `__stack` |
+| `zero-bss` | zeroes `.bss` *and* `.zp.bss` at startup — one library covers both |
+| `copy-data` | copies `.data` initializers from their load address to RAM |
+| `copy-zp-data` | the same for `.zp.data` |
+
+The last three are what makes C's own guarantees hold: without `zero-bss` an uninitialized global starts as whatever was in RAM, and without the copy libraries an initialized one starts as whatever the linker left at its address. A complete target has already merged whichever of these it needs; you choose explicitly only when building against an incomplete parent, which is exactly when it is easy to omit one and spend the afternoon on a variable that is mysteriously non-zero at `main`.
 
 **How you opt in depends on which kind of target you're building, and neither route is `INPUT(...)` or a `-l` in the platform `.cfg`:**
 
@@ -202,6 +207,14 @@ There's no built-in bank switching; the pattern is to model each bank as its own
 Give banks non-overlapping *linker* addresses even when they share a CPU window. The SDK uses the high bytes of the 32-bit VMA as a bank index (e.g. `0x01000000` for CHR-ROM bank 0), keeping every byte in a unique namespace so the linker can place and diagnose without knowing about the mapper. `OUTPUT_FORMAT` then emits regions in file order, and your runtime code is responsible for actually switching.
 
 Place code into a bank with `__attribute__((section(".bank3")))` or a `.section` directive in asm, and assign that section to the region in `SECTIONS`.
+
+Two things then conspire to move code back out of the bank you just put it in, both silently, and neither is visible in the source.
+
+**A pinned function without `noinline` need not stay pinned.** The section attribute places the symbol; it does not stop the inliner from copying the body into a caller that lives somewhere else, and under LTO that caller can be in another translation unit. Measured on a two-line function attributed into a bank and called once from `main`: the shipping assembly contains no such symbol at all, its body having been absorbed into `main` in `.text.main`. Whether that is a bug depends entirely on whether the bank was paged in at the call — which is the kind of thing that works until the call site moves. Pin banked entry points with `noinline` as well as `section`, and treat the pair as one idiom.
+
+**Compiler-synthesized data does not inherit the attribute.** A dense `switch` becomes a jump table, and the table is emitted into `.rodata.<function>` — placed by the generic `*(.rodata .rodata.*)` rule, not alongside the function. Measured: a function attributed into `bank1` landed there, while its `.LJTI0_0` table went to `.rodata` at a completely different address. The code and the table it indexes through end up in different banks, so the dispatch reads whatever is mapped at that address when the bank is in — a wrong jump, not a fault.
+
+Three ways out, in order of preference: compile banked translation units with `-fno-jump-tables` (measured cost on that function, +51 bytes, and the `.rodata` entry disappears from the map); give the bank's rodata its own section and assign it to the same region; or keep banked code simple enough not to generate tables. Whichever you pick, assert it after linking rather than trusting it — a link map shows which section each symbol actually landed in, and a build-time check on that is the only thing standing between you and a layout that silently drifts. See **Tooling** in `SKILL.md` for getting symbol addresses out of a map.
 
 ---
 
