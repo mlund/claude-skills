@@ -173,10 +173,19 @@ MAP overrides everything else. The other three mechanisms act **only on unmapped
 
 | Mechanism | Applies to | Notes |
 |---|---|---|
-| MAP | selected blocks | highest priority |
-| Cartridge ROM | unmapped blocks | overrides `$D030`; C64 EXROM/GAME rules |
-| `$D030` | unmapped blocks | ROM8/ROMA/ROMC/ROME → bank 2 |
+| MAP | selected blocks | highest priority; the only case that returns early |
+| `$D030` | unmapped blocks | ROM8/ROMA/ROMC/ROME → bank 2; overrides the cartridge |
+| Cartridge ROM | unmapped blocks | C64 EXROM/GAME rules, including Ultimax |
 | `$0001` | unmapped blocks | I/O at `$D000`; C64 ROM images |
+
+`resolve_address_to_long` in `gs4510.vhdl` decides all four, and only the MAP case
+returns a value; the rest overwrite one `temp_address` variable as the function runs, so
+the mechanism appearing **latest in the source** wins. The Ultimax and cartridge
+substitutions are at ~line 9225, the `$D030` ones at ~line 9253.
+
+> **Wiki erratum.** The wiki's *Memory Mapping* page ranks `$D030` above `MAP` and
+> `$0001` below it. `MAP` in fact overrides everything, `$D030` binds only where `MAP`
+> did not, and `$0001` is lowest.
 
 Two edges worth remembering:
 
@@ -198,6 +207,11 @@ Two edges worth remembering:
 
 `$D030` boots as `$64` (ROMC enabled). It never banks in bank 3 — the KERNAL uses MAP
 for its own code and `$D030` only for the interface routines at `2.C000`.
+
+**It affects reads only, and nothing at all in hypervisor mode.** The substitution is
+guarded by `writeP=false and hypervisor_mode='0'` (`gs4510.vhdl`, ~line 9253), so writes
+to a banked-in region fall through to bank-0 RAM — the C64 shadowing behaviour — and
+hypervisor code reads whatever the cartridge and `$0001` give it however `$D030` is set.
 
 ---
 
@@ -307,5 +321,6 @@ Data-only banks are simpler: skip the trampoline entirely and use `[$nn],Z` or D
 | An NMI arrives during a "protected" section | `EOM` lifts the NMI inhibit; the I flag never masked NMI (§4) |
 | Writes to `$D020` change RAM instead of the border | `$C000`–`$DFFF` mapped, so I/O is hidden (§5) |
 | `$D030` writes do nothing | C64 I/O personality active (`memory-map.md` §4) |
+| `$D030` banking ignored, or a knock has no effect | Running in hypervisor mode (§5, `memory-map.md` §4) |
 | Address lands 1 MB away from expected | Stale megabyte byte from an earlier extended MAP (§3) |
 | Restored map is wrong after a call | Shadow variable out of sync, or a callee changed the map (§6) |

@@ -137,6 +137,11 @@ Practical consequences:
 - `$D640` (hypervisor traps) exists only in the MEGA65 personality.
 - The `$D02F` "knock" is two writes of specific values; a single write does nothing.
 - Defensive startup: set the personality you need rather than assuming it.
+- **In hypervisor mode the personality is forced to MEGA65/VIC-IV.** The decoder
+  substitutes `"11"` for the selected mode whenever `hypervisor_mode='1'`
+  (`gs4510.vhdl`, ~lines 9128 and 9152), so `$D000`–`$DFFF` is always `$FFD3xxx` there.
+  A knock issued in hypervisor mode still lands in the register; it just changes
+  nothing until the machine leaves hypervisor mode.
 
 Canonical defensive opening sequence (Book, `appendix-memorymap.tex`):
 

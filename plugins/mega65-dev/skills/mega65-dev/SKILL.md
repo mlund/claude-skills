@@ -21,6 +21,7 @@ is not checked out, offer the URL.
 | `mega65-user-guide` | <https://github.com/MEGA65/mega65-user-guide> | The MEGA65 Book. Best prose; occasionally stale |
 | `mega65-rom` | <https://github.com/MEGA65/mega65-rom> | KERNAL/BASIC source. Needed for ROM-behaviour claims |
 | `xemu` (optional) | <https://github.com/lgblgblgb/xemu> | The emulator, and the authority on what an emulator option really does |
+| MEGA65 wiki | <https://mega65.atlassian.net/wiki> | Community digests of forum and Discord threads. Terminology, diagrams and worked examples; **not** authority — it states the mapping precedence backwards |
 
 Which file answers which question:
 
@@ -46,7 +47,16 @@ Rules:
 - **`iomap.txt` is the fast path for registers** — roughly 1750 entries generated from
   `@IO:` annotations in the VHDL, so it never drifts from the hardware. Format and
   grep recipe in `references/registers.md`.
-- Never cite the MEGA65 wiki for a hardware fact you can check in the core.
+- **Never cite the wiki for a hardware fact you can check in the core.** Read it for
+  terminology, for diagrams, and to learn which questions people get wrong — then
+  verify. Its rendered pages are a JavaScript shell that fetching returns empty; take
+  the source instead, anonymously, with the page id from the URL:
+
+  ```sh
+  curl -s "https://mega65.atlassian.net/wiki/api/v2/pages/<id>?body-format=storage"
+  ```
+
+  JSON, with the page as HTML in `.body.storage.value`.
 - **`xemu` is optional but valuable.** If a task involves running, testing or debugging
   code, ask whether `xemu` (binary `xmega65`) is available and, optionally, where its
   source is checked out. Emulator agreement is not hardware agreement —
@@ -60,12 +70,19 @@ A 16-bit address goes through **four** translation mechanisms before it reaches 
 ```
 MAP register          highest — per-8KB-block offset, set by the MAP instruction
   ↓ (unmapped blocks only)
-cartridge ROM         C64 expansion-port EXROM/GAME configurations
-  ↓
 $D030                 VIC-III ROM banking: ROM8/ROMA/ROMC/ROME → bank 2
+  ↓
+cartridge ROM         C64 expansion-port EXROM/GAME configurations
   ↓
 $0001                 C64-style banking: I/O and C64 ROM at $A000/$D000/$E000
 ```
+
+All four live in one function, `resolve_address_to_long` in `gs4510.vhdl` (~line 9047),
+and **it is written so that priority runs bottom-up**: only the MAP case returns early,
+and every mechanism below it overwrites the same `temp_address` variable in source
+order, so the *last* assignment reached wins. `$D030` is applied after the cartridge
+cases, not before. Read the function from the end when you need to settle an ordering
+question.
 
 Two consequences that explain most confusion:
 
