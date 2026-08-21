@@ -201,6 +201,16 @@ the difference is usually explicit in one of them.
 
 ## 7. Method
 
+- **Never report a timing without a correctness check in the same run.** A wrong
+  answer arrives sooner than a right one, so an optimisation that breaks the algorithm
+  reads as a large speedup. Hash or checksum the output against a known vector, and
+  report both numbers together.
+- **Observing the target can change it.** Reading memory over the serial monitor halts
+  the CPU at an instruction boundary, which is not the same as an interrupt and is not
+  subject to the same guarantees — 45GS02 Q instructions are known to compute wrong
+  answers when polled mid-run (`llvm-mos` skill, `references/45gs02.md` §4). Sample
+  before and after a timed region, not during it, and if a result only misbehaves under
+  observation suspect the observation first.
 - **Measure before theorising.** A/B against a reference binary and a memory dump beats
   reasoning from source about a suspected hardware bug.
 - **A checker that has only ever reported success is worthless.** Break the code
