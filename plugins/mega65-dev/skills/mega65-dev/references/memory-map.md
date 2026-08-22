@@ -36,8 +36,24 @@ Sources: MEGA65 Book `memory.tex` and `appendix-memorymap.tex`; `mega65-core/iom
 | `$FFDE800`–`$FFDEFFF` | 2 KB | Ethernet frame read buffer (r) / write buffer (w) |
 | `$FFDF000`–`$FFDFFFF` | 4 KB | Virtual FPGA registers (selected models) |
 
-Attic RAM caveats: invisible to VIC and to audio DMA; code runs from it but roughly
-**10× slower** than Chip RAM; the freezer does **not** save or restore it.
+Attic RAM caveats: code runs from it but roughly **10× slower** than Chip RAM; the
+freezer does **not** save or restore it.
+
+What can reach it, and what cannot:
+
+| Fetch | Attic? | Evidence |
+|---|---|---|
+| Full-colour **glyph data**, `$D063.7 EXGLYPH` set | **Yes** — the VIC's own port to the HyperRAM controller, 512 KB window, banked by `$BFFFFF1` in the controller rather than by the VIC | `viciv.vhdl:2775`, `4672-4691`, `184` |
+| Screen RAM, colour RAM, sprite data | No — 20-bit address clamped to `chipram_size` | `viciv.vhdl:719-720`, `1310` |
+| Audio DMA | No — 24-bit base with bits 27-24 forced to zero, clamped to `chipram_size` | `gs4510.vhdl:413`, `4420-4421`, `10365-10367` |
+
+So "invisible to the VIC" holds for sprites and screen memory and is **wrong for
+glyphs** — character data is the one asset class that costs no Chip RAM. Two traps on
+that path: a VIC glyph fetch only starts when no CPU transaction is waiting
+(`hyperram.vhdl:1810`) unless `viciv_debug_priority` (`$BFFFFFF` bit 1) is set, so DMA
+to Attic competes with it; and on R5/R6 `$D7FE.4 SELSDRAM` muxes the glyph port to
+`sdram_controller.vhdl`, which declares `viciv_data_strobe` (line 64) and never drives
+it, so the fetch is never answered.
 
 ---
 
