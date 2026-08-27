@@ -30,7 +30,7 @@ Which file answers which question:
 | CPU, memory map, MAP, DMA | `mega65-core/src/vhdl/gs4510.vhdl` |
 | VIC-IV register behaviour | `mega65-core/src/vhdl/viciv.vhdl` |
 | Which device answers at an address | `mega65-core/src/vhdl/iomapper.vhdl` |
-| SD controller and sector buffers | `mega65-core/src/vhdl/sdcardio.vhdl` |
+| SD controller, F011 floppy, sector buffers | `mega65-core/src/vhdl/sdcardio.vhdl` |
 | Keyboard matrix positions | `mega65-core/src/vhdl/matrix_to_ascii.vhdl` (`matrix_normal`, `matrix_shift`) |
 | Synthetic/virtual key injection | `mega65-core/src/vhdl/virtual_to_matrix.vhdl` |
 | What freezing saves and restores | `mega65-core/src/hyppo/freeze.asm` |
@@ -116,6 +116,7 @@ run of 16-bit accesses justifies the setup cost.
 | `references/registers.md` | Looking up or poking a hardware register; hot-register surprises |
 | `references/kernal.md` | Calling the KERNAL, zero-page budgeting, or the Z-register hazard |
 | `references/hypervisor.md` | `$D640`–`$D67F` traps, ROM write-enable, SD-card file access, freeze |
+| `references/floppy.md` | Reading D81 sectors by driving the F011 yourself, with no KERNAL or DOS ROM |
 | `references/xemu-testing.md` | Running, driving or regression-testing code under the emulator; getting builds onto hardware |
 
 ## Scope, and sibling skills

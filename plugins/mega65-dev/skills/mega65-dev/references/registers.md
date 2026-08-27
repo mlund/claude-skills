@@ -302,6 +302,9 @@ Sector-buffer access is DMA-capable, and a read can proceed in the background.
 Only the hypervisor can talk to the SD cards' file systems. For file access, use the
 Hyppo traps (`hypervisor.md`) rather than driving `$D680` directly.
 
+The floppy side — `$D080`–`$D089`, seeking, and reading a D81 without any ROM — is in
+`floppy.md`.
+
 ---
 
 ## 8. Miscellaneous
