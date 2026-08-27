@@ -283,6 +283,20 @@ whatever else lives there — cartridge I/O, REU emulation. The state reads back
 Outside hypervisor mode `$FFD6000`–`$FFD6FFF` shows the selected 512-byte buffer
 repeated eight times; only the hypervisor sees the full 4 KB.
 
+**Sector or byte addressing, and a contradiction worth knowing.** `$D681`–`$D684`
+carry a sector number on an SDHC card and a *byte offset* on an older one. `$D680 <-
+$41` selects sector addressing and `$40` byte addressing, read back at `$D680` bit 4
+(`sdcardio.vhdl:3040-3041`, `:1271`). Get it wrong and 1024 sequential reads become
+1024 overlapping byte offsets, which times beautifully and moves almost nothing.
+
+The contradiction: the SDK's `_sdcard.h` and the tools' own drivers both state that a
+controller reset returns the card to byte addressing and re-issue `$41` afterwards.
+The core does not appear to agree — `sdhc_mode` is assigned in exactly three places,
+its declaration default of `'1'` and the two commands above, and no reset path touches
+it (`sdcardio.vhdl:283`). Either the card needs re-telling though the controller flag
+does not, or the drivers are being defensive. Untested; re-assert `$41` after a reset
+either way, since it costs one write.
+
 Sector-buffer access is DMA-capable, and a read can proceed in the background.
 
 Only the hypervisor can talk to the SD cards' file systems. For file access, use the

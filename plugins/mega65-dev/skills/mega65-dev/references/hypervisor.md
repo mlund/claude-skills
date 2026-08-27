@@ -121,6 +121,24 @@ memory", and it does not disturb the KERNAL's file state. It reaches only the **
 16 MB**: `dos.asm` forces address byte 3 to zero and increments only the middle two
 bytes, so the address arithmetic wraps inside 16 MB rather than carrying out of it.
 
+**It is whole-file only, which is the thing to design around.** There is no offset and
+no length, so a program that wants a range inside a large file cannot express it and
+must drive `$D680` itself (`registers.md` §7).
+
+**What a call costs is mostly not the transfer.** Timed on an R3 with an SDHC card, by
+reading two files of different sizes several times each and solving for the two terms
+— one size averages them together and separates nothing:
+
+| | |
+|---|---|
+| fixed, per call | **~0.37 s** |
+| transferring | ~480 KB/s |
+| raw `$D680` sectors, for comparison | ~750 KB/s, 0.67 ms a sector |
+
+So four files cost about a second and a half before a byte moves, and merging them
+into one wins more than any transfer rate will. Card-dependent, and the fixed term is
+the part that will vary least.
+
 Five things about this group that the trap numbers do not tell you:
 
 - **`setname` takes a page number in Y, not a pointer**, and the page must be
