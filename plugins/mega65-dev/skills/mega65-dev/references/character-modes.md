@@ -102,6 +102,13 @@ bytes covering twice the width, which roughly halves both the glyph count and th
 bytes a picture costs. On an RRB *token* the same bit means something else
 entirely (`rrb.md` §5).
 
+**The width is not paid for out of the height.** An NCM cell is **16×8** against
+full colour's 8×8: 8 pixel rows either way, 64 bytes either way. Measured on core
+v920413 by probing down a glyph whose row `r` is filled with `r+1` — eight
+distinct rows, each two physical rasters under V400 with DBLRR, which is a
+display setting that applies to FCM equally. The only thing NCM spends is colour
+depth.
+
 | nybble | paints |
 |---|---|
 | `$0` | the background — transparent under a compositing token |
