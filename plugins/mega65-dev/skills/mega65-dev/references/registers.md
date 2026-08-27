@@ -368,6 +368,11 @@ The floppy side — `$D080`–`$D089`, seeking, and reading a D81 without any RO
 | `$D640`–`$D67F` | `HTRAPxx` | Hypervisor traps when written from normal mode |
 | `$D67F` | `ENTEREXIT` | Return from hypervisor |
 
+### The Raster Rewrite Buffer has its own reference
+
+GOTOX tokens, what colour byte 0 means on a token versus a glyph, ROWMASK, NCM
+four-bit cells and the per-raster fetch budget are all in `rrb.md`.
+
 ### Reading the keyboard: the queue answers "what was typed", the matrix "what is down"
 
 `$D610` is a queue of typing *events*, so it delivers a key once and then again at the

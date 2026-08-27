@@ -217,32 +217,6 @@ emulator-passes-hardware-fails candidates:
   `BUFSEL` (`$D689` bit 7) mistakes go unnoticed there and fail on hardware
   (`registers.md` §7).
 - **A frozen program's thumbnail region is not populated** the way hardware populates it.
-- **A GOTOX token lands one pixel right in xemu.** The core subtracts one from the value it reads
-  (`viciv.vhdl:4828`), so a token carries one *more* than the column it selects; `vic4.c` takes it
-  raw (`xcounter = char_value & 0x3FF`). Measured on hardware by painting a cell with no token
-  before it -- which sits at column zero by definition -- and a second behind a token asking for a
-  known column, then sweeping the pixel probe for the gap. Worth measuring rather than reading:
-  published examples and write-ups take the value raw too, so the secondary sources agree with each
-  other and not with the machine, and a whole picture shifted one pixel looks correct either way.
-
-### Asking the machine which it is
-
-`$D60F` bit 5 (`REALHW`) reads 1 on real hardware and 0 under emulation or simulation
-(`iomap.txt`). xemu implements it as `!!configdb.realhw << 5`
-(`targets/mega65/io_mapper.c`), so it reads 0 by default and the `-realhw` switch makes
-the emulator claim to be hardware — its own help text says to use that only for
-testing. Two uses:
-
-- **Gate a workaround** that is only correct on silicon. Community code does this for a
-  one-pixel vertical offset applied to border and text positions on hardware alone;
-  the underlying discrepancy is reported rather than confirmed here.
-- **Exercise the hardware path under the emulator** with `-realhw`, which is the only
-  way to reach that branch without a machine — while remembering that everything else
-  still behaves like xemu.
-
-Prefer this over inferring the environment from a timing measurement or a register
-quirk, both of which change between core releases.
-
 When something behaves differently on hardware, read the corresponding VHDL in
 `mega65-core` and the corresponding emulation in `xemu/targets/mega65/` and compare —
 the difference is usually explicit in one of them.

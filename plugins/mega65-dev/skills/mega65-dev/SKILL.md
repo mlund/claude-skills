@@ -40,6 +40,7 @@ Which file answers which question:
 | CPU, memory map, MAP, DMA | `mega65-core/src/vhdl/gs4510.vhdl` |
 | VIC-IV register behaviour | `mega65-core/src/vhdl/viciv.vhdl` |
 | Which device answers at an address | `mega65-core/src/vhdl/iomapper.vhdl` |
+| RRB tokens, NCM, layer compositing | `viciv.vhdl`, and `references/rrb.md` for what it means |
 | SD controller, F011 floppy, sector buffers | `mega65-core/src/vhdl/sdcardio.vhdl` |
 | Keyboard matrix positions | `mega65-core/src/vhdl/matrix_to_ascii.vhdl` (`matrix_normal`, `matrix_shift`) |
 | Synthetic/virtual key injection | `mega65-core/src/vhdl/virtual_to_matrix.vhdl` |
@@ -127,12 +128,13 @@ run of 16-bit accesses justifies the setup cost.
 | `references/kernal.md` | Calling the KERNAL, zero-page budgeting, or the Z-register hazard |
 | `references/hypervisor.md` | `$D640`–`$D67F` traps, ROM write-enable, SD-card file access, freeze |
 | `references/floppy.md` | Reading D81 sectors by driving the F011 yourself, with no KERNAL or DOS ROM |
+| `references/rrb.md` | Compositing with the Raster Rewrite Buffer: GOTOX tokens, ending a row, ROWMASK, NCM four-bit cells, the per-line fetch budget |
 | `references/xemu-testing.md` | Running, driving or regression-testing code under the emulator; getting builds onto hardware |
 
 ## Scope, and sibling skills
 
-In scope: memory model, MAP and banking, hardware registers, KERNAL, hypervisor, and
-emulator-based testing.
+In scope: memory model, MAP and banking, hardware registers, VIC-IV compositing,
+KERNAL, hypervisor, and emulator-based testing.
 
 Out of scope: BASIC 65 programming, end-user operation, core building and flashing.
 
