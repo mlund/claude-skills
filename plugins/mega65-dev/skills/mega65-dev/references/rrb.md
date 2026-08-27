@@ -153,67 +153,20 @@ masked to the complement — skipping the third when the offset is zero.
 
 ---
 
-## 6. NCM, the four-bit cell
+## 6. The cell itself is elsewhere
 
-Bit 3 of colour byte 0 on a *glyph* makes the cell **16 pixels wide at 4 bits
-each** — the same 64 bytes covering twice the width, which roughly halves both
-the glyph count and the bytes a picture costs.
+What a glyph *is* — full-colour and four-bit cells, glyph numbering, the colour
+byte, and how palettes work across a line and down the screen — is
+`character-modes.md`. Two things there that a row's arithmetic depends on:
 
-| nybble | paints |
-|---|---|
-| `$0` | the background — transparent under a compositing token |
-| `$1`–`$E` | `(colour byte & $F0) or nybble` |
-| `$F` | the *whole* colour byte |
-
-- **The low nybble of a byte is the left pixel.**
-- The bank is the colour byte's high nybble, chosen **per cell**, so 16 banks of
-  the 256-entry palette — and the core comments the design intent at `:5284-5289`
-  as *"This makes it much more useful for paralax layers etc"*.
-- **It is 15 colours a cell, not 16, and only if the colour byte ends in `$F`.**
-  Nybble `$F` takes the whole byte, and the bank is that byte's own high nybble,
-  so `$F` lands back in the same bank at whatever the low nybble says. Colour a
-  cell `bank << 4 | $F` and nybbles 1–F give `$x1`–`$xF`. Any other low nybble
-  wastes `$F` on a duplicate and strands `$xF`.
-
-The Book puts the same thing as "16 colours per character"
-(`appendix-viciv-registers.tex:678`), counting the background as one of them.
-
-**With alpha blending** (colour byte 0 bit 5 on a glyph) the nybble becomes an
-alpha value instead, giving 15 levels between the background and the cell's
-foreground colour — which is how anti-aliased proportional text is done, with the
-token's X doing negative kerning between glyph pairs (`:709-710`).
+- an **NCM cell is 16 pixels wide**, so it advances the write position by 16 and
+  a 320-pixel layer costs 20 cells a row rather than 40;
+- a **transparent glyph still advances the write position** while leaving what is
+  under it alone, which is what lets a row be closed without painting (§3).
 
 ---
 
-## 7. Palettes: horizontal comes free, vertical costs a raster
-
-There are four hardware banks of 256 colours; `$D070` chooses which the character
-generator reads and which is the alternate (`:2901`). Two are live at a time.
-
-**Across a line, use the cell.** An NCM cell's own colour byte picks its 16-entry
-bank (§6), and a token picks between the two live palettes for what follows (§2).
-Both are data the row already carries, so a layer or an object gets its own
-palette at no cost in time, and it *travels with the object* as it scrolls.
-
-**Down the screen, change `$D070` at a raster.** The palette lookup happens at
-pixel output (`:3810-3825`), downstream of the raster buffer, so a write lands on
-pixels after it. Reloading the bank — or DMA-ing fresh entries into the bank that
-is not being displayed — gives each horizontal band of the screen its own 256
-colours, which is how a picture exceeds 256 in total.
-
-**Do not reach for raster timing to colour a moving object.** A mid-line change
-applies to *every pixel after it on that line*, not to one object, so following a
-sprite would mean recomputing the write's timing per line per frame — and
-recolouring everything to its right. Horizontal variation is what the per-cell
-bank is for.
-
-Timing note: wait on the physical raster (`$D052`/`$D053`), not `$D011.7`, which
-is the VIC-II raster's bit 8 and saturates inside the picture under V400
-(`registers.md` §4).
-
----
-
-## 8. Geometry and the fetch budget
+## 7. Geometry and the fetch budget
 
 The usual setup is V400 with `CHRYSCL = 0`, `NORRDEL` clear and `DBLRR` set
 (`$D051` bits 7 and 6): each displayed row spans two physical rasters, which is
@@ -234,7 +187,7 @@ idle for a frame gives the same cut.
 
 ---
 
-## 9. What an emulator will not tell you
+## 8. What an emulator will not tell you
 
 `xemu` models neither `raster_buffer_max_write_address` nor the per-line fetch
 budget, so an unterminated row renders full width there and short on hardware,
