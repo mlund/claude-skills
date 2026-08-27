@@ -52,7 +52,8 @@ Which file answers which question:
 Rules:
 
 - **VHDL wins.** Where the Book and the core disagree, the core is right and the
-  discrepancy is worth flagging. Two are recorded as errata: the default I/O
+  discrepancy is worth flagging. Three are recorded as errata: the ROWMASK bit's
+  polarity (`rrb.md` §5), the default I/O
   personality's 28-bit base (`references/memory-map.md` §4) and what `EOM` does to
   interrupts (`references/map-banking.md` §4).
 - **`iomap.txt` is the fast path for registers** — roughly 1750 entries generated from
@@ -128,7 +129,7 @@ run of 16-bit accesses justifies the setup cost.
 | `references/kernal.md` | Calling the KERNAL, zero-page budgeting, or the Z-register hazard |
 | `references/hypervisor.md` | `$D640`–`$D67F` traps, ROM write-enable, SD-card file access, freeze |
 | `references/floppy.md` | Reading D81 sectors by driving the F011 yourself, with no KERNAL or DOS ROM |
-| `references/rrb.md` | Compositing with the Raster Rewrite Buffer: GOTOX tokens, ending a row, ROWMASK, NCM four-bit cells, the per-line fetch budget |
+| `references/rrb.md` | Compositing with the Raster Rewrite Buffer: GOTOX tokens, ending a row, ROWMASK, NCM four-bit cells, palettes across and down the screen, the per-line fetch budget |
 | `references/xemu-testing.md` | Running, driving or regression-testing code under the emulator; getting builds onto hardware |
 
 ## Scope, and sibling skills

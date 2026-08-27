@@ -134,6 +134,13 @@ screenline_draw_mask_drive <= colourramdata;                              -- :45
 draw_mask_blank <= not screenline_draw_mask(to_integer(chargen_y_hold));  -- :4458
 ```
 
+**A set bit means the row is drawn**, so `$FF` shows all eight and `$00` none.
+
+> **Book erratum.** `appendix-viciv-registers.tex` says "For each bit set in the
+> row mask, the corresponding row of characters in the line will *not* be
+> displayed" — the opposite polarity. The core is above; published examples agree
+> with the core, starting their mask tables at `%11111111` for zero offset.
+
 **What it is for: per-layer sub-tile vertical scrolling**, which the token's own
 Y offset cannot give (§1). Emit the layer **twice at the same X** with
 complementary masks, the second sourcing its tiles one map row further down. The
@@ -168,12 +175,45 @@ the glyph count and the bytes a picture costs.
   cell `bank << 4 | $F` and nybbles 1–F give `$x1`–`$xF`. Any other low nybble
   wastes `$F` on a duplicate and strands `$xF`.
 
-With §2's alternate palette selected per token, a row reaches two banks of
-sixteen — 480 colours — switching per layer.
+The Book puts the same thing as "16 colours per character"
+(`appendix-viciv-registers.tex:678`), counting the background as one of them.
+
+**With alpha blending** (colour byte 0 bit 5 on a glyph) the nybble becomes an
+alpha value instead, giving 15 levels between the background and the cell's
+foreground colour — which is how anti-aliased proportional text is done, with the
+token's X doing negative kerning between glyph pairs (`:709-710`).
 
 ---
 
-## 7. Geometry and the fetch budget
+## 7. Palettes: horizontal comes free, vertical costs a raster
+
+There are four hardware banks of 256 colours; `$D070` chooses which the character
+generator reads and which is the alternate (`:2901`). Two are live at a time.
+
+**Across a line, use the cell.** An NCM cell's own colour byte picks its 16-entry
+bank (§6), and a token picks between the two live palettes for what follows (§2).
+Both are data the row already carries, so a layer or an object gets its own
+palette at no cost in time, and it *travels with the object* as it scrolls.
+
+**Down the screen, change `$D070` at a raster.** The palette lookup happens at
+pixel output (`:3810-3825`), downstream of the raster buffer, so a write lands on
+pixels after it. Reloading the bank — or DMA-ing fresh entries into the bank that
+is not being displayed — gives each horizontal band of the screen its own 256
+colours, which is how a picture exceeds 256 in total.
+
+**Do not reach for raster timing to colour a moving object.** A mid-line change
+applies to *every pixel after it on that line*, not to one object, so following a
+sprite would mean recomputing the write's timing per line per frame — and
+recolouring everything to its right. Horizontal variation is what the per-cell
+bank is for.
+
+Timing note: wait on the physical raster (`$D052`/`$D053`), not `$D011.7`, which
+is the VIC-II raster's bit 8 and saturates inside the picture under V400
+(`registers.md` §4).
+
+---
+
+## 8. Geometry and the fetch budget
 
 The usual setup is V400 with `CHRYSCL = 0`, `NORRDEL` clear and `DBLRR` set
 (`$D051` bits 7 and 6): each displayed row spans two physical rasters, which is
@@ -194,7 +234,7 @@ idle for a frame gives the same cut.
 
 ---
 
-## 8. What an emulator will not tell you
+## 9. What an emulator will not tell you
 
 `xemu` models neither `raster_buffer_max_write_address` nor the per-line fetch
 budget, so an unterminated row renders full width there and short on hardware,
