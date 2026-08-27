@@ -243,4 +243,6 @@ Observed slots in the SDK: `.init.005` (save BASIC ZP — must precede ROM unmap
 
 If you add your own startup code, pick a number relative to these. Anything that must observe the pre-program machine state belongs below `.init.010`; anything that depends on RAM being banked in belongs above it.
 
+**One of those slots is a landmine for a target that unmaps the KERNAL.** `commodore/char-conv.c` carries an `.init.250` fragment that puts the screen into shifted PETSCII with `lda #$0e / jsr __CHROUT`. With the ROMs mapped out, `$FFD2` is RAM, so startup jumps into whatever is there — no diagnostic, and before any code of yours runs. Nothing you wrote pulls the object in: `stdio`'s reference to `__to_ascii` does. To drop the fragment, shadow the object by listing a file of the same basename in your own platform library, where it precedes the parent's copy in the merged archive; `common/c/char-conv.c` is the identity pair and suits a target with no character output. `cx16/char-conv.c` is the same shadowing move for a different reason.
+
 To return cleanly to BASIC rather than hanging, link `save-basic.o` — it overrides the default looping `_Exit` and restores the zero page and stack pointer captured at `.init.005`.

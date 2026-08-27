@@ -295,12 +295,34 @@ Hyppo traps (`hypervisor.md`) rather than driving `$D680` directly.
 | Addr | Name | Notes |
 |---|---|---|
 | `$D610` | `ASCIIKEY` | Top of the typing queue as ASCII; write anything to pop |
+| `$D613` | `KEYMATRIXPEEK` | The selected 8-key segment of the matrix (read) |
+| `$D614` | `KEYMATRIXSEL` | Which segment `$D613` shows |
 | `$D619` | `PETSCIIKEY` | Same queue as PETSCII |
 | `$D61E` | `KEYLED` | Keyboard LED value (write only) |
 | `$D629` | `M65MODEL` | Model ID — use this to detect hardware variants |
 | `$D62A`–`$D62E` | — | Keyboard firmware date and git hash |
 | `$D640`–`$D67F` | `HTRAPxx` | Hypervisor traps when written from normal mode |
 | `$D67F` | `ENTEREXIT` | Return from hypervisor |
+
+### Reading the keyboard: the queue answers "what was typed", the matrix "what is down"
+
+`$D610` is a queue of typing *events*, so it delivers a key once and then again at the
+repeat rate — about ten a second. Anything driven from it moves in jumps at that rate
+however often it is polled, which is wrong for holding a direction. For that, read the
+matrix: write a segment number to `$D614`, read those eight keys from `$D613`.
+
+- **A key that is down reads as 0.** Measured on hardware for W/A/S/D and space;
+  `keyboard_complex.vhdl:365-372` returns all ones for a segment out of range, which is
+  the same polarity.
+- **The key number is the matrix position, not ASCII**, from `matrix_to_ascii.vhdl`.
+  Segment is `key >> 3`, bit is `key & 7`. W is `$09`, A `$0A`, S `$0D`, D `$12`,
+  space `$3C`, RETURN `$01`.
+- Segments 0–9 answer; anything above returns `$FF`.
+
+**Do not try to inject a key by writing `$D610`.** That register pops the queue, so a
+write clears an event rather than adding one, and a program driven this way looks as
+though it is ignoring its input. The synthetic key slots at `$D615`–`$D617` are what
+inject (`xemu-testing.md` §4), and they feed the same matrix these registers read.
 
 `$D640`–`$D67F` are **dual-purpose**: from normal mode a write triggers trap number
 `(addr − $D640)`; from *inside* hypervisor mode the same addresses are the saved

@@ -31,6 +31,14 @@ mos-clang -c my-asm-file.s                 # the assembler, via the same driver
 
 `-Os` and `-flto` are on by default via the `.cfg` files. Keep them. LLVM-MOS generates markedly better code optimizing for size than speed, and LTO is what enables zero-page allocation and the static stack analysis.
 
+**A `.cfg` chains to its parent with `@mos-<parent>.cfg`, and inclusion splices the parent's arguments in at that point.** Where the line sits therefore decides two different precedences at once, in opposite directions: search paths are tried in order, so earlier wins, while scalar flags are read with `getLastArgValue` (`clang/lib/Driver/ToolChains/MOSToolchain.cpp` for `-mlto-zp`), so later wins. A child that lists its own flags before the parent include cannot raise `-mlto-zp` or change `-mcpu` — the parent's value is simply the last one seen, with no diagnostic. Check what the driver actually settled on rather than what the config says:
+
+```sh
+mos-<target>-clang -Os -o out foo.c -### 2>&1 | tr ' ' '\n' | grep zp-avail
+```
+
+`-mlto-zp=N` reaches the backend as `-mllvm -zp-avail=N`, and only when non-zero, so an absent line means zero rather than a default.
+
 LTO also **merges identical `static` globals across translation units**, which is worth knowing before you contort a design to avoid duplication: a generated table header `#include`d by two `.c` files yields one copy in the binary, confirmed by link map.
 
 The boundary itself is close to free for code too — splitting a module out measured **−1 byte** once its interface matched what the code was already doing. What costs is the *interface you invent to cross it*: a first attempt at the same split came in **+376** because the extracted function took a pointer out-param and restarted its work on each call, where the single-file loop had kept the state in registers. LTO will inline across the boundary; it cannot undo an interface that is algorithmically worse. So when a split measures expensive, look at the signature before concluding the boundary is to blame.
@@ -50,6 +58,13 @@ llvm-objdump -d --print-imm-hex foo.elf               # only if you actually hav
 The third line has a trap: **for a complete target the link output is usually a flat binary** (PRG, XEX, iNES — whatever `OUTPUT_FORMAT` produces), not an ELF, whatever you name it. `llvm-objdump -d` then fails with *"file was not recognized as a valid object file"*. Piping that into `grep -c` silently reports zero matches, which reads exactly like "the instruction isn't there" — an easy way to talk yourself out of a real finding. Check the tool's exit status, or use `--lto-emit-asm` and read the assembly directly.
 
 Select the CPU with `-mcpu=` (`mos6502`, `mos6502x`, `mos65c02`, `mosr65c02`, `mosw65c02`, `mos65ce02`, `mos4510`, `mos45gs02`, `mos65el02`, `mos65dtv02`, `mosw65816`, `moshuc6280`, `mosspc700`, `mossweet16`). Each defines `__mos__` plus a macro per compatible CPU.
+
+## Adding a platform to the SDK
+
+A platform directory needs a `CMakeLists.txt` calling `platform(<name> [COMPLETE] [HOSTED] [PARENT <p>])`, a `clang.cfg` holding only its own flags, and — if `COMPLETE` — a `link.ld`. Two behaviours of that machinery are traps rather than documentation:
+
+- **Libraries merge by name suffix, up the whole parent chain.** `_merge_parent_library` strips the platform prefix and looks for the same suffix in each ancestor, so a target called `<plat>-copy-data` silently absorbs `common-copy-data` — and everything *that* already merged. Merging into an object file (`add_platform_object_file`, which relinks with `-r --whole-archive`) then fails with duplicate symbols; merging into an archive hides the duplicate instead, because only the first member is extracted. Name a target for what it is and check what landed with `llvm-ar t`.
+- **An inherited library object can carry an `.init` fragment.** `text-sections.ld` collects `KEEP(*(SORT_BY_INIT_PRIORITY(.init.* .init)))`, so a parent's startup code runs whether or not the child wants it — and archive extraction is driven by ordinary symbol references, so it arrives by way of some unrelated function. To drop one, shadow the whole object: list a file of the same basename in your own platform library, where it sits earlier in the merged archive. `cx16/char-conv.c` shadows `commodore/char-conv.c` this way.
 
 ## Writing C that compiles well
 

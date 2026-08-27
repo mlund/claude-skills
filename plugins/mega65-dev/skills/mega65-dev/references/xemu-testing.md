@@ -48,7 +48,9 @@ implementation only catches later edits to it.
 | `-uartmon <path>` | Expose the serial monitor on a Unix socket (§4) |
 | `-prg <file>` | Load a PRG/M65 directly, autodetecting the load address |
 | `-prgmode 64\|65` | Override that autodetection |
+| `-prgtest <spec>` | Override the startup command, and side-load files (§1a) |
 | `-prgexit` | Exit when the `READY.` prompt is reached |
+| `-hdosvirt -hdosdir <dir>` | Serve a host directory as the SD card, through the HDOS traps |
 | `-sdimg <file>` | Use a specific SD-card image |
 | `-8 <file>` | Mount an external D81 on drive 8 via the floppy controller |
 | `-dumpmem <file>` | Write all 384 KB of Chip RAM on exit |
@@ -64,6 +66,29 @@ the build in use.
 xmega65 -headless -sleepless -testing -besure \
         -uartmon /tmp/x.sock -prgmode 64 -prg PROGRAM.M65
 ```
+
+### 1a. `-prg` starts the program only if the load address is a BASIC one
+
+`-prg` waits for `READY.`, `memcpy`s straight into Chip RAM — so it reaches RAM under
+a ROM, and no `CLR` runs — and then decides what to type:
+
+- load address `$0801` (C64) or `$2001` (C65): types `RUN:` and presses RETURN.
+- anything else: types `SYS<load_addr>` and **does not press RETURN**. Nothing runs.
+
+So a program whose entry is not at a BASIC load address needs `-prgtest` to start:
+
+```sh
+xmega65 -headless -sleepless -testing -prgmode 65 \
+        -prg GAME.PRG -prgtest 'SYS8192'
+```
+
+`-prgtest` takes `;`-separated items. An item containing `@` is `FILE@ADDR` and is
+written to the 28-bit address (`$` prefix for hex) before the program starts — useful
+for planting data the program expects without building an image for it. Any other item
+is appended to the startup command, and supplying one is what makes xemu press RETURN.
+
+**Pass `-prgmode` explicitly.** With autodetection and a non-BASIC load address, xemu
+opens a modal "C64 or C65?" dialog, which hangs a headless run.
 
 ---
 
@@ -196,6 +221,13 @@ emulator-passes-hardware-fails candidates:
 When something behaves differently on hardware, read the corresponding VHDL in
 `mega65-core` and the corresponding emulation in `xemu/targets/mega65/` and compare —
 the difference is usually explicit in one of them.
+
+**Read the list the other way round when diagnosing.** A fault that *reproduces under
+xemu* cannot be caused by a mechanism xemu does not model. The list above is normally
+used to distrust a passing emulator run; it is just as useful for clearing suspects,
+and it is cheap — the emulator either shows the fault or it does not. Suspecting a
+register the emulator has no equivalent of, while the emulator is showing the fault, is
+a contradiction; ask which of the two is wrong before going further.
 
 ---
 

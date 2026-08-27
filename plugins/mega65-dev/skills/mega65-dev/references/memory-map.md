@@ -39,6 +39,18 @@ Sources: MEGA65 Book `memory.tex` and `appendix-memorymap.tex`; `mega65-core/iom
 Attic RAM caveats: code runs from it but roughly **10× slower** than Chip RAM; the
 freezer does **not** save or restore it.
 
+**What that costs a bulk copy, measured on an R3** by counting 4 KB DMAgic jobs
+completed inside one frame:
+
+| | a frame | a second |
+|---|---|---|
+| Chip to Chip | 380 KB | 19 MB |
+| Attic to Chip | 48 KB | 2.34 MB |
+
+So the penalty on a DMA copy is **7.9×**, not the 10× that running code from it
+suggests, and 48 KB a frame is enough to stream working sets down rather than hold
+them: a 320×200 screen of 8×8 full-colour glyphs is 19.6 KB, or 0.4 of a frame.
+
 What can reach it, and what cannot:
 
 | Fetch | Attic? | Evidence |

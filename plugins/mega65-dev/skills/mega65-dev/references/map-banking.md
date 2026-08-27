@@ -263,6 +263,32 @@ own 16-bit view). Plain `mxxxxxxx` always reads raw 28-bit addresses.
 5. **The map is global state.** Interrupt handlers, KERNAL calls, and any library code
    see whatever map is current. Either keep a KERNAL-compatible map at all times, or
    own the interrupt vectors.
+6. **`$C000`–`$DFFF` is one MAPHI block.** A window that reaches past `$BFFF` takes I/O
+   with it, `$D640` included. The largest contiguous window that keeps I/O is
+   `$2000`–`$BFFF`, and it costs both MAPLO and MAPHI.
+
+### Giving up the ROMs entirely
+
+A program that calls neither BASIC nor the KERNAL can have their windows as RAM, which
+is the cheapest 16 KB on the machine:
+
+```asm
+        SEI
+        LDA #$3F : STA $00      ; drive port lines 0-2; an input line floats high
+        LDA #$35 : STA $01      ; I/O at $D000, RAM at $A000 and $E000
+        LDA #$44 : STA $D030    ; ROM8/ROMA/ROMC/ROME clear
+```
+
+`resolve_address_to_long` is the authority for why: BASIC needs `lhc(1..0)="11"` and
+the KERNAL `lhc(1)='1'`, so `%101` denies both while `$D000` still routes to
+`$FFD3xxx`; `$D030`'s ROM bits are applied after the `$01` cases and only for reads,
+which is why they must be clear too.
+
+Two consequences to plan for. **`$FFFA`–`$FFFF` become RAM you own**, so install
+handlers before enabling interrupts — RESTORE is an NMI and cannot be masked. And
+**clear MAP before the first write above `$DFFF`**: a loader hands control over with
+`$E000`–`$FFFF` still mapped to the KERNAL at `$3E000`, where writes are discarded by
+the ROM write-protect, so vector stores made too early vanish without a fault.
 
 ---
 

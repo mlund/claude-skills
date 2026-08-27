@@ -24,8 +24,14 @@ Rules:
 - The selector **must** come from A. Writing the same value from X, Y or Z does not work.
 - Which service runs depends on **both** the value in A **and** which trap address you
   write to. Several services share `A` values across `$D640`/`$D641`/`$D642`.
-- `$D640`–`$D67F` are only present in the **MEGA65 I/O personality**
-  (`memory-map.md` §4).
+- `$D640`–`$D67F` are present only in the **MEGA65 I/O personality**, and in the
+  ethernet one: `gs4510.vhdl` traps on `$FFD367F` or `$FFD267F`, so the C64 and C65
+  personalities do not (`memory-map.md` §4). Unlock with the `$D02F` knock before the
+  first trap. In C64 mode the `STA $D640` falls into a SID mirror instead, leaving the
+  carry alone — which reads as whatever the caller last set, so an unlocked-personality
+  bug can look like success.
+- **Bit 0 of A is ignored.** `dos_and_process_trap` masks with `#$7E` before indexing
+  its jump table, so `$34` and `$35` select the same service.
 - On return, registers are preserved except those the service uses for results.
 - User memory — including zero page — is untouched unless the service was explicitly
   asked to write somewhere.
@@ -100,14 +106,46 @@ open/find → read.
 | `$D640` | `$34` / `$30` / `$32` | `findfile` / `findfirst` / `findnext` |
 | `$D640` | `$12` / `$14` / `$16` | `opendir` / `readdir` / `closedir` |
 | `$D640` | `$18` / `$1A` / `$1C` / `$20` | `openfile` / `readfile` / `writefile` / `closefile` |
-| `$D640` | `$24` | `seekfile` |
+| `$D640` | `$1E` | `mkfile` — create a contiguous file, size in X/Y/Z, 8.3 names only |
 | `$D640` | `$22` | `closeall` |
-| `$D640` | `$26` / `$2A` | `rmfile` / `rename` |
-| `$D640` | `$36` | `loadfile` — load into Chip RAM at a 28-bit address (X/Y/Z) |
-| `$D640` | `$3E` | `loadfile_attic` — load into Attic RAM |
+| `$D640` | `$26` | `rmfile` |
+| `$D640` | `$36` | `loadfile` — load at a 24-bit address (X/Y/Z), top byte forced to zero |
+| `$D640` | `$3E` | `loadfile_attic` — same, with the top byte `$08` |
+| `$D640` | `$48` | `get_proc_desc` — copy the process descriptor to page (A) |
+
+`seekfile` (`$24`), `rename` (`$2A`) and `filedate` (`$2C`) dispatch to
+"not implemented" (`dos.asm`); `fstat` (`$28`) is incomplete.
 
 `loadfile` is usually the shortest path from "I have a filename" to "the bytes are in
-memory", and it does not disturb the KERNAL's file state.
+memory", and it does not disturb the KERNAL's file state. It reaches only the **low
+16 MB**: `dos.asm` forces address byte 3 to zero and increments only the middle two
+bytes, so the address arithmetic wraps inside 16 MB rather than carrying out of it.
+
+Five things about this group that the trap numbers do not tell you:
+
+- **`setname` takes a page number in Y, not a pointer**, and the page must be
+  `$00`–`$7E` (`hypervisor_setup_copy_region`, `main.asm`). A buffer anywhere else
+  fails with `$10`, invalid address. The same applies to `readdir`'s destination.
+- **Matching upper-cases the *request* only.** `dos_dirent_compare_name_to_requested`
+  (`dos.asm`) runs `toupper` over the requested name and compares it byte-for-byte
+  against the stored long name. A file whose name on the card contains lower case can
+  therefore never be found — write names in upper case when you create them. There is
+  no wildcard support.
+- **`readfile` reports EOF as failure**: C=0 with A=0 and X=Y=0, which is
+  indistinguishable from an error unless you check the returned count.
+- **A failed `findfile` leaves the previous dirent intact**, so an `openfile` after one
+  silently reopens the file found before it.
+- **Any file or directory call clears `$D030` bit 0** and never restores it —
+  `sd_map_sectorbuffer` does `lda #$01 / trb $D030` (`sdfat.asm`) because colour RAM at
+  `$DC00` would block the sector buffer at `$DE00`. If you had colour RAM there, it has
+  moved.
+
+**The sector buffer is unmapped again on every trap return** (`return_from_trap_with_*`
+in `main.asm` both `jsr sd_unmap_sectorbuffer`), so `$DE00` is not readable when you get
+control back — even after `readfile`, which had just mapped it. Read the data at
+`$FFD6E00` instead, and set `$D689` bit 7 first: outside hypervisor mode only the low
+nine address bits reach the buffer and that bit chooses between the SD and F011 buffers
+(`sdcardio.vhdl`), so with it clear you read the floppy controller's buffer instead.
 
 ### Disk images (virtualised F011)
 
@@ -124,7 +162,8 @@ favour of `attach`.
 | Trap | A | Service |
 |---|---|---|
 | `$D642` | `$00` / `$02` / `$04` | `configsector_read` / `_write` / `_apply` |
-| `$D642` | `$06` | `dmagic_autoset` — set the DMAgic revision from the loaded ROM |
+| `$D642` | `$06` | `configsector_set` |
+| `$D642` | `$08` | `dmagic_autoset` — set the DMAgic revision from the loaded ROM |
 | `$D642` | `$10` / `$12` / `$14` / `$16` | `locate_freeze_slot` / `unfreeze_from_slot` / `read_freeze_region_list` / `get_slot_count` |
 | `$D67F` | any | `freeze_self` — launch the freezer |
 
