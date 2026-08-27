@@ -187,6 +187,9 @@ mode a cell is two bytes and the colour lives in the **high** byte of the colour
 
 The upper bits of `$D051`, `$D053`, and `$D07A` are unrelated control flags, not
 address bits — read the bit slices in `iomap.txt` before doing a whole-byte write.
+`$D051` is the one that bites: bits 6 and 7 are `DBLRR` and `NORRDEL`, which govern
+raster-rewrite buffering, so a read-modify-write of "the raster position" changes how
+the display is composed.
 
 Colour RAM is 32 KB at `$FF80000`; only the first 2 KB is visible at `1.F800`
 (`memory-map.md` §3).

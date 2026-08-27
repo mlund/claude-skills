@@ -23,6 +23,16 @@ is not checked out, offer the URL.
 | `xemu` (optional) | <https://github.com/lgblgblgb/xemu> | The emulator, and the authority on what an emulator option really does |
 | MEGA65 wiki | <https://mega65.atlassian.net/wiki> | Community digests of forum and Discord threads. Terminology, diagrams and worked examples; **not** authority — it states the mapping precedence backwards |
 
+**Community examples.** Not authority, and not sources for a claim — useful for seeing
+a mechanism used end to end before checking it against the core:
+
+| Repo | Covers |
+|---|---|
+| <https://github.com/mlund/mega65-freezer> | Freeze slots, Hyppo traps, SD and FAT32 sector access, 28-bit addressing; tested under xemu and over the serial link |
+| <https://github.com/RetroCogs/Mega65Tutorials> | System init, VIC-IV display setup, RRB. Written up at <https://retrocogs.mega65.com> |
+| <https://github.com/smnjameson/M65_Examples> | DMAgic techniques, RRB |
+| <https://github.com/smnjameson/Mega65Toolkit> | F011 loader without the ROM (`references/floppy.md`) |
+
 Which file answers which question:
 
 | Question | Source |
