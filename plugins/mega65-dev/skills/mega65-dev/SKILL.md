@@ -53,7 +53,10 @@ Which file answers which question:
 Rules:
 
 - **VHDL wins.** Where the Book and the core disagree, the core is right and the
-  discrepancy is worth flagging. Three are recorded as errata: the ROWMASK bit's
+  discrepancy is worth flagging — but read the *whole* decode before calling the
+  Book wrong: it is right about multi-colour mode widening the colour index, in a
+  branch that short-circuits the one an obvious grep lands on
+  (`character-modes.md` §2). Three are recorded as errata: the ROWMASK bit's
   polarity (`rrb.md` §5), the default I/O
   personality's 28-bit base (`references/memory-map.md` §4) and what `EOM` does to
   interrupts (`references/map-banking.md` §4).

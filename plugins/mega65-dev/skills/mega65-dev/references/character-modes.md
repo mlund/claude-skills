@@ -55,27 +55,40 @@ In FCM the colour byte is a palette index, and `$00` and `$FF` are special:
   of `$FF` pixels serves as ink in any colour. A font costs no palette entries
   and recolours per speaker for nothing.
 
-**Eight bits of colour need `$D031.5 ATTR` *clear*.** With it set, only the low
-nybble is colour and the top four become blink, reverse, bold and underline
-(`viciv.vhdl:4568`):
+**Eight bits of colour, two ways.** Either clear `$D031.5 ATTR`, or set VIC-II
+multi-colour mode (`$D016` bit 4) and leave `ATTR` however you like. Only `ATTR`
+set with multi-colour clear loses the top nybble to attributes — blink, reverse,
+bold and underline — leaving four bits of index.
+
+Measured on hardware, painting a cell whose colour byte is `$80` and asking the
+pixel probe what came out:
+
+| `ATTR` | multi-colour | index |
+|---|---|---|
+| clear | clear | **eight bits** |
+| set | clear | **four** — top nybble is attributes |
+| clear | set | eight bits |
+| set | set | eight bits |
+
+Both branches are in the core. Multi-colour is tested first and short-circuits
+the attribute decode entirely (`viciv.vhdl:4594-4597`):
 
 ```vhdl
-if glyph_full_colour='1' and viciii_extended_attributes='0' then
-  glyph_colour_drive <= colourramdata;          -- all eight bits
+if multicolour_mode='1' then
+  -- Multicolour + full colour mode + 16-bit char mode = simple 256 colour
+  -- foreground colour selection from 2nd byte of colour RAM data
+  glyph_colour_drive(7 downto 4) <= colourramdata(7 downto 4);
 else
-  glyph_colour_drive(7 downto 4) <= "0000";     -- attributes take the top nybble
+  if viciii_extended_attributes='1' then ...                     -- :4599
 ```
 
-> **Three sources, three stories, and the core is right.** `iomap.txt` calls the
-> bit "Enable extended attributes and 8 bit colour entries", which reads as
-> though setting it were how you get 8-bit colour. The Book says the wide colour
-> index is "activated by enabling the VIC-II's multi-colour mode while
-> full-colour mode is active". Measured: with `ATTR` clear and multi-colour mode
-> untouched, colour 255 renders correctly; with `ATTR` set the same cell blinks,
-> because bit 4 of the index became the blink attribute.
->
-> Both accounts describe *text* mode, where extended attributes did widen the
-> index. In full-colour mode the same bit does the opposite.
+and the `ATTR`-clear route is `:4568`.
+
+> **`iomap.txt` is the one to distrust here.** It calls the bit "Enable extended
+> attributes and 8 bit colour entries", which reads as though *setting* it were
+> how eight bits are had. In full-colour mode setting it alone does the opposite.
+> The Book's account — that multi-colour mode activates the wide index — is
+> correct and describes the other route.
 
 The `ATTR`-off case is also what lets an RRB token select the alternate palette,
 which needs bits 5 and 6 of colour byte 0 — see `rrb.md` §2.
