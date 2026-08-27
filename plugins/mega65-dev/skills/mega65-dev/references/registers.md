@@ -210,18 +210,41 @@ and the full colour RAM.
 | `$D707` | `ETRIGINLINE` | Trigger enhanced job whose list starts at the PC; PC resumes after it |
 | `$D70E` | `ADDRLSB` | Set list address LSB **without** triggering |
 
-Enhanced job-list option bytes (a `$00`-terminated prefix before the job):
+Enhanced job-list option bytes (a `$00`-terminated prefix before the job). **An option
+ID with bit 7 set consumes the byte after it; IDs below `$80` stand alone, and
+unrecognised IDs are silently ignored** (`gs4510.vhdl:5873-5879`, `:5871`, `:5906`).
+One wrong ID therefore desynchronises the rest of the list rather than failing.
 
-| Option | Meaning |
-|---|---|
-| `$00` | End of options |
-| `$06` | Enable transparency using the `$86` value |
-| `$0A` / `$0B` | Use F018A / F018B list format |
-| `$80 $xx` / `$81 $xx` | Megabyte of source / destination address |
-| `$82 $xx` / `$83 $xx` | Source skip rate: 256ths of a byte / whole bytes |
-| `$84 $xx` / `$85 $xx` | Destination skip rate: 256ths / whole bytes |
-| `$86 $xx` | Skip writing bytes equal to `$xx` (with option `$06`) |
-| `$0D` / `$0E` / `$0F` | Floppy raw flux write / read ignoring long gaps / read |
+| Option | Arg | Meaning |
+|---|---|---|
+| `$00` | — | End of options |
+| `$01` | — | Allow source and destination to cross megabyte boundaries |
+| `$06` / `$07` | — | **Disable / enable** transparency — note the order, see below |
+| `$0A` / `$0B` | — | Use F018A / F018B list format |
+| `$0D` / `$0E` / `$0F` | — | Floppy raw flux write / read ignoring long gaps / read |
+| `$10` | — | Sets a "SID mode" flag; behaviour unverified |
+| `$53` | — | Sets a "draw spiral" flag, with a 40-column phase; behaviour unverified |
+| `$80` / `$81` | `$xx` | Megabyte of source / destination address |
+| `$82` / `$83` | `$xx` | Source skip rate: 256ths of a byte / whole bytes |
+| `$84` / `$85` | `$xx` | Destination skip rate: 256ths / whole bytes |
+| `$86` | `$xx` | The transparent value: bytes equal to `$xx` are not written |
+| `$87`–`$8A` | `$xx` | Destination X and Y 8-pixel-boundary offsets (line mode) |
+| `$8B`–`$8E` | `$xx` | Slope, and initial slope-accumulator fraction (line mode) |
+| `$8F` | `$xx` | Line mode: b7 enable, b6 X-or-Y major, b5 negative slope, b4 scaling |
+| `$90` | `$xx` | **Length bits 16–23** — transfers larger than 64 KB |
+| `$91` / `$92` | `$xx` | Fractional part of the source / destination *address* |
+| `$97`–`$9F` | `$xx` | The `$87`–`$8F` set again, for the **source** side |
+
+`$87` upward come from `gs4510.vhdl:5832-5871`. Only `$00`–`$86` and `$90` reach
+`iomap.txt`, so the usual grep does not find the rest — and `$91`/`$92` are annotated
+in the VHDL yet still absent from the generated list, so treat `iomap.txt` as
+authoritative about what it contains, not about what exists.
+
+> **`$06` and `$07` are the other way round from their own documentation.** The core sets
+> `use_transparent_value` to `'0'` for `$06` and `'1'` for `$07`, and the copy path
+> skips a byte only when that flag is `'1'` (`:5888-5889`, `:9730-9736`). So `$07`
+> enables transparency and `$06` disables it. The `@IO:` comment directly above that
+> code says the opposite, and `iomap.txt` inherits the error.
 
 **Strides are independent and fractional.** Source and destination each have their own
 16-bit 8.8 fixed-point skip rate, defaulting to `$0100` (exactly 1.0) — `$82`/`$83` set
@@ -234,6 +257,27 @@ the hardware expects depends on the core/ROM combination. `$D703` bit 0 selects 
 the hypervisor trap `dmagic_autoset` (`$D642`, `A=$06`) sets it from the loaded ROM.
 Enhanced jobs can pin the format per job with option `$0A`/`$0B`, which is the robust
 choice. Getting this wrong produces jobs that transfer the wrong length or nothing.
+
+**Options survive a chained job.** `dmagic_reset_options` runs only when the last job
+in a chain finishes — both call sites sit inside the `dmagic_cmd(2)='0'` branch
+(`:3844-3883`, `:6305-6312`, `:6774-6781`) — so megabytes, skip rates, transparency
+and line mode leak into the next job unless it sets them again. Whether options are
+parsed at all is fixed by which trigger register the CPU wrote (`:8935`, `:8954`),
+and chaining re-enters the trigger state without changing it, so **every job in an
+enhanced chain needs its own `$00`-terminated option prefix**, even an empty one. The
+line-scaling accumulators are the exception: they reset per chained job (`:5778-5785`).
+
+### Hardware line drawing
+
+Options `$87`–`$8F` turn a fill into a line: `$87`/`$88` and `$89`/`$8A` give the
+bytes to add to the address when crossing an 8-pixel boundary in X and Y, `$8B`–`$8E`
+the slope and its starting fraction, `$8F` the mode bits. `$97`–`$9F` do the same for
+the source address, which is how a texture is read along an arbitrary angle.
+
+The core's comment block describing the intent (`:5820-5831`) states that this works
+only in one-byte-per-pixel modes and assumes the VIC-IV 256-colour card layout — eight
+consecutive bytes per row within each 8x8 cell. That is a source comment rather than
+synthesised logic, and the address arithmetic has not been checked against it.
 
 `$D710`–`$D71F` are **audio** DMA channels, unrelated to block copies.
 
