@@ -218,6 +218,28 @@ ID with bit 7 set consumes the byte after it; IDs below `$80` stand alone, and
 unrecognised IDs are silently ignored** (`gs4510.vhdl:5873-5879`, `:5871`, `:5906`).
 One wrong ID therefore desynchronises the rest of the list rather than failing.
 
+**What a job costs.** Measured on hardware at 40 MHz by timing repeated jobs at
+six sizes against the physical raster, so that a fixed cost can be separated
+from a per-byte one:
+
+| | fixed a job | a byte | throughput |
+|---|---:|---:|---|
+| copy | ~283 cycles | ~2.0 | ~19.6 MB/s |
+| fill | ~102 cycles | ~1.1 | ~37.6 MB/s |
+
+A fill is twice a copy's rate because it reads nothing. Near-memory-to-chip and
+chip-to-chip copies measure the same, which is worth knowing before blaming the
+VIC for competing over chip RAM. The fixed cost covers building the list and
+triggering it, so many small jobs are far worse than one large one: at 32 bytes
+a job is nine-tenths overhead, at 4 KB it is three per cent.
+
+**Time it against a control, or the intercept is the harness.** The smallest
+size pins the fitted fixed cost, and there a job is the same order as the loop
+and call around it. Run a fourth series with a length of zero and subtract it;
+without that the fixed cost reads about a third too high, while the per-byte
+slope — which is what says whether the hardware is performing — is unaffected
+either way.
+
 | Option | Arg | Meaning |
 |---|---|---|
 | `$00` | — | End of options |
