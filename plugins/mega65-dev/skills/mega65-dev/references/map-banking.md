@@ -62,7 +62,7 @@ reg_map_low    <= std_logic_vector(reg_x(7 downto 4));
 ```
 
 **Negative offsets.** Offset addition truncates at 20 bits, so a two's-complement
-offset maps downwards. To bring `$8000` to `2.0000`, use offset `$FA000` (−`$06000`).
+offset maps downwards. To bring `$8000` to `0.2000`, use offset `$FA000` (−`$06000`).
 
 **`MAP` is `AUG` and `EOM` is `NOP`** in assemblers that do not know the mnemonics —
 same opcodes (`$5C` and `$EA`).

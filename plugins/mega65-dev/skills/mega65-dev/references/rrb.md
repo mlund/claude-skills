@@ -59,10 +59,36 @@ different meanings, and nothing distinguishes them but bit 4.
 | bit | on a glyph | on a **token** |
 |---|---|---|
 | 7 | flip vertically | what follows composites rather than painting background |
-| 6 | flip horizontally | with bit 5: select the alternate palette |
+| 6 | flip horizontally | **force what follows into the background** (`:4400` → `:4857`); with bit 5, also selects the alternate palette |
 | 5 | alpha | with bit 6: select the alternate palette |
 | 4 | — | **this cell is a token** |
 | 3 | NCM: 16 pixels wide, 4 bits each (`:4408`) | **ROWMASK enable** (`:4830`) |
+| 2 | width trim, 16th pixel (`:4415`) | **force what follows into the foreground** (`:4415` → `:4856`) |
+
+### Foreground and background forcing, which is how a sprite sorts against layers
+
+Bits 2 and 6 set `force_chars_foreground` and `force_chars_background` for every
+character after the token on that line. They decide bit 8 of the raster line
+buffer — the "foreground" bit a sprite's `$D01B` priority is resolved against:
+
+| pixel | bit 8 becomes | core |
+|---|---|---|
+| transparent (NCM nybble `$0`, FCM byte `$00`) | `force_chars_foreground` | `:5272`, `:5332` |
+| opaque | `not force_chars_background` | `:5281`, `:5344` |
+
+**Both reset to foreground at the start of every line** (`:4256-4257`), so by
+default every pixel is foreground *including transparent ones* — a sprite with
+its priority bit set vanishes, and `$D01F` background collision fires on blank
+screen. Neither reads as a bug from the register side.
+
+To put a sprite between layers: give a background layer's token bit 6, give a
+foreground layer's token neither bit, and set the sprite's `$D01B` bit. It then
+draws in front of the background layers, behind the opaque parts of the
+foreground ones, and through their gaps. Bit 6 alone does not select the
+alternate palette — that wants bits 5 *and* 6 (`:4591`).
+
+One threshold per sprite, not a z-index: the bit is per sprite, the foreground
+map is shared, so there are two planes rather than per-layer sorting.
 
 **Bits 5+6 on a token select the alternate palette for every character that
 follows on that line** (`:4841`). The core reads them for this specifically:
@@ -95,13 +121,13 @@ painted pixel (`:5312`), so despite the name it holds the *last* position; the
 character generator stops once the read address passes it (`:3370`). A layer
 drawn further left therefore cuts the row short.
 
-So every row must end with **a token near the right edge followed by a
-character**. The token alone does not work — it moves the position and paints
-nothing. Both idioms are in use and both work:
+Ensure the final painted position reaches the display’s right edge. If the
+last run does not reach it, append a positioning token and transparent glyph.
+A token alone moves the position without painting. Two closing patterns:
 
 | | token X | trailing glyph |
 |---|---|---|
-| inside the screen | `width - 8` | one glyph, covering the last cell |
+| inside the screen | `width - cell_width` | one glyph, covering the last cell |
 | off the right edge | `width` | one glyph, drawn entirely off-screen |
 
 A transparent glyph still advances the write address (`:5310`, `:5316`) while
@@ -192,7 +218,9 @@ idle for a frame gives the same cut.
 `xemu` models neither `raster_buffer_max_write_address` nor the per-line fetch
 budget, so an unterminated row renders full width there and short on hardware,
 and four full-width layers render perfectly there and are cut on a machine. It
-takes a token's X raw. See `xemu-testing.md` §6.
+takes a token's X raw. These observations are not tied to a recorded xemu
+revision; check the current implementation before relying on them.
 
-A fault that *reproduces* under the emulator therefore cannot be caused by any of
-those — which is the cheapest way to clear them as suspects.
+An equivalent failure under an emulator lacking one of these mechanisms weakens
+that explanation. Compare the failing state: similar pictures can have different
+causes on hardware and in an emulator.

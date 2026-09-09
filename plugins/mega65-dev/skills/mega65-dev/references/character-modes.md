@@ -39,9 +39,10 @@ bit stated rather than OR-ing into it.
 **A glyph's number is its address.** Full-colour glyph data is read from 64 ×
 the character number and never through the character pointer
 (`viciv.vhdl:4464`), so numbering glyphs *is* laying them out in memory. Thirteen
-bits of number puts the ceiling at the first 512 KB of chip RAM. Glyph 0 is
-therefore the zero page — a cell that should draw nothing must point at 64 bytes
-you own, not at 0.
+bits address a 512 KiB window. With EXGLYPH clear, that window starts at chip
+RAM address zero; glyph 0 therefore aliases zero page. Use an owned blank glyph.
+For the EXGLYPH Attic path and board/controller restrictions, see
+[memory-map.md](memory-map.md) §1.
 
 ---
 

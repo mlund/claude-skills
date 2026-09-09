@@ -221,12 +221,9 @@ When something behaves differently on hardware, read the corresponding VHDL in
 `mega65-core` and the corresponding emulation in `xemu/targets/mega65/` and compare —
 the difference is usually explicit in one of them.
 
-**Read the list the other way round when diagnosing.** A fault that *reproduces under
-xemu* cannot be caused by a mechanism xemu does not model. The list above is normally
-used to distrust a passing emulator run; it is just as useful for clearing suspects,
-and it is cheap — the emulator either shows the fault or it does not. Suspecting a
-register the emulator has no equivalent of, while the emulator is showing the fault, is
-a contradiction; ask which of the two is wrong before going further.
+If an equivalent failure reproduces under an emulator that omits the suspected
+mechanism, investigate shared software causes first. Compare state and outputs
+before equating the failures: the same symptom can arise by different paths.
 
 ---
 

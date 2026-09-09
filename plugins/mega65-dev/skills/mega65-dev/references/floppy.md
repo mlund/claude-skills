@@ -146,7 +146,7 @@ dmalist:
 
 Pinning the list format with option `$0B` matters here: `$D703` bit 0 is whatever the
 ROM last left it as, and a loader that runs before any ROM cannot assume
-(`registers.md` §5).
+([dma.md](dma.md)).
 
 ## 6. Testing
 

@@ -1,169 +1,53 @@
 ---
 name: mega65-dev
-description: Systems-level MEGA65 development — the machine, not the toolchain. Use this skill when work involves the 45GS02 memory model, the MAP register, banking, 28-bit addressing, or DMAgic; MEGA65/C65 hardware registers (VIC-II/III/IV, $D030, $D02F I/O personalities, SD/floppy, MATH unit, CIA); the MEGA65 KERNAL (jump table, zero-page usage, Z-register clobbering, MAP preconditions); the Hyppo hypervisor ($D640–$D67F traps, ROM write-protect, freeze, boot); or running and testing MEGA65 code under the xemu emulator. Trigger it for questions like "how do I map Attic RAM into $A000", "what does $D640 trap $70 do", "which KERNAL calls clobber Z", "why did my write to $D031 reset the border", "how do I script a MEGA65 test under xemu", or any MEGA65 bank-switching, memory-layout, or register-poking task. Not for BASIC 65 programming or end-user operation.
+description: "Develop and debug MEGA65 machine-level code: memory mapping, banking, DMAgic, hardware registers, KERNAL, Hyppo, VIC-IV graphics, and xemu testing. Use for hardware access and emulator workflows, not BASIC programming, end-user operation, or compiler-backend development."
 ---
 
 # MEGA65 systems development
 
-This skill is about the **machine**: how addresses are translated, where memory
-and registers live, and what the ROM and hypervisor expect of you. It is
-toolchain-neutral — examples are plain 45GS02 assembly.
+Use this skill for machine behaviour and hardware access. Keep assembly examples toolchain-neutral. For compiler ABI, constraints, or instruction support, consult the available llvm-mos skill only when needed.
 
-## Authoritative sources
+## Workflow
 
-Upstream repositories, in precedence order. **Ask the user for local paths if they are
-not already known**; do not guess, and do not record paths anywhere. If a repository
-is not checked out, offer the URL.
+1. Establish the relevant board, core/ROM or xemu revision, and current memory map when the answer depends on them. Use paths already supplied or established by project configuration; ask only for a missing checkout needed for this task.
+2. Select the reference below that addresses the question. Read only relevant references; do not load the collection by default. Follow cross-references only when the current task needs them.
+3. Check the relevant implementation before asserting disputed behaviour. Cite the source symbol and revision when available; line numbers are navigation aids, not version identifiers.
+4. Distinguish implementation evidence, hardware measurements, emulator observations, and unverified reports. Do not convert a benchmark from one configuration into a universal timing rule.
 
-| Repo | URL | Authority |
-|---|---|---|
-| `mega65-core` | <https://github.com/MEGA65/mega65-core> | **Ground truth.** `src/vhdl/*.vhdl` is the hardware; `iomap.txt` is the register master list |
-| `mega65-user-guide` | <https://github.com/MEGA65/mega65-user-guide> | The MEGA65 Book. Best prose; occasionally stale |
-| `mega65-rom` | <https://github.com/MEGA65/mega65-rom> | KERNAL/BASIC source. Needed for ROM-behaviour claims |
-| `xemu` (optional) | <https://github.com/lgblgblgb/xemu> | The emulator, and the authority on what an emulator option really does |
-| MEGA65 wiki | <https://mega65.atlassian.net/wiki> | Community digests of forum and Discord threads. Terminology, diagrams and worked examples; **not** authority — it states the mapping precedence backwards |
+## Sources
 
-**Community examples.** Not authority, and not sources for a claim — useful for seeing
-a mechanism used end to end before checking it against the core:
+Choose authority by subject, rather than applying one ranking to every question:
 
-| Repo | Covers |
+| Subject | Source |
 |---|---|
-| <https://github.com/mlund/mega65-freezer> | Freeze slots, Hyppo traps, SD and FAT32 sector access, 28-bit addressing; tested under xemu and over the serial link |
-| <https://github.com/RetroCogs/Mega65Tutorials> | System init, VIC-IV display setup, RRB. Written up at <https://retrocogs.mega65.com> |
-| <https://github.com/smnjameson/M65_Examples> | DMAgic techniques, RRB |
-| <https://github.com/smnjameson/Mega65Toolkit> | F011 loader without the ROM (`references/floppy.md`) |
+| Hardware behaviour | [mega65-core](https://github.com/MEGA65/mega65-core): relevant VHDL decode/state machine |
+| Register lookup | Core's iomap.txt; generated annotations can be incomplete or disagree with logic |
+| Explanations and formats | [mega65-user-guide](https://github.com/MEGA65/mega65-user-guide); resolve hardware discrepancies against the relevant core revision |
+| KERNAL/BASIC behaviour | [mega65-rom](https://github.com/MEGA65/mega65-rom) |
+| Hyppo services | Core's src/hyppo/ |
+| Emulator behaviour/options | [xemu](https://github.com/lgblgblgb/xemu), targets/mega65/ |
 
-Which file answers which question:
+Community examples can suggest mechanisms to investigate; verify hardware claims against the implementation. Read the complete relevant branch before declaring documentation wrong.
 
-| Question | Source |
+## Essential constraints
+
+- Establish the I/O personality and MAP state before using 16-bit hardware addresses. Mapping over I/O can turn a register access into a RAM access.
+- MAP changes must leave executing code, required data, and interrupt paths reachable. Read the banking reference before changing a map.
+- Before changing VIC-IV geometry or pointers, check HOTREG handling in the register reference.
+- Emulator success does not establish hardware correctness or timing. Similar symptoms on both platforms do not prove a shared cause.
+- For performance claims, identify the workload, board/core, CPU mode, transfer endpoints, and timing method. Check correctness and measure without serial polling inside the timed interval.
+
+## References
+
+| Read | When needed |
 |---|---|
-| CPU, memory map, MAP, DMA | `mega65-core/src/vhdl/gs4510.vhdl` |
-| VIC-IV register behaviour | `mega65-core/src/vhdl/viciv.vhdl` |
-| Which device answers at an address | `mega65-core/src/vhdl/iomapper.vhdl` |
-| Character modes, glyph data, palettes | `viciv.vhdl`, and `references/character-modes.md` for what it means |
-| RRB tokens and layer compositing | `viciv.vhdl`, and `references/rrb.md` |
-| SD controller, F011 floppy, sector buffers | `mega65-core/src/vhdl/sdcardio.vhdl` |
-| Keyboard matrix positions | `mega65-core/src/vhdl/matrix_to_ascii.vhdl` (`matrix_normal`, `matrix_shift`) |
-| Synthetic/virtual key injection | `mega65-core/src/vhdl/virtual_to_matrix.vhdl` |
-| What freezing saves and restores | `mega65-core/src/hyppo/freeze.asm` |
-| Register *names* and prose | the Book's LaTeX register appendices |
-| KERNAL and BASIC behaviour | `mega65-rom` sources |
-| What an emulator option really does | `xemu/targets/mega65/` |
-
-Rules:
-
-- **VHDL wins.** Where the Book and the core disagree, the core is right and the
-  discrepancy is worth flagging — but read the *whole* decode before calling the
-  Book wrong: it is right about multi-colour mode widening the colour index, in a
-  branch that short-circuits the one an obvious grep lands on
-  (`character-modes.md` §2). Three are recorded as errata: the ROWMASK bit's
-  polarity (`rrb.md` §5), the default I/O
-  personality's 28-bit base (`references/memory-map.md` §4) and what `EOM` does to
-  interrupts (`references/map-banking.md` §4).
-- **`iomap.txt` is the fast path for registers** — roughly 1750 entries generated from
-  `@IO:` annotations in the VHDL, so it never drifts from the hardware. Format and
-  grep recipe in `references/registers.md`.
-- **Never cite the wiki for a hardware fact you can check in the core.** Read it for
-  terminology, for diagrams, and to learn which questions people get wrong — then
-  verify. Its rendered pages are a JavaScript shell that fetching returns empty; take
-  the source instead, anonymously, with the page id from the URL:
-
-  ```sh
-  curl -s "https://mega65.atlassian.net/wiki/api/v2/pages/<id>?body-format=storage"
-  ```
-
-  JSON, with the page as HTML in `.body.storage.value`.
-- **`xemu` is optional but valuable.** If a task involves running, testing or debugging
-  code, ask whether `xemu` (binary `xmega65`) is available and, optionally, where its
-  source is checked out. Emulator agreement is not hardware agreement —
-  `references/xemu-testing.md` §6 lists known divergences.
-
-## The one thing to understand first
-
-A 16-bit address goes through **four** translation mechanisms before it reaches the
-28-bit address space, in this priority order:
-
-```
-MAP register          highest — per-8KB-block offset, set by the MAP instruction
-  ↓ (unmapped blocks only)
-$D030                 VIC-III ROM banking: ROM8/ROMA/ROMC/ROME → bank 2
-  ↓
-cartridge ROM         C64 expansion-port EXROM/GAME configurations
-  ↓
-$0001                 C64-style banking: I/O and C64 ROM at $A000/$D000/$E000
-```
-
-All four live in one function, `resolve_address_to_long` in `gs4510.vhdl` (~line 9047),
-and **it is written so that priority runs bottom-up**: only the MAP case returns early,
-and every mechanism below it overwrites the same `temp_address` variable in source
-order, so the *last* assignment reached wins. `$D030` is applied after the cartridge
-cases, not before. Read the function from the end when you need to settle an ordering
-question.
-
-Two consequences that explain most confusion:
-
-- **`$0001` and `$D030` only act on blocks the MAP register did not select.** Map
-  `$C000–$DFFF` with offset 0 and you get RAM, not I/O, whatever `$0001` says.
-- **28-bit addressing modes (`LDA [$nn],Z`) and DMA bypass all four.** They see the
-  raw 28-bit space. This is why they are usually the right tool, and why a routine
-  that uses them keeps working regardless of the caller's map.
-
-Reach for MAP only when code must **execute** from the region, or when a large
-run of 16-bit accesses justifies the setup cost.
-
-## Working rules
-
-- **Cite evidence.** Every hardware claim should carry a register address, a
-  `file:line`, or a Book section. Unsourced recollection about MEGA65 hardware is
-  frequently wrong.
-- **Check `iomap.txt` before asserting a register exists.** Register names and bit
-  assignments change between core releases.
-- **State the I/O personality.** `$D640`, `$D030`, and most `$D0xx`–`$D7xx` registers
-  are only visible in the right personality (`references/registers.md`).
-- **Say when something is unverified.** "Reported but not confirmed against the core"
-  is a useful thing to write down; a confident guess is not.
-
-## Reference files
-
-| File | Open it when |
-|---|---|
-| `references/memory-map.md` | You need to know what lives at an address — Chip/Attic RAM, ROM banks, colour RAM, upper I/O, personalities |
-| `references/map-banking.md` | Anything involving `MAP`/`EOM`, bank switching, or designing a banked memory layout |
-| `references/registers.md` | Looking up or poking a hardware register; hot-register surprises |
-| `references/kernal.md` | Calling the KERNAL, zero-page budgeting, or the Z-register hazard |
-| `references/hypervisor.md` | `$D640`–`$D67F` traps, ROM write-enable, SD-card file access, freeze |
-| `references/floppy.md` | Reading D81 sectors by driving the F011 yourself, with no KERNAL or DOS ROM |
-| `references/character-modes.md` | What a cell is: full-colour and four-bit (NCM) modes, glyph numbering, the colour byte, palettes across a line and down the screen |
-| `references/rrb.md` | Compositing cells into layers: GOTOX tokens, ending a row, ROWMASK, the per-line fetch budget |
-| `references/xemu-testing.md` | Running, driving or regression-testing code under the emulator; getting builds onto hardware |
-
-## Scope, and sibling skills
-
-In scope: memory model, MAP and banking, hardware registers, VIC-IV compositing,
-KERNAL, hypervisor, and emulator-based testing.
-
-Out of scope: BASIC 65 programming, end-user operation, core building and flashing.
-
-The 45GS02 **instruction set** — Q pseudo-register, `[$nn],Z`, the Z=0 invariant that
-compiled code depends on, per-mnemonic assembler support — is covered by the
-`llvm-mos` skill in `references/45gs02.md`. Use that for CPU and compiler questions;
-use this skill for the machine around the CPU. `llvm-mos-dev` covers the compiler
-backend itself.
-
-## Maintaining this skill
-
-When adding to or correcting these files:
-
-- **Evidence or nothing.** A new claim needs a citation: `iomap.txt` line, a
-  `src/vhdl/<file>.vhdl:<line>`, a Book chapter, or a `mega65-rom` source file.
-  If you verified it on hardware or in an emulator, say which and what you observed.
-- **Prefer the core.** If the only source is the Book and the core is checkable,
-  check it. Record contradictions rather than silently picking a side.
-- **Generic, not autobiographical.** No dates, no project names, no local paths, no
-  "we discovered". Write facts and patterns a stranger can reuse.
-- **Brief.** Tables over prose. One idea per row. Delete anything the reader can get
-  from `iomap.txt` in one grep, unless it is a gotcha.
-- **Assembly stays toolchain-neutral.** No compiler-specific syntax or constraints;
-  those belong in `llvm-mos`.
-- **Prune.** When the core changes a register or a claim turns out wrong, fix or
-  remove it. A stale table is worse than no table.
+| [memory-map.md](references/memory-map.md) | Physical regions, Chip/Attic RAM, colour RAM, I/O personalities, ROM protection |
+| [map-banking.md](references/map-banking.md) | MAP/EOM encoding, precedence, interrupts, mapping readback, banked layouts |
+| [registers.md](references/registers.md) | Register lookup, HOTREG, CPU speed, VIC-IV, MATH, storage and keyboard registers |
+| [dma.md](references/dma.md) | DMA triggers, job formats, options, chaining, strides and transfer measurements |
+| [kernal.md](references/kernal.md) | KERNAL call preconditions, base page, Z handling and zero-page usage |
+| [hypervisor.md](references/hypervisor.md) | Hyppo traps, file loading, freezing and ROM write protection |
+| [floppy.md](references/floppy.md) | Direct F011 D81 sector access without KERNAL/DOS |
+| [character-modes.md](references/character-modes.md) | FCM/NCM cells, glyph addressing and palettes |
+| [rrb.md](references/rrb.md) | GOTOX, compositing, row termination, ROWMASK and fetch budgets |
+| [xemu-testing.md](references/xemu-testing.md) | Launching, driving and observing tests; emulator limitations and hardware transfer |

@@ -47,9 +47,12 @@ completed inside one frame:
 | Chip to Chip | 380 KB | 19 MB |
 | Attic to Chip | 48 KB | 2.34 MB |
 
-So the penalty on a DMA copy is **7.9×**, not the 10× that running code from it
-suggests, and 48 KB a frame is enough to stream working sets down rather than hold
-them: a 320×200 screen of 8×8 full-colour glyphs is 19.6 KB, or 0.4 of a frame.
+These rounded throughput figures imply about an **8×** DMA penalty for this
+configuration; instruction-fetch slowdown is a separate measurement. A 320×200
+image using distinct 8×8 FCM glyphs requires 40 × 25 × 64 = **64,000 bytes**
+(62.5 KiB), about 27 ms at 2.34 MB/s, excluding setup. Deduplication can reduce
+residency; it does not change the bytes per glyph. The measured core revision
+is not recorded here, so remeasure before using these rates as a budget.
 
 What can reach it, and what cannot:
 
