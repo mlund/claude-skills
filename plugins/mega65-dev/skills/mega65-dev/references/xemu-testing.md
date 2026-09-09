@@ -92,6 +92,30 @@ opens a modal "C64 or C65?" dialog, which hangs a headless run.
 
 ---
 
+### Loading a test PRG from SD in BASIC 65
+
+For a loose PRG on the SD card, use unit 12:
+
+```basic
+DIR U12,P
+CHDIR "DEMOS",U12
+DLOAD "DEMO.PRG",U12
+RUN
+```
+
+`DIR U12,P` lists the current SD directory by page; press Q to stop or another
+key to continue. Omit `,P` for an unpaged listing. `CHDIR` is optional;
+`CHDIR "..",U12` goes to the parent directory. Include the `.PRG` suffix.
+
+`RUN` requires a BASIC-startable PRG. For other machine-code programs, use their
+documented load address and entry procedure. Files inside a D81 or D64 image need
+the image mounted first, then loading from its drive rather than unit 12.
+
+Source: MEGA65 book, `mega65-user-guide/using-disks.tex`, “Accessing the SD Card
+from BASIC” and “DLOAD and RUN”.
+
+---
+
 ## 2. Exiting with a status code
 
 With `-testing`, `$D6CF` becomes an exit channel. Every write stores the byte as the
