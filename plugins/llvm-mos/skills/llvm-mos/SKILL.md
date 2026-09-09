@@ -147,6 +147,27 @@ These rules come from the project's own optimization guide; the reasoning matter
 - **Infinite loops need a side effect.** `while (1);` is undefined behavior and gets deleted. Write `for (;;) asm volatile("");` or spin on a `volatile` object. A *condition* is not a side effect: `while (1 || msg) {}`, a common way to silence an unused-parameter warning while halting, is the same undefined loop dressed up — a deliberate halt written that way may not halt.
 
 For hardware registers, `volatile` is the contract that an access happens exactly where you wrote it. Note two 6502-specific subtleties: indexed addressing can emit a spurious read one page *below* the target, so avoid pointer arithmetic that lands one page above read-sensitive I/O; and the compiler deliberately avoids RMW instructions (`INC`) on volatile objects because those double-access.
+- **Pointers that advance in lockstep want one index, not one pointer each.** Three arrays stepped
+  two bytes at a time per iteration is three live pointers, and the backend has nowhere to keep
+  them: it copies two of them between spare zero-page slots four times an iteration. One `uint8_t`
+  offset into three fixed bases is `lda (zp),y` throughout. Measured on a four-byte-per-iteration
+  copy loop: **160 cycles an iteration walking, 89 indexed**, of which 48 were the shuffling. The
+  index must be a byte for this to pay — it becomes Y — so the loop needs a bound under 128
+  iterations, and something has to say so.
+- **`le16(p + i)` and `le16(p[i], p[i+1])` are not the same to the compiler.** The first forms a
+  fresh pointer every iteration — a 16-bit add and two stores, **18 cycles** — where the second
+  indexes a base that stays put. The same applies to any helper taking `const uint8_t *`: passing
+  it an offset pointer materialises one.
+- **Write the far byte of a pair before the near one.** Storing `[i]` then `[i+1]` makes the index
+  step forward, back, forward; the backend spills the odd index to memory rather than hold it.
+  Storing `[i+1]` first leaves one step back and the spill goes: **36 instructions to 32, 97 cycles
+  to 89** on the same loop.
+- **Indexing only pays where the base is a link-time address, which means inlined.** The rewrite
+  above is worth nothing in a function the inliner declined — there the fields arrive through
+  `this` as `lda (zp),z`, and an index does not remove an indirection. Applying it to a 505-byte
+  method grew it **260 instructions to 329**. This is the trap: the same edit that is a large win
+  in an inlined helper is a loss ten lines away, and the only way to tell them apart is whether the
+  function has its own symbol in the map. Check before assuming a pattern transfers.
 
 ## Inline assembly — the danger zone
 
@@ -275,6 +296,19 @@ This is **entirely manual — the toolchain offers no support at all**: no `z`/`
 The standard LLVM tools — `llvm-objdump -d --print-imm-hex`, `llvm-nm`, `llvm-readelf`, `llvm-size`, `llvm-objcopy`, `llvm-strip`, `llvm-mc` — need an ELF, and **`-c` does not produce one under the default LTO**: it writes LLVM IR bitcode, which every one of them rejects as "not recognized as a valid object file". `-fno-lto -c` gives a real ELF relocatable, at the cost of no longer being the pipeline that ships. `llvm-mlb` emits Mesen label files for NES debugging. Compile with `-g` for DWARF and source-level debugging under emulators with a GDB stub.
 
 **`-finstrument-functions` gives call tracing on a target with no debugger**, through the usual `__cyg_profile_func_enter`/`__cyg_profile_func_exit` hooks — enough to record a call stack and print a backtrace from an assertion handler. Two conditions. Mark the hooks `__attribute__((no_instrument_function))`, or they instrument themselves and recurse. And have them **ignore the `call_site` argument**: clang supplies it with `llvm.returnaddress`, which this backend cannot legalize, so that call has to be optimized away as dead. The consequence is that instrumentation links at `-O1` and above but fails at `-O0`, with `LLVM ERROR: unable to legalize instruction: … llvm.returnaddress` reported at *link* time against no source line. The same limitation means `__builtin_return_address()` does not work here at all. To recover the call site anyway, read it off the hardware stack — `tsx`, then the return address at `$0100+S` — which works because `jsr` still pushes there even though frames live on the soft stack.
+
+**Find a loop in the disassembly by what it reads, not by a constant inside it.** Under LTO the
+hot loops of several functions land inlined in one caller and look alike, so a search keyed on a
+literal picks whichever comes first. Two loops that store four bytes an iteration and mask a value
+can be entirely different functions; distinguish them by whether the body *loads* through a pointer
+(consuming data) or only stores immediates (filling). A comparison built on the wrong match reports
+a confident instruction count for a function nobody asked about.
+
+**Diff the function, not its caller.** A change to a callee that the inliner declined leaves the
+caller instruction-for-instruction identical — same count, only addresses shifted — which reads as
+"the edit did nothing". Extract the callee's own symbol from both disassemblies and compare that;
+whether a symbol exists in the map is also what tells you the inliner's decision, which is the
+thing that decides whether an optimization transfers at all.
 
 The *final link output* of a complete target is generally not ELF — `OUTPUT_FORMAT` emits a flat binary, so `llvm-nm`/`llvm-objdump` reject it no matter what you called the file. Build systems often keep the ELF alongside (CMake leaves `foo.prg.elf` next to `foo.prg`); disassemble that, or use `-Wl,--lto-emit-asm` and read `<output>.lto.s`.
 
