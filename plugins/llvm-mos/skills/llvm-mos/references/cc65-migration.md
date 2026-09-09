@@ -13,23 +13,21 @@ Contents:
 
 ## 1. Strategy — what to port and what to rewrite
 
-The mechanical translation is easy. The trap is porting cc65 *style*.
+Port the algorithm before preserving compiler-specific optimizations.
 
-cc65 is a non-optimizing compiler with a fixed lowering per C construct. A generation of good advice grew around that: avoid locals, hoist everything into globals or static temporaries, reuse scratch variables, avoid passing/returning structs, hand-unroll, precompute tables of things the compiler could fold. **Most of that advice is counterproductive on llvm-mos**, and some of it actively blocks optimization:
+- Replace shared scratch variables with correctly typed locals where possible.
+  Shared globals can force stores and make unrelated uses share one integer width.
+- Review cc65 calling-convention directives and zero-page reservations rather
+  than translating them mechanically.
+- Keep hardware and file-format constraints. Test narrower indices and different
+  data layouts only where ranges and access patterns permit them.
+- Compare equivalent features, inputs, and occupied memory regions. There is no
+  expected size ratio between compilers.
+- Investigate new warnings before calling them porting regressions. Keep unrelated
+  bug fixes separate unless the user includes them in the task.
 
-- Reusing one global temporary everywhere forces the register allocator to keep a specific memory location live, where it would otherwise have kept the value in A/X/Y or an imaginary register and never stored it at all.
-- Globals are observable to other functions, so stores to them are hard to eliminate. Locals can vanish entirely.
-- `__fastcall__`, `#pragma` register/static-locals directives, and manual zero-page juggling have no llvm-mos equivalent because the compiler does this work with a whole-program view.
-
-The productive sequence: **port the algorithm as plain, clean C; build with the defaults (`-Os -flto`); measure; then optimize only what's actually hot**, using the guidance in the main skill. Expect the naive port to be smaller and faster than the tuned cc65 original in most cases, and expect a few places where it isn't — those are worth hand-tuning.
-
-Do keep the genuinely architectural cc65 advice, which is about data layout rather than the compiler: struct-of-arrays over array-of-structs, keep indices under 256, prefer 8-bit types where the range allows.
-
-**What to expect in bytes.** A seven-target port measured against the shipped cc65 binaries came out at **44–82%** of the original: 44% (audio mixer), 51% (disk-image builder, ROM loader), 62% (sprite editor), 66% (system info), 82% (the main menu, which is mostly data). Take a ratio near 50% as normal and anything above 85% as a sign the port kept cc65 idioms it did not need to. The one target that exceeded its cc65 size had gained features; measured against the commit before those, it was 51% like the rest.
-
-**The port is when you find the bugs the original shipped with.** cc65's diagnostics are weak, so a codebase that has worked for years can carry defects that llvm-mos plus `-Wall -Wextra` plus clang-tidy surface immediately. In one port those included a condition written `!flags & 0xf0`, which parses as `(!flags) & 0xf0` and is always false — a status marker that had never once drawn — and a register pair displayed with its bytes swapped. Budget time for this: the findings are real, they are not regressions you introduced, and each one raises the question of whether to fix the port only or the original too. Decide that once, early, and record it, because the answer changes what "diverging from upstream" means for every later fix.
-
-**Reused file-scope scratch variables are also a type problem, not just an allocation one.** The cc65 habit of one `static unsigned int i` shared across a file means the *widest* use sets the type for every use. Narrowing it is then unsafe — one loop may genuinely need 16 bits — so the byte-wide uses silently carry wide arithmetic. Give each use its own correctly-typed local instead; on a 16-bit-`int` target that is worth real bytes, and `-Wconversion` will point at exactly these sites.
+Build with the project's llvm-mos settings, verify behavior, then measure code
+size and the relevant hot paths. See [optimization.md](optimization.md).
 
 ---
 

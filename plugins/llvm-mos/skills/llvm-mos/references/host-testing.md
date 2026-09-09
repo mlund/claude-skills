@@ -1,10 +1,7 @@
 # Testing on the host
 
-Much of a 6502 program is not hardware access at all: it is arithmetic over formats
-something else defines — a disk layout, a register encoding, a text conversion, a
-table. That part compiles and runs natively, where it can be exercised far faster and
-more thoroughly than under an emulator, and where a failure points at a line rather
-than at a hung machine.
+Test format handling and arithmetic on the host when they can be separated from
+hardware access. Failures are easier to inspect there.
 
 This file covers what can move to the host, where the expected values should come
 from, and what a passing host test does **not** prove on a 6502 target.
@@ -12,7 +9,7 @@ from, and what a passing host test does **not** prove on a 6502 target.
 Contents:
 1. What can run on the host
 2. Where the expected values come from
-3. The transcription trap
+3. Independent expected results
 4. What a host test does not prove
 5. Harness shape
 6. Splitting a unit for testing
@@ -36,17 +33,15 @@ Typical candidates, all of them encodings of formats fixed outside your program:
 | Text | PETSCII ↔ ASCII conversion, screen-code folding, case tables |
 | Tables | opcode and disassembler tables, name databases |
 
-The split is usually cheap in code size, because LTO already sees through the
-boundary — see the SKILL's note that a module split measured **−1 byte** once its
-interface matched what the code was doing anyway. What costs is the interface you
-invent to cross it, so measure rather than assume.
+Keep the interface small and measure the target build after splitting a module.
+LTO can optimize across source files, but a changed interface can still add work.
 
 ---
 
 ## 2. Where the expected values come from
 
 This is what makes a host test worth writing. These formats are defined outside your
-program, so an oracle exists independently of it.
+program, so a reference result exists independently of it.
 
 A test whose expectations were copied out of the implementation only detects later
 edits to that implementation. A test whose expectations were transcribed from the
@@ -64,11 +59,11 @@ For MEGA65 targets specifically, `mega65-dev/references/xemu-testing.md` lists w
 
 ---
 
-## 3. The transcription trap
+## 3. Independent expected results
 
 Re-implementing the function under test *inside* the test — the same walk, the same
 rounding, the same special cases — produces something that looks like an independent
-oracle and is not. It catches a divergent edit between the two copies; it cannot catch
+reference and is not. It catches a divergent edit between the two copies; it cannot catch
 a shared misreading of the format, because both copies embody the same reading.
 
 Where a second implementation is genuinely wanted, derive it from the *specification*
@@ -86,8 +81,8 @@ Structural properties are often stronger and cheaper than a reimplementation:
 
 ## 4. What a host test does not prove
 
-The host and a 6502 target disagree on two fundamentals. Verified with
-`mos-mega65-clang` and the system `cc` on macOS:
+Check the data model in both builds; signedness and widths depend on the target
+and compiler options. Common defaults:
 
 | | 6502 target | typical host |
 |---|---|---|

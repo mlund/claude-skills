@@ -208,13 +208,18 @@ Give banks non-overlapping *linker* addresses even when they share a CPU window.
 
 Place code into a bank with `__attribute__((section(".bank3")))` or a `.section` directive in asm, and assign that section to the region in `SECTIONS`.
 
-Two things then conspire to move code back out of the bank you just put it in, both silently, and neither is visible in the source.
+Check both inlining and generated data after linking.
 
-**A pinned function without `noinline` need not stay pinned.** The section attribute places the symbol; it does not stop the inliner from copying the body into a caller that lives somewhere else, and under LTO that caller can be in another translation unit. Measured on a two-line function attributed into a bank and called once from `main`: the shipping assembly contains no such symbol at all, its body having been absorbed into `main` in `.text.main`. Whether that is a bug depends entirely on whether the bank was paged in at the call — which is the kind of thing that works until the call site moves. Pin banked entry points with `noinline` as well as `section`, and treat the pair as one idiom.
+A section attribute places a function's out-of-line body, not copies inlined into
+callers. Add `noinline` when the function must execute from its assigned bank.
 
-**Compiler-synthesized data does not inherit the attribute.** A dense `switch` becomes a jump table, and the table is emitted into `.rodata.<function>` — placed by the generic `*(.rodata .rodata.*)` rule, not alongside the function. Measured: a function attributed into `bank1` landed there, while its `.LJTI0_0` table went to `.rodata` at a completely different address. The code and the table it indexes through end up in different banks, so the dispatch reads whatever is mapped at that address when the bank is in — a wrong jump, not a fault.
+Generated jump tables may be placed in `.rodata.<function>` rather than beside
+the code. Ensure the table is mapped when the function runs. Either place the
+bank's read-only data with its code or consider `-fno-jump-tables` for the affected
+translation unit. Measure the resulting size and speed.
 
-Three ways out, in order of preference: compile banked translation units with `-fno-jump-tables` (measured cost on that function, +51 bytes, and the `.rodata` entry disappears from the map); give the bank's rodata its own section and assign it to the same region; or keep banked code simple enough not to generate tables. Whichever you pick, assert it after linking rather than trusting it — a link map shows which section each symbol actually landed in, and a build-time check on that is the only thing standing between you and a layout that silently drifts. See **Tooling** in `SKILL.md` for getting symbol addresses out of a map.
+Check placement in the final map and enforce required relationships in the linker
+script or a build check. See [tooling.md](tooling.md).
 
 ---
 

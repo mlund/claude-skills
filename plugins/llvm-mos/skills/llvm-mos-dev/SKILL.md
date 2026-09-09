@@ -1,382 +1,85 @@
 ---
 name: llvm-mos-dev
-description: >-
-  Develop, debug, test, and review the llvm-mos toolchain itself — the MOS
-  backend in llvm/lib/Target/MOS, the MC layer (encoder, relaxation,
-  disassembler, InstPrinter, MCInstrAnalysis), lld/ELF/Arch/MOS.cpp
-  relocations, MOS tablegen, the mos-sim simulator in llvm-mos-sdk, and MOS
-  runs of llvm-test-suite. Use this skill when the work is on the compiler
-  rather than with it: adding or fixing an instruction, opcode, relocation,
-  fixup, or PC-relative convention; running or interpreting llvm/test/MC/MOS,
-  llvm/test/CodeGen/MOS or lld/test/ELF/*mos* lit tests; bisecting a miscompile
-  between compiler builds; preparing or reviewing an llvm-mos PR. The sibling
-  skill `llvm-mos` covers using the toolchain to build 6502 programs; this one
-  covers changing it.
+description: Develop and test the llvm-mos compiler backend, assembler, linker, and SDK simulator. Use for toolchain-source changes, MOS regression tests, and compiler-build bisection, rather than application development.
 ---
 
 # llvm-mos-dev
 
-Working on llvm-mos means working inside an LLVM monorepo where all but a few
-dozen files are irrelevant. Two things follow, and they cause most of the wasted
-effort: **never search the monorepo at large**, and **never trust a build
-directory you did not just rebuild**.
+Use this skill when changing or diagnosing the toolchain itself. Read the
+reference matching the affected subsystem, not every workflow.
 
-## Where MOS actually lives
+## Locate the implementation
 
-Everything else in `llvm/` and `lld/` is noise for this work. Scope every grep
-to these paths.
+Start searches in these paths, then widen into shared LLVM infrastructure,
+Clang, or SDK code when dependencies require it.
 
-| Area | Path |
+| Area | Starting path |
 |---|---|
-| Backend | `llvm/lib/Target/MOS/` |
-| MC layer | `llvm/lib/Target/MOS/MCTargetDesc/` — `MOSAsmBackend`, `MOSInstPrinter`, `MOSMCInstrAnalysis`, `MOSMCInstLower`, `MOSMCELFStreamer`, `MOSMCTargetDesc.h` |
-| Tablegen | `MOSInstrFormats.td` (operand and instruction classes, TSFlags), `MOSInstrInfo.td` (real ISA), `MOSInstrGISel.td` / `MOSInstrLogical.td` (generic/pseudo), `MOSCombine.td` |
-| Disassembler / parser | `llvm/lib/Target/MOS/{Disassembler,AsmParser}/` |
-| Linker | `lld/ELF/Arch/MOS.cpp` |
-| ELF flags | `EF_MOS_ARCH_*` in `llvm/include/llvm/BinaryFormat/ELF.h`; merge and compatibility logic in `llvm/lib/BinaryFormat/MOSFlags.cpp` |
-| Tests | `llvm/test/MC/MOS/`, `llvm/test/CodeGen/MOS/`, `lld/test/ELF/*mos*.s` |
+| Backend and TableGen | `llvm/lib/Target/MOS/` |
+| Encoding, fixups, instruction analysis | `llvm/lib/Target/MOS/MCTargetDesc/` |
+| Assembly parsing and disassembly | `llvm/lib/Target/MOS/{AsmParser,Disassembler}/` |
+| Linker relocations | `lld/ELF/Arch/MOS.cpp` |
+| Architecture flags | `llvm/include/llvm/BinaryFormat/ELF.h`, `llvm/lib/BinaryFormat/MOSFlags.cpp` |
+| Regression tests | `llvm/test/{MC,CodeGen}/MOS/`, `lld/test/ELF/*mos*` |
+| SDK simulator | `utils/sim/` in llvm-mos-sdk |
+| Runtime corpus | MOS configuration in llvm-test-suite |
 
-Two sibling repos complete the picture: **llvm-mos-sdk** (`utils/sim/mos-sim.c`
-and `fake6502.c` — the simulator the test suite runs under) and
-**llvm-test-suite** (MOS subset gated by `ARCH STREQUAL "MOS"`).
+## Identify the tools
 
-## Establish the local setup before building anything
+Discover relevant source/build directories, generator, installed prefix, and
+resource limits from project instructions and local configuration. Ask only for
+missing information needed now; a source review does not need a simulator setup.
+Keep discovered paths in the working context, without requiring persistent-memory
+or configuration writes.
 
-The paths below are per-machine and this skill deliberately does not guess them.
-Look first in project memory, `CLAUDE.md`/`AGENTS.md`, and the obvious siblings
-of the current repo; if they are still unknown, **ask the user once, up front**,
-rather than discovering each one through a failed command:
+Identify the actual compiler, linker, resource directory, libraries, and simulator
+used by the failing command. Rebuild affected tools after source or branch changes;
+rebuilding `llc` alone does not refresh an LTO backend running inside the linker.
+Use separate build/install prefixes for comparisons. Do not replace binaries in a
+shared installation merely to run a bisection.
 
-- the **build directory** and its generator, and whether builds must be capped
-  (`ninja -j<N>`) to keep the machine usable
-- the **installed toolchain prefix** that the test suite and any `mos-*-clang`
-  invocation actually use — it is usually *not* the build tree, so a rebuild has
-  no effect until the binaries are copied there
-- whether the checked-out **llvm-mos-sdk** simulator supports the CPU mode you
-  need (`mos-sim --help`), and which branch it lives on
-- for a differential sweep, whether **llvm-test-suite** has a CPU knob, or only
-  the default 6502 configuration
+## Check shared assumptions
 
-Record the answers in memory rather than re-asking each session, and note which
-of these are local branches not present in a fresh clone.
+For encoding or PC-relative changes, check assembler fixups, relaxation, linker
+relocation, and both printed and symbolically annotated disassembly targets.
+A successful assembler/disassembler round trip is not independent proof.
 
-## The stale-build trap
+For register or layout changes, audit aliases, reservations, spills, call lowering,
+interrupt handling, and every producer of linker-defined symbols. An isolated pass
+test cannot establish that earlier or later passes preserve the contract.
 
-A single `build/` shared across branches will hand you failures that belong to
-neither the tree nor the branch — a test file from branch A checked against a
-binary built from branch B. They look exactly like real regressions and they
-will send you on a long hunt.
+Select tests by the changed behavior. Narrow MC or parser changes need focused
+tests; changes spanning code generation and layout also need full-pipeline and
+runtime coverage. Avoid imposing every test suite on unrelated edits.
 
-Before believing any lit result after a branch switch or a `git stash`, rebuild
-the tool that test actually drives:
+## Select references
 
-| Test directory | Tool to rebuild |
+| Task | Read |
 |---|---|
-| `llvm/test/MC/MOS` | `llvm-mc`, `llvm-objdump` |
-| `llvm/test/CodeGen/MOS` | `llc` |
-| `lld/test/ELF/*mos*` | `lld`, plus `llvm-mc`, `llvm-objdump`, `llvm-objcopy`, `llvm-readelf` |
+| Build identity, lit discovery, runtime probes, simulator limits, bisection | [testing.md](references/testing.md) |
+| Encoding, relocation, architecture flags, TableGen operands | [mc-and-relocations.md](references/mc-and-relocations.md) |
+| Composite registers, layout contracts, pass placement | [registers-and-layout.md](references/registers-and-layout.md) |
 
-A tool that is simply *absent* from `build/bin` also fails tests for reasons
-unrelated to the code (`'llvm-objcopy': command not found`, `'split-file':
-command not found`). Build it and re-run before diagnosing anything.
+For application ABI or inline-assembly usage, use the separate llvm-mos skill
+when available; do not load it merely because both skills share a compiler.
 
-**Run each suite in its own lit invocation.** Passing LLVM and lld paths to one
-`llvm-lit` command silently drops the lld arguments — the run reports a plausible
-total and a clean result while never executing the lld tests at all. Check that
-the discovered count matches the sum of the suites you meant to run.
+## Verify the result
 
-**A plausible external explanation is how a stale binary survives scrutiny.**
-When a failing test can be blamed on an unrelated open change, rebuild the tool
-that test drives before accepting that story. An `llvm/test/MC/MOS` failure in a
-tree where only `llc` was rebuilt will happily be attributed to whichever branch
-owns the corresponding fix, and the attribution is checkable in seconds while the
-belief survives for hours.
+Confirm that the intended tests were discovered and that changed tools produced
+fresh artifacts. Use a bounded timeout for runtime tests. A simulator result is
+evidence only for supported instructions, selected CPU semantics, and tested
+inputs; confirm hardware-dependent behavior on the relevant machine or emulator.
 
-### LTO and plugin provenance
+For ISA claims, consult documentation for the exact CPU variant and, where
+available, an independent implementation or hardware test. MEGA65 core behavior
+is not authority for unrelated 6502 derivatives. Record disagreements rather
+than treating matching toolchain outputs as proof.
 
-The executable that drives a test is not always the component whose source was
-changed. Full-LTO links can run the target backend from code linked into the
-linker or its plugin, so rebuilding a standalone backend tool may not affect an
-end-to-end result. Rebuild the component that actually performs code generation
-and confirm its timestamp or version before interpreting the result. When
-switching branches, also verify that the compiler, linker, SDK libraries, and
-simulator belong to the intended build rather than relying on a shared install.
+Keep tests with the tool whose dependencies they require: linking tests generally
+belong under lld rather than LLVM-only CodeGen suites. Follow repository formatting
+and contribution instructions. Reviewing or diagnosing does not authorize
+installation changes, commits, pushes, or upstream messages.
 
-### A toolchain is more than its compiler
-
-Rebuilding `clang` and `lld` updates neither the clang resource directory nor the
-SDK's prebuilt `mos-platform` libraries, so an install can be half old. An LLVM
-major version bump is the sharp case: `clang -print-resource-dir` moves to the
-new major, the old `lib/clang/<major>` no longer matches, and every compile fails
-with `'stdarg.h' file not found`. That reads as a broken include path, not as a
-version mismatch, and it can take out most of a test suite at once. Copy the new
-resource directory across, and carry over its `lib/` subtree —
-`libclang_rt.builtins.a` is built by the SDK, not by the LLVM build, so copying
-only from the LLVM build tree leaves it missing.
-
-**A smoke test that includes no header does not test an install.** A translation
-unit like `int main(void) { return 0; }` links happily with the resource
-directory absent. Include `<stdint.h>` or `<stdarg.h>` in whatever you use to
-declare a toolchain working.
-
-## One convention, four implementations
-
-The defect pattern that recurs in this backend: a rule about encoding is fixed
-in one place and left stale in the others. When you change how an instruction's
-operand is encoded or resolved, sweep **all four**:
-
-1. **Encoder / fixups** — `MOSAsmBackend::applyFixup`,
-   `getRelativeMOSPCCorrection`, `fixupNeedsRelaxationAdvanced`
-2. **Relaxation** — `MOSAsmBackend::relaxInstructionTo` (returns 0 when a CPU
-   has no wider form, which is how non-65CE02 targets keep 8-bit branches)
-3. **Linker** — `lld/ELF/Arch/MOS.cpp` `relocate()`, one `case` per `R_MOS_*`
-4. **Disassembly** — *both* `MOSMCInstrAnalysis::evaluateBranch` (the symbolic
-   annotation) and `MOSInstPrinter::printBranchOperand` (the printed address)
-
-Fixing 1 without 3 ships a toolchain that contradicts itself: assembler-resolved
-and linker-resolved fixups of the same instruction disagree, and no real CPU can
-execute both.
-
-**Corollary — disassembly is not an oracle.** Two of these being wrong in
-opposite directions produces output that looks self-consistent: a wrong address
-labelled with the right symbol. Only execution distinguishes them.
-
-## lld sees merged flags, not per-object ones
-
-`MOS::calcEFlags()` ORs the `EF_MOS_ARCH_*` bits of every input, and
-`checkEFlagsCompatibility` (`MOSFlags.cpp`) rejects only SWEET16/SPC700 mixes.
-So any per-CPU decision inside `lld/ELF/Arch/MOS.cpp` is approximate: in a mixed
-link both CPUs' bits are set. The assembler side has no such problem — it reads
-the per-fragment `MCSubtargetInfo`.
-
-Also note the arch bits are additive by design: a `mos4510` or `mos45gs02`
-object also carries `EF_MOS_ARCH_65CE02` (asserted in `lld/test/ELF/basic-mos.s`),
-so one bit test covers the family.
-
-## Make linker-layout assumptions fail loudly
-
-Register allocation and addressing modes can depend on relationships between
-linker-defined symbols that ELF does not describe. Audit every definition of
-those symbols, not only linker scripts: platforms may define them in assembly,
-generated files, archives, or independently discardable sections.
-
-When code generation relies on such a relationship, emit an undefined marker
-reference only when the feature is used and let compatible linker scripts
-provide it lazily:
-
-```ld
-PROVIDE(__contract_marker = ASSERT(layout_condition,
-  "layout does not satisfy the compiler contract"));
-```
-
-This keeps programs that do not use the feature compatible while making old,
-custom, and incompatible layouts fail at link time. A separate
-`ASSERT(!DEFINED(marker) || condition, ...)` is not an equivalent reference
-test for a lazy `PROVIDE`.
-
-Under `--gc-sections`, keep the marker relocation in an allocatable, retained
-section. `SHF_GNU_RETAIN` on a non-allocatable section did not prevent lld from
-discarding the undefined relocation. Keep the section minimal and inspect its
-orphan placement and raw-image cost on fixed-size targets.
-
-## Tablegen facts that are not discoverable by reading
-
-- **`OperandType` is load-bearing.** The AsmWriter emitter passes `Address` to a
-  `PrintMethod` only when the operand's type is `MCOI::OPERAND_PCREL`. Retyping
-  a PC-relative operand to a target-specific type silently changes the generated
-  call to the 3-argument form and the build fails in `MOSGenAsmWriter.inc`.
-- **Carry target-specific facts in TSFlags instead.** The pattern already exists:
-  `bit MLow = 0; … let TSFlags{0} = MLow;` in `MOSInstrFormats.td`, with matching
-  constants in the `MOS::TSFlag` enum in `MCTargetDesc/MOSMCTargetDesc.h`, read
-  as `Desc.TSFlags & MOS::TSFlagX`. Adding a bit is three small edits and lets a
-  `let Flag = 1 in { … }` block mark a whole instruction family declaratively,
-  instead of an opcode list that has to be maintained in two consumers.
-- `MCInstPrinter` already holds `MII`, so a print method can consult
-  `MII.get(MI->getOpcode())` for `TSFlags` and `getSize()`.
-
-## Adding a composite register class
-
-A nonallocatable super-register class still changes alias and super-register
-topology, so it can affect reservation logic, pressure heuristics, and code
-that assumes the first super-register has a particular class. Match by class
-and subregister index rather than relying on iterator order.
-
-**The `Reserved` bitvector is not the whole story about which registers are
-pinned.** A register can also be fixed by hard-coded uses elsewhere:
-`MOSRegisterInfo`'s constructor reserves one pointer as the scavenger temporary,
-and `MOSCallLowering` then synthesizes an absolute `JMP` by writing its opcode
-into that pointer's high byte, relying on adjacency to the next pointer register;
-`MOSFrameLowering` names the same two bytes when saving an interrupt handler.
-Grep a register's name before assuming it is relocatable or that its aliases are
-free for a wider class.
-
-Before exposing a wider class, sweep register banks, inline-asm register counts
-and constraints, reserved aliases, copy costs, spills and reloads, post-RA
-expansion, CSR/zero-page allocation, asm lowering, and debug/DWARF numbering.
-Propagate child reservations to super-registers with LLVM's register-info
-helpers, then assert in debug builds that no allocatable member aliases a
-reserved register.
-
-Test the capacity boundary, one value beyond it, values live across a call, and
-the resulting spill path. Checks that pin a preferred allocation order do not
-prove that the class is safe under pressure.
-
-## Place analysis before its representation disappears
-
-Post-RA pseudo expansion can dissolve a composite physical register into byte
-operations. If module output or diagnostics depend on the composite assignment,
-record it after register allocation but before the first expansion that erases
-it. Use a dedicated pass at that boundary instead of attaching a whole-function
-scan to a nearby pass that may intentionally run more than once.
-
-Inspect the real pipeline with `-debug-pass=Arguments`. A test using
-`-start-before` skips every earlier pass, so it cannot prove that an earlier
-marker or analysis pass ran. Add a full-pipeline MIR case whose composite
-operation is gone by assembly emission but whose recorded side effect remains.
-
-## Verifying a claim about the ISA
-
-Datasheets disagree with silicon often enough that the convention in this
-project is to cite more than one source. For 6502-family behaviour: the CPU
-datasheet, the MEGA65 FPGA core (`gs4510.vhdl`), the `xemu` emulator
-(`cpu65.c`), and pagetable.com's references. A commit message that names two
-independent sources survives review; one that says "per the datasheet" does not.
-
-## The verification ladder
-
-Work up it — each rung catches what the one below cannot.
-
-1. **MC** — `llvm-mc … --filetype=obj` then `llvm-objdump -d`. Assert the raw
-   encoding *and* the resolved target; asserting only the encoding leaves the
-   two disassembly consumers untested.
-2. **lld** — a `lld/test/ELF/` case. To force a *linker*-resolved relocation
-   rather than an assembler-resolved fixup, put the branch and its target in
-   **different sections**; the assembler then cannot resolve it and emits a
-   reloc. (`-mos-force-pcrel-reloc`, used in `lld/test/ELF/mos-relocs.s`, is the
-   other lever.)
-3. **CodeGen** — `llc -mtriple=mos -run-pass=… ` against a `.mir`, or a `.ll`
-   with `-mcpu=`. Regenerate expectations with `update_mir_test_checks.py`.
-4. **Runtime** — the only rung that proves the bytes execute correctly. Build a
-   test under llvm-test-suite and run it under `mos-sim`.
-
-**A `-run-pass` or `-start-before` test exercises only the pass you already
-thought about.** Extending an expansion function without extending the cost
-function it pairs with leaves an `llvm_unreachable` in an earlier pass, and a
-test pinned to the expansion pass never reaches it — the suite stays green while
-the compiler aborts on the first real input. Any new register class or operand
-kind needs at least one case that runs the full pipeline.
-
-### Designing a runtime probe
-
-Make a wrong result a *wrong answer*, never a crash or a hang — CI cannot
-distinguish a hang from a slow test. Arrange for the failure path to execute
-valid code: e.g. for an off-by-one branch, place a one-byte, observable
-instruction (`inx`) immediately before the intended target, so landing early
-increments X and the program still returns cleanly with a different exit code.
-
-llvm-test-suite conventions for a MOS-only test: a directory added from its
-parent `CMakeLists.txt` under `if(ARCH STREQUAL "MOS")`, containing
-`llvm_singlesource(PREFIX "…")` and a `<name>.reference_output`. `exit 0` alone
-is a valid reference output, which keeps the image small — worth doing, since
-pulling in `printf` changes code layout.
-
-## Differential sweeps
-
-The strongest signal available: run the whole MOS `SingleSource` corpus at two
-CPUs and diff. Anything passing at 6502 and failing at the other is a codegen
-bug candidate; anything aborting on an unimplemented opcode is a simulator gap.
-
-`cmake` argument order matters — **`-D` before `-C`**, or the cache file's
-`FATAL_ERROR` on a missing `LLVM_MOS` fires before your `-D` is seen:
-
-```sh
-cmake -G Ninja -B <dir> -S <llvm-test-suite> \
-      -DLLVM_MOS=<sdk-install> -DTEST_SUITE_SUBDIRS=SingleSource \
-      -DMOS_CPU=mos65ce02 \
-      -C <llvm-test-suite>/cmake/caches/target-mos.cmake
-```
-
-`MOS_CPU` drives the compiler's `-mcpu` *and* the `mos-sim` mode together, so
-the simulated CPU cannot disagree with the compiled one. Note that ninja does
-not know the linker changed: after installing a new `lld`, delete the test
-executables or the sweep silently re-reports stale results.
-
-## Simulator caveat
-
-`fake6502.c` fills all 256 opcode slots and points unimplemented ones at `nop()`,
-with no undefined-opcode detection. A program using instructions the simulator
-does not know therefore executes silently and wrongly instead of failing. Treat
-any "hang" or bizarre behaviour under `mos-sim` as a suspected simulator gap
-before blaming the compiler.
-
-## Bisecting a miscompile cheaply
-
-Rebuilding clang takes minutes; swapping binaries takes seconds. Keep `.bak`
-copies of `clang-23` and `lld` from the known-good build and swap them into the
-installed toolchain to isolate which component changed behaviour. When comparing
-two binaries, diff **address-normalised** disassembly — a one-instruction size
-change shifts every subsequent address and buries the real delta. Instruction
-counts from a simulator trace (`--trace`) are a fast way to tell "lost output"
-from "diverged control flow".
-
-### Reducing a layout-sensitive bug
-
-When a failure appears and disappears with source edits that have nothing to do
-with it, suspect memory layout rather than the edit, and sweep `-mlto-zp` across
-its range. The zero-page budget moves every LTO-allocated object, so a bug that
-depends on where something lands shows up as a sharp threshold: correct below
-some byte count, broken at and above it. That turns an intermittent failure into
-a one-integer reproducer with source, compiler and every other flag held fixed —
-which is what makes diffing the two builds worthwhile, since they will differ
-only in the allocation that matters.
-
-## Contributing upstream
-
-Before finalizing a fix, inspect related open changes touching the same
-convention or source hunk. A neighboring change may add diagnostics, tests, or
-an intentionally temporary XFAIL and may be designed to rebase on this fix.
-Keep complementary changes separate, but make their tests compose cleanly.
-
-Keep a test in the project whose tool it drives. Nothing in `llvm/test/`'s lit
-configuration declares a dependency on lld, so a CodeGen test that invokes
-`ld.lld` passes in a monorepo build and fails in an LLVM-only one. Split such a
-case: the object-inspection half stays in `llvm/test/CodeGen/MOS`, the link half
-moves to `lld/test/ELF/`.
-
-Commit subject is a short imperative with a bracketed component tag — `[MOS] …`,
-`[65CE02] …`, `[sim] …`. Match the file's own formatting rather than the repo
-`.clang-format` where the two differ: `utils/sim/fake6502.c` carries
-`// clang-format off` and its own vendored Fake6502 layout, while `mos-sim.c`
-is LLVM-formatted.
-
-Build parallelism is worth capping explicitly on a laptop; a full-width LLVM
-build will saturate the machine.
-
-## Maintaining this skill
-
-When adding to or correcting this file:
-
-- **Evidence or nothing.** A new claim needs a citation: a
-  `llvm/lib/Target/MOS/<file>:<line>`, a lit test, a datasheet plus a second
-  implementation, or a measurement you took. Say what you ran and what it
-  reported.
-- **Two sources for ISA behaviour.** Datasheets disagree with silicon. Cite the
-  core (`gs4510.vhdl`), an emulator (`xemu/xemu/cpu65.c`), or a second
-  simulator alongside the datasheet, and record contradictions rather than
-  picking a side silently.
-- **Generic, not autobiographical.** No dates, no branch or PR numbers, no local
-  paths, no "we found". A rule a stranger can apply, not an account of how it
-  was found.
-- **Brief.** One idea per entry. Delete anything a reader gets from one grep of
-  the tree, unless it is a trap.
-- **Teach the interrogation, don't transcribe the snapshot.** Where a fact can
-  be read out of the tree, a build or a tool, give the command that extracts it
-  and say how to read the result. A copied table is stale the day the thing it
-  copied changes, and worse, it is stale silently. Record the shape of the
-  answer and the trap in reading it; leave the values where they live.
-- **Traps earn their space.** Prefer the failure mode that looks like success —
-  a green run with the wrong denominator, a stale binary, a plausible wrong
-  answer. Those are what this file is for.
-- **Using the toolchain belongs in `llvm-mos`.** This file covers changing it.
-- **Prune.** When the backend changes or a claim proves wrong, fix or remove it.
-  A stale rule is worse than no rule.
+When maintaining this skill, retain actionable invariants and source/test pointers.
+Scope observations to the relevant revision or configuration; replace stale rules
+instead of accumulating anecdotes.

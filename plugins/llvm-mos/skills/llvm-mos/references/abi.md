@@ -2,7 +2,8 @@
 
 You need this when writing assembly that C calls (or that calls C), writing interrupt prologues by hand, or reasoning about why the compiler placed something where it did.
 
-The design borrows from RISC-V: a hybrid of caller- and callee-saved registers, tuned by LLVM's shrink-wrapping and caller-save placement passes.
+The ABI defines caller-saved and callee-saved registers. Use these rules at every
+C/assembly boundary.
 
 ---
 
@@ -24,9 +25,9 @@ The design borrows from RISC-V: a hybrid of caller- and callee-saved registers, 
 - `__rs0` (`__rc0`/`__rc1`) — the soft stack pointer
 - `__rs10`–`__rs15` (`__rc20`–`__rc31`) — `__rs15` doubles as the soft frame pointer
 
-### Target-specific: Z must be zero (45GS02 / MEGA65)
+### Target-specific: Z and B must be zero (45GS02 / MEGA65)
 
-On `-mcpu=mos45gs02`, **Z is required to be 0 on every transfer of control to compiled code** — returning from inline asm, from external `.s` functions, and from interrupt handlers, and also *calling* into a C function from your own assembly. This isn't a convention you can opt out of: the plain base-page indirect addressing mode is encoded as `(zp),Z`, so `sta ($12)` and `sta ($12),z` are the same opcode, and every compiler-generated pointer dereference is silently Z-indexed. A non-zero Z offsets them all, with no diagnostic and no crash at the site of the bug. Treat Z as callee-saved with a fixed value of 0. Details and worked examples in `45gs02.md`.
+On `-mcpu=mos45gs02`, **Z is required to be 0 on every transfer of control to compiled code** — returning from inline asm, from external `.s` functions, and from interrupt handlers, and also *calling* into a C function from your own assembly. This isn't a convention you can opt out of: the plain base-page indirect addressing mode is encoded as `(zp),Z`, so `sta ($12)` and `sta ($12),z` are the same opcode, and every compiler-generated pointer dereference is silently Z-indexed. A non-zero Z offsets them all, with no diagnostic and no crash at the site of the bug. Treat Z as callee-saved with a fixed value of 0. The MEGA65 ABI also requires B=0 so base-page accesses reach the compiler's zero-page state. Distinguish the CPU Z register here from the status zero flag above. Details and worked examples in `45gs02.md`.
 
 ---
 
@@ -42,9 +43,11 @@ Arguments are assigned left to right. The return value is assigned exactly as if
 
 ### What an argument byte costs
 
-A and X are real registers, so the first two byte-sized slots are usually free. Every byte after that lands in zero page, and the 6502 has neither a zero-page-to-zero-page move nor a store-immediate, so getting one there is `lda zp`/`sta zp` or `ldx #imm`/`stx zp` — **4 bytes of code per argument byte, at every call site**, whether the value is computed or a literal. A pointer parameter therefore costs 8 bytes per call; so does a `long`, two of whose four bytes ride in A and X.
-
-Two consequences. Argument *count* is the cost driver, not order — narrowing a parameter that never needed its width saves 8 bytes at each call site. And a value that stays live across a call is parked in a callee-saved imaginary register, then copied back into an argument register when passed, 4 bytes a time; those copies are not coalescable, since the destination is fixed by this ABI, so no compiler improvement removes them.
+Argument placement is fixed by the ABI, but setup cost is not. A load/store
+pair copying one byte between zero-page slots adds instructions; values already
+in the required slot, constants folded into surrounding code, inlining, and
+register allocation can change or remove that work. Inspect the final call site
+before attributing a byte saving to parameter count, order, or width.
 
 ### Aggregates
 
@@ -54,7 +57,7 @@ Two consequences. Argument *count* is the cost driver, not order — narrowing a
 
 ### Variadic arguments
 
-Everything inside the ellipsis is passed on the soft stack; named parameters before it follow the normal rules. **This makes prototypes load-bearing** — calling a variadic function without a visible prototype produces the wrong convention and fails at runtime.
+Everything inside the ellipsis is passed on the soft stack; named parameters before it follow the normal rules. Use a visible prototype: calling a variadic function without a visible prototype produces the wrong convention and fails at runtime.
 
 ### Worked examples
 
@@ -81,13 +84,21 @@ There are two, and they serve different purposes.
 
 **The soft stack** is the primary one for locals and spilled values: zero-page-managed, pointer in `__rs0`, growing down from the linker symbol `__stack`. It's only used when necessary.
 
-**The hardware stack** (page 1, 256 bytes) holds return addresses and is used for a few leaf-call cases. The compiler may use up to 4 bytes of it for saving temporaries. It's far too small to be the general-purpose stack, which is the whole reason the soft stack exists.
+**The hardware stack** (page 1, 256 bytes) holds return addresses and is used for a few leaf-call cases. The compiler also uses it for temporary saves. Local frames may use the separate soft stack.
 
 **Static stack allocation** is the important optimization: whole-program call-graph analysis proves which functions can never have two invocations active at once, and allocates their frames at fixed absolute addresses instead of on the soft stack. This is a large part of llvm-mos's performance advantage.
 
-Two things defeat it, and both have fixes:
-- **Function pointers** — the analysis can't see through them. Use `-fnonreentrant` or `__attribute__((nonreentrant))`.
-- **Opaque calls into assembly** — the compiler must assume they might re-enter C. Use `__attribute__((leaf))` on assembly-implemented declarations.
+Indirect calls and opaque assembly can limit this analysis:
+
+- Use `nonreentrant` only after proving the affected functions cannot have
+  overlapping invocations, including recursion, callbacks, and interrupt re-entry.
+  Prefer a scoped attribute over a program-wide flag when only that scope is proven.
+- Use `leaf` only when the callee satisfies the no-callback promise for the
+  compilation unit. Check transitive calls and installed hooks; being assembly
+  or ROM code is not sufficient. Under LTO, account for the combined unit.
+
+See the checked-out Clang attribute definitions and MOS static-stack analysis
+when determining the exact scope of either promise.
 
 **The frame pointer** (`__rs15`) is not emitted by default. It's needed for stack unwinding, source-level debugging of frames, and C99 variable-length arrays.
 

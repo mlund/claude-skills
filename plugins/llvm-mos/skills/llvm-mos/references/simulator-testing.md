@@ -1,15 +1,13 @@
 # Testing under mos-sim
 
-`references/host-testing.md` covers running logic natively, and closes by
-listing what a host pass cannot prove: anything that depends on this target's
-code generation. `mos-sim` is the tier that closes that gap. It executes the
-6502 the compiler actually emitted, counts cycles, and needs no hardware and no
-emulator — so it answers "is this correct *and* fast enough on a 6502" in the
-same run, from a plain `main()`.
+Use this tier to test target-width computation and generated instructions.
+Before running, confirm that the installed simulator implements the emitted CPU
+instructions and the timing model needed by the experiment. Inspect its usage
+and SDK `utils/sim/`; unsupported opcodes in some versions execute as NOPs.
 
-It does not replace on-machine testing. The simulator has no VIC, no raster, no
-banking hardware and no KERNAL; a program built for it is built for the `sim`
-platform, not for yours. Use it for the compute, not the machine.
+A `sim` build is not the production platform: VIC, DMA contention, raster timing,
+banking hardware, and KERNAL behavior are not represented. Simulated cycle counts
+do not establish display frame rate or scrolling smoothness.
 
 ---
 
@@ -22,8 +20,7 @@ mos-sim --cycles prog                # cycle count to stderr, program output to 
 
 `mos-sim` takes a flat memory image, not an ELF — `file` reports the link output
 as `data`, and `llvm-nm` will not read it. When you need addresses out of a
-simulator build, take them from a link map (§4 of this file, and **Tooling** in
-`SKILL.md`).
+simulator build, take them from a link map (§4 of this file, and [tooling.md](tooling.md)).
 
 ## 2. Find the interface, don't trust a copy of it
 
@@ -40,10 +37,8 @@ what the facility is *for*, not to restate the table:
 
 The consequence worth planning around is that a simulator run is an ordinary
 command-line process: it reads stdin, writes stdout, and its exit status is
-whatever `main` returned. A test that returns non-zero on failure needs no
-harness, no log scraping and no timeout — `mos-sim prog` **is** the test.
-Verified: a program whose `main` returns 3 exits 3; `echo -n A | mos-sim prog`
-reaches `getchar()` as 65.
+whatever `main` returned. A self-checking test can report failure through its exit status. Run it with a
+bounded test-runner timeout: a code-generation regression may prevent return.
 
 ## 3. Measure a region, not the program
 
@@ -61,14 +56,11 @@ for (uint8_t i = 0; i < 8; i++) sink = shift_var(i);
 unsigned long cycles = clock();  /* cycles since the reset */
 ```
 
-Measured on one such pair — a variable shift `1u << row` against an eight-entry
-lookup table, same loop, same iteration count — **820 cycles versus 309**. The
-same run's `--cycles` total was 24358, essentially all of it `printf`. Quoting
-the whole-program figure as the cost of the routine is the easy mistake here,
-and it is wrong by two orders of magnitude.
-
-Both functions are `noinline` in that measurement. Without it the loop bodies
-fold into the caller and you are timing something you did not write.
+Keep the result observable so the optimizer cannot remove the work. Account for
+timing instrumentation, and move reporting outside the measured region.
+Use `noinline` only when an isolated call is the experiment; otherwise preserve
+production inlining. Record CPU mode, tool revisions, flags, inputs, and repeated
+measurements alongside any claimed cycle difference.
 
 `clock()` and `reset_clock()` exist only on this platform, so a benchmark using
 them is a `sim`-only translation unit. Keep it beside the unit under test, not
@@ -95,13 +87,11 @@ is control flow rather than cost. `--cmos` switches the simulated core to
 
 ## 5. What this tier proves
 
-It proves the compiled code computes the right answer, and what it costs in
-cycles. It does not prove the program works on your machine: platform
-libraries, interrupt timing, banking, and every hardware register are absent or
-different. Treat a `mos-sim` pass the way you would treat a passing unit test
-of a driver's arithmetic — necessary, not sufficient.
+A pass supports correctness for the tested inputs under the selected simulator
+model. Cycle counts describe that model, not hardware bus stalls or peripherals.
+A matching target data model exposes width-dependent bugs that host tests may
+miss; it does not guarantee that every overflow bug is detected.
 
-The `char`/`int` caveats from `host-testing.md` do *not* apply here. This is the
-real target's type model, so an overflow that a host test hid will reproduce.
-That makes the simulator the cheapest place to re-run anything a host test
-flagged as needing on-machine confirmation for type reasons.
+Use machine or platform-emulator tests for integration, interrupt timing, banking,
+and hardware registers. Verify production code separately when its target flags,
+libraries, or layout differ from the simulator build.

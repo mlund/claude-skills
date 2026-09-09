@@ -26,7 +26,7 @@ Neither failure produces a warning. Both produce code that looks fine and behave
 asm volatile("instructions" : outputs : inputs : clobbers);
 ```
 
-`asm` and `__asm__` are equivalent. `__attribute__((leaf))` may precede the statement to promise the block doesn't call back into the current compilation unit — important for any `jsr` into ROM, because otherwise the compiler must pessimize the static stack analysis for everything that can reach it.
+`asm` and `__asm__` are equivalent. `__attribute__((leaf))` may precede the statement to promise the block doesn't call back into the current compilation unit — important for any `jsr` into ROM, because otherwise the compiler must prevent static stack allocation in callers.
 
 ---
 
@@ -45,7 +45,7 @@ MOS-specific:
 | `v` | Overflow flag | |
 | `r` | Imaginary register | `__rcN` for 8-bit operands, `__rsN` (ZP pair) for 16-bit |
 
-Generic constraints that work (verified against clang 22):
+Generic constraints (check support in the installed compiler):
 
 | Constraint | Meaning |
 |---|---|
@@ -233,7 +233,7 @@ asm volatile("..." : "=x"(result.lo), "=y"(result.hi)
 return (void *)result.value;      // reassembled for free
 ```
 
-Limits, verified against clang 22:
+Operand limits:
 
 - **A whole aggregate larger than a register is not a valid operand.** `"=a"(s)` on a 6-byte struct gives `error: invalid output size for constraint '=a'`. Bind the individual fields.
 - **Bitfields do work** as output operands — clang materializes through a temporary and masks (`and #15` for a 4-bit field). Correct, but you pay for the insert; prefer whole-byte fields in a hot path.
@@ -295,9 +295,10 @@ asm(".section .init.250,\"ax\",@progbits\n"
 
 ## 6. Gotchas and crash modes
 
-Verified against clang 22 in the current llvm-mos SDK.
+These failure modes depend on compiler revision. Check the installed compiler
+with a small complete build; LTO may defer a constraint failure until linking.
 
-**`"=c"` as an output constraint crashes the backend.** Any form — bound to `bool` or `uint8_t`, with or without other clobbers — produces `fatal error: error in backend: unable to translate instruction: call`. Under the default LTO this is deferred to link time, where it surfaces as `LLVM ERROR` from `ld.lld`. This is a *live latent bug in the SDK itself*: the PC Engine CD BIOS wrappers (`pce_cdb_*` in `pce-cd/libpce/src/cd/bios.c`, five sites) use `"=c"`, compile to bitcode fine, and crash the linker for anyone who calls them.
+**Carry output constraints can fail during code generation.** If `"=c"` or `"+c"` fails with `unable to translate instruction`, branch on carry inside the block and return the result through a supported register. With LTO, the failure may appear at link time.
 
 Scope this claim carefully — it is routinely overstated:
 
@@ -321,13 +322,15 @@ The breakage is in the backend, so it is **identical in C and in C++** — same 
 
 **The 45GS02 `Z` register has no constraint and no clobber.** All four constraint spellings `z`/`Z`/`q`/`Q` give `invalid input constraint`, and `Z` can't be named in the clobber list either — `::: "z"` gives `unknown register name 'z' in asm`. So there is *no way to tell the compiler you touched Z*; a hand-written `ldz #0` is the only mechanism. Move values through A with `taz`/`tza` inside the block. **You must restore `ldz #0` before returning**, and this is an ABI obligation for external `.s` functions and ISRs too, not just inline asm: the plain base-page indirect mode is encoded as `(zp),Z`, so every compiler-generated pointer dereference is silently Z-indexed and a stray Z corrupts memory access program-wide with no diagnostic. See `45gs02.md`.
 
-**Volatile-adjacent hazards** (also in the main skill): indexed addressing can emit a spurious read one page *below* the target, so avoid pointer arithmetic landing one page above read-sensitive I/O; and the compiler avoids RMW instructions on volatile objects because they double-access.
+**I/O access hazards**: indexed addressing can emit a spurious read one page *below* the target, so avoid pointer arithmetic landing one page above read-sensitive I/O; and the compiler avoids RMW instructions on volatile objects because they double-access.
 
 ---
 
 ## 6b. Controlling inlining of an asm wrapper
 
-Wrapping a block in a `static` function is not a third option so much as a way to take the best of the first two: the asm keeps its exact clobbers and constraints, and you choose whether the body is duplicated. Attach the decision to the optimisation mode rather than hoping the inliner agrees:
+A static C wrapper retains the assembly constraints while allowing control over
+inlining. Compare ordinary, forced-inline, and out-of-line builds before choosing
+attributes. If measurements justify different choices by optimization mode:
 
 ```c
 #if defined(__OPTIMIZE_SIZE__)     /* -Os and -Oz; not -O2 */
@@ -337,85 +340,29 @@ Wrapping a block in a `static` function is not a third option so much as a way t
 #endif
 ```
 
-`inline` suppresses the unused-function warning in headers; `noinline` is what actually forces one out-of-line copy. Under `-Oz`, measured on a short ROM-call wrapper with three call sites, explicit `noinline` was smallest — forced inlining and the LTO inliner's own choice were both worse. LTO seeing the whole program does not make the attribute redundant.
+`noinline` keeps the wrapper out of line. Check the linked callers as well as the
+wrapper: saved registers and duplicated instructions affect the total cost.
 
-The reason to bother at all is the body, not the call: constraints let the compiler deliver arguments in whichever registers the routine wants, so the shuffling an assembly implementation performs to get values out of the C ABI disappears. A routine wanting a 16-bit argument's low byte in Y and high in X, called with the ABI's A/X pair, needs one `tay` — where the assembly version pushed and pulled through the stack to achieve the same thing.
+Constraints let the compiler place arguments in the registers the assembly needs.
+An external assembly routine must translate from the C calling convention itself.
 
-## 7. Choosing between inline asm, a real function, and an absolute-symbol declaration
+## 7. Choosing a call form
 
-There are **three** ways to reach assembly from C, not two. Pick on measured cost, not on "how much assembly is involved".
+Choose a form that expresses the calling convention, then measure its cost.
 
-### The three techniques
+- **C prototype for an absolute symbol:** suitable when the ROM routine follows
+  the C ABI. See `commodore/cbm_k_chrout.c` and the platform's `kernal.S`.
+- **Inline assembly:** useful for short sequences with precise constraints and
+  clobbers, or results outside the C calling convention. See `cbm_k_load.c` for
+  carry and `cx16/cx16_k_joystick_get.c` for register results.
+- **External assembly function:** useful when the body would be expensive to
+  duplicate or needs state that inline constraints cannot describe. See
+  `cbm_k_setlfs.s` and `cx16_k_console_put_char.s` for ABI translation.
 
-**1. Absolute-symbol declaration — no assembly at all.** Export the ROM entry point as an absolute symbol and declare it as an ordinary C prototype. The compiler emits the `jsr` itself and does full ABI-based argument placement:
+A prototype makes the caller allow for the ABI's full caller-saved register set.
+Inline assembly can describe a smaller set, but may duplicate instructions.
+Compare final call sites, register saves, and total size; there is no fixed
+instruction-count threshold.
 
-```c
-extern void __CHROUT(unsigned char c) __attribute__((leaf));
-void cbm_k_chrout(unsigned char c) { __CHROUT(c); }     // commodore/cbm_k_chrout.c, verbatim
-```
-
-The symbol comes from a `weakdef` macro in each platform's `kernal.S`, which turns `CHROUT = $FFD2` into a weak absolute `__CHROUT`:
-
-```asm
-.macro weakdef name:req
-  .weak \name
-  __\name = \name
-  .global __\name
-.endm
-```
-
-This is the SDK's **dominant** technique for KERNAL wrappers — 58 `weakdef`s in `c64/kernal.S` alone, and 20 of the 21 `commodore/cbm_k_*.c` files use it with no inline asm whatsoever.
-
-**2. Inline asm.**
-
-**3. A real function** — a `.s` file, or module-level `asm()` at file scope defining a labeled `.global` symbol — declared in a header and called normally.
-
-### The tradeoff, measured
-
-A C prototype can only describe the ABI's clobber set: A, X, Y and the caller-saved imaginary registers `__rc2`–`__rc19` are all destroyed by any call (`abi.md`). Inline asm describes *exactly* what the block touches. When the truth is much narrower than the ABI, that gap is the whole story.
-
-A `print()` loop calling CHROUT, C64, `-Os` (`jsr __CHROUT` is 3 bytes either way):
-
-| Form | Size | What the compiler did |
-|---|---|---|
-| Inline asm, `"+a"(c) ::: "p"` | **83 B** | Kept `ldy #1` hoisted out of the loop; loop vars in caller-saved `__rc4`/`__rc5`; no spills |
-| `extern` prototype | 87 B | Y reloaded every iteration; loop vars forced into callee-saved `__rc20`–`__rc23`, then four `pha`/`pla` to save them |
-
-The call boundary forced values into callee-saved registers, which then had to be spilled to the hardware stack. **This gap widens with more call sites, it doesn't close.** Same wrapper, 12 call sites:
-
-| Form | Size |
-|---|---|
-| Inline asm | **188 B** |
-| `extern` prototype | 236 B |
-| `extern` + `noinline` | 239 B |
-
-So the intuition that inline asm "duplicates code and loses at scale" is wrong for small bodies: a 3-byte `jsr` duplicated 12 times is far cheaper than 12 call boundaries' worth of register discipline.
-
-The crossover is **body size**, not call count. Same 12 call sites with a 20-instruction body:
-
-| Form | Size |
-|---|---|
-| Inline asm | 592 B |
-| Real function (module-level `asm()`) | **347 B** |
-
-### The rule
-
-**Default to inline asm when the body is a handful of instructions and you can state the clobbers precisely** — especially a single `jsr` into ROM. You get strictly better information to the register allocator than a prototype can give.
-
-Switch to a **real function** when:
-
-- The body is large enough that duplication dominates (roughly a dozen instructions and up — measure, the crossover is program-specific).
-- You can't express the state you touch. The soft stack and imaginary registers beyond your operands have no constraint. If you're describing more state than you're computing, the description is the bug surface.
-- The routine needs its own control flow, local labels, or data.
-
-Use the **absolute-symbol declaration** when the routine already follows the C ABI closely and you value the readability — it costs a little size versus inline asm but needs no clobber reasoning at all, which is exactly why the SDK reaches for it first in `cbm_k_*.c`.
-
-### What actually drives the SDK's choices
-
-The split is not "small vs. large" but *whether the C ABI can express the call*:
-
-- **`extern` prototype** (20 of 21 `commodore/cbm_k_*.c`) — argument and return map cleanly onto the ABI. `cbm_k_chrout`, `cbm_k_acptr`, `cbm_k_readst`.
-- **Inline asm** — when a value lands somewhere the ABI has no name for. `cbm_k_load.c:20` needs the carry (§6). `cx16/cx16_k_joystick_get.c` returns *three* values simultaneously in A, X and Y, which no C return type can express: `: "=a"(s.data0), "=x"(s.data1), "=y"(s.detached)`.
-- **`.s` file** (8 `commodore/cbm_k_*.s`, 68 of cx16's 70 wrappers) — when the KERNAL's own convention is not the C one and needs real translation: `cbm_k_setlfs.s` shuffles a third argument out of `__rc2` into Y; `cx16_k_console_put_char.s` converts an X-register flag into the carry (`cpx #1`) and brackets the call with `X16_kernal_push_r6_r10`.
-
-Whichever you pick, add `__attribute__((leaf))` if it doesn't call back into C, or the static stack analysis pessimizes everything that can reach it.
+Use `leaf` only after checking that the routine and its callees cannot call back
+into the compilation unit. See [abi.md](abi.md).

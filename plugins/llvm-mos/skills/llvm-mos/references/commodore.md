@@ -46,7 +46,9 @@ Config summary:
 
 Thin, correctly-clobbered wrappers over the KERNAL jump table, named `cbm_k_*`: `acptr`, `basin`, `bsout`, `chkin`, `chkout`, `chrin`, `chrout`, `cint`, `ciout`, `ckout`, `clall`, `close`, `clrch`, `getin`, `iobase`, `listen`, `load`, `open`, `readst`, `save`, `scnkey`, `second`, `setlfs`, `setnam`, `talk`, `tksa`, `udtim`, `unlsn`, `untlk`.
 
-Most are declared `__attribute__((leaf))`, which is what keeps the static stack analysis intact across a ROM call. **Study these before writing your own ROM call** — they are the reference implementation of the technique-selection rule in `inline-asm.md` §7. Note what they actually are, because it is easy to assume they're all inline asm: **20 of the 21 `cbm_k_*.c` files contain no assembly at all.** The whole of `cbm_k_chrout.c` is:
+Read the SDK wrapper for the required ROM call before writing a replacement.
+Some use a C prototype for an absolute symbol; others translate the calling
+convention in assembly. For example, `commodore/cbm_k_chrout.c` uses:
 
 ```c
 extern void __CHROUT(unsigned char C) __attribute__((leaf));
@@ -69,9 +71,11 @@ void __chrout(char c) {
 }
 ```
 
-It's a good model, and measurably tighter than the prototype form when inlined into a loop (see `inline-asm.md` §7) — just don't mistake it for how the `cbm_k_*` API is built.
+Compare this form with a C prototype in the actual program; see `inline-asm.md` §7.
 
-The underscore-prefixed `__CHROUT` symbols come from each platform's `kernal.S`, via a `weakdef` macro that declares the entry point `.weak` and aliases it to a `__`-prefixed global (58 of them in `c64/kernal.S`). This does double duty: it lets a program override an individual KERNAL routine at link time, *and* it is what makes the `extern`-prototype technique possible at all, since `__CHROUT` resolves to an absolute address at $FFD2.
+Each platform's `kernal.S` exports absolute entry-point symbols through `weakdef`.
+For example, `__CHROUT` resolves to the CHROUT address. Inspect these definitions
+when using a C prototype or overriding a ROM entry point.
 
 ```asm
 .macro weakdef name:req
@@ -149,7 +153,10 @@ Headers for the 6545 CRTC, 6551 ACIA, and PIA. No BASIC ROM unmapping — the PE
 `-mcpu=mosw65c02`, so 65C02 instructions (`bra`, `stz`, `phx`, indirect-no-index) are available; code written for it will not run on a stock 6502.
 
 - **VERA** (`VERA` at $9F20, 32-byte struct, `static_assert`-checked) is the video chip. It's accessed through address/data ports, not a memory window — `vpeek.s`/`vpoke.s` wrap this, and there are helpers `vera_layer_enable`, `vera_sprites_enable`, `videomode.s`, `waitvsync.s`.
-- **Extended KERNAL**: a large set of `cx16_k_*` wrappers covering the graph/framebuffer API (`graph_draw_line`, `graph_draw_rect`, `fb_set_pixels`, …), console, mouse, joystick, I2C, RTC, memory copy/fill/CRC/decompress, entropy, keymap, and sprites. Nearly all are `__attribute__((leaf))`. These live mostly as hand-written `.s` files — 68 of the 70 wrappers in `mos-platform/cx16/`. The reason is **convention translation, not a general preference for real functions over inline asm**: the X16 KERNAL's calling conventions frequently don't match the C ABI, and the `.s` files exist to bridge them. `cx16_k_console_put_char.s` turns an X-register flag into the carry with `cpx #1` and brackets the call with `X16_kernal_push_r6_r10`; `cx16_k_bsave.s` loads the end address out of `__rc4`/`__rc4+1` into X/Y and hands the KERNAL `#__rc2` as a zero-page pointer. Where the ABI *can't* express a result at all, cx16 uses inline asm instead — `cx16_k_joystick_get.c` returns three values simultaneously:
+- **Extended KERNAL:** inspect `cx16_k_*` wrappers for the required facility.
+  Assembly wrappers translate between the C and ROM conventions; for example,
+  `cx16_k_console_put_char.s` converts an X-register flag to carry. Inline assembly
+  can capture register results directly, as in `cx16_k_joystick_get.c`:
 
 ```c
 __attribute__((leaf)) asm volatile("jsr __JOYSTICK_GET\n"
@@ -171,7 +178,7 @@ Pick by what needs bridging, not by how much assembly is involved — `inline-as
 Key facilities:
 
 - **`mega65.h`** overlays the whole I/O space: `VICII`/`VICIV` at $D000, `PALETTE` at $D100, four SIDs, `HYPERVISOR` at $D640, `DMA` at $D700, `MATH` at $D768, `ETHERNET` at $D6E0, `CIA1`/`CIA2`, plus `CPU_PORT`/`CPU_PORTDDR`.
-- **`MATH`** ($D768, an 88-byte struct) is the hardware math unit — 32×32→64 multiply and divide. Because the inputs and result are separate MMIO registers, you need a compiler barrier between writing the operands and reading the result: `asm volatile("" ::: "memory")`. This is exactly the barrier case from `inline-asm.md`, and the SDK examples use it.
+- **`MATH`** ($D768) is the hardware math unit — 32×32→64 multiply and divide. Because the inputs and result are separate MMIO registers, you need a compiler barrier between writing the operands and reading the result: `asm volatile("" ::: "memory")`. This is exactly the barrier case from `inline-asm.md`, and the SDK examples use it.
 - **`dma.hpp`** (`namespace mega65::dma`, C++) builds DMAgic job structures for fill and copy and triggers them with `trigger_dma()`. DMA is dramatically faster than a CPU loop for screen and buffer work, and the header handles the F018A/F018B list format differences.
 - **`_vic4.h`** covers VIC-IV: FCM (full-colour mode), RRB, palette selection, and the extended sprite/raster registers.
 
