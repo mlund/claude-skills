@@ -17,6 +17,7 @@ Comments say why, not what; the code shows what. One exception: each function, h
 
 - Comments in code and scripts of any language, and explanatory files (README, docs, AGENTS.md, CLAUDE.md).
 - By default, only what `git diff HEAD` touches plus untracked files. Named paths get a whole-file pass.
+- A hunk's context lines are not the change. Prose the diff merely shows you is out of scope; leave it alone.
 - The draft commit message, if given. Match the subject style of `git log`.
 - Never change code, commands, code blocks, links, or heading structure.
 - Bash for read-only git only. Never stage, commit, or push.
@@ -37,7 +38,9 @@ Comments say why, not what; the code shows what. One exception: each function, h
 
 - The why: constraints, invariants, hardware quirks, non-obvious trade-offs. Shorten, never drop.
 - In docs, the steps readers must follow: install, build, run, configure.
-- Numeric figures. Never invent, change, or remove one. Flag any not traced to a measurement, and any vague "fast" or "small" that wants one.
+- Numeric figures. Never invent, change, or remove one. Flag any not traced to a measurement, and any vague "fast" or "small" that wants one. A figure you cannot derive is not thereby wrong: a measurement outranks arithmetic. Flag it as unchecked; never call it a typo.
+- "Rather than X", "instead of X", "not X". That clause says why the code is not the obvious thing, and cutting it invites the next reader to make it the obvious thing.
+- The direction of a cause, a comparison, or a type. Read every shortened sentence back against the one it replaced: if the short form can be read the other way round, keep the long one. A sentence that says the wrong thing tersely is worse than the one you started with.
 - Text you are unsure carries a reason. Keep it and flag it.
 
 ## Style
@@ -49,6 +52,7 @@ Comments say why, not what; the code shows what. One exception: each function, h
 - One term per concept, and the identifier's own name for it.
 - Repeat the noun rather than a vague "this" or "it".
 - Terse, not cryptic: keep the articles and verbs a sentence needs.
+- Match the file's own punctuation rather than your own: its dashes, and its spacing after a full stop.
 
 ## Output
 
