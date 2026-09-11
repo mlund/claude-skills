@@ -163,6 +163,10 @@ it covers what `git diff HEAD` touches; named paths get a whole-file pass.
 It reads `AGENTS.md` or `CLAUDE.md` first; those rules win. Never commits.
 Claude Code only: Codex plugins lack agents.
 
+Run it with `/tersify [paths | commit message]`, or ask for it by name. The
+skill passes the change's intent to the agent, which cannot see the
+conversation, then reviews the agent's edits before reporting.
+
 ## Layout
 
 ```
@@ -221,11 +225,14 @@ claude-skills/                      # this repo = a marketplace
     │       └── mega65-dev/
     │           ├── SKILL.md
     │           └── references/
-    └── tersify/                    # one plugin = one agent (Claude only)
+    └── tersify/                    # one plugin = agent + skill (Claude only)
         ├── .claude-plugin/
         │   └── plugin.json
-        └── agents/
-            └── tersify.md
+        ├── agents/
+        │   └── tersify.md
+        └── skills/
+            └── tersify/
+                └── SKILL.md
 ```
 
 More skills can be added under `plugins/` (each its own plugin) and listed in
