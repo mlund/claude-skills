@@ -1,7 +1,7 @@
 {
   "name": "tersify",
   "description": "Cut code comments, docs, and commit messages to terse, why-over-what prose. Runs on Haiku.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "Mikael Lund"
   },
