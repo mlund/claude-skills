@@ -50,4 +50,4 @@ Community examples can suggest mechanisms to investigate; verify hardware claims
 | [floppy.md](references/floppy.md) | Direct F011 D81 sector access without KERNAL/DOS |
 | [character-modes.md](references/character-modes.md) | FCM/NCM cells, glyph addressing and palettes |
 | [rrb.md](references/rrb.md) | GOTOX, compositing, row termination, ROWMASK and fetch budgets |
-| [xemu-testing.md](references/xemu-testing.md) | Loading test PRGs from BASIC; launching and observing tests; emulator limitations and hardware transfer |
+| [xemu-testing.md](references/xemu-testing.md) | Loading test PRGs from BASIC; launching and observing tests; emulator limitations; running and reading back on real hardware |

@@ -213,18 +213,112 @@ Practical notes:
 
 ## 5. Getting code onto real hardware
 
-`mega65_ftp` (from `mega65-tools`) copies files over ethernet with auto-discovery, so
-no serial cable is needed:
+The same serial-monitor harness can drive hardware and xemu: `m65harness.py`
+(<https://gist.github.com/mlund/48c045f127f600dbe3f238a52d50099e>) offers `attach()` and
+`launch()` behind one `Machine` API. It supports 28-bit `read`/`write` while a program
+runs and `press`/`type_text` through the synthetic key slots. Standard library only.
+
+Tools are `m65` and `mega65_ftp` from mega65-tools, bundled with M65Connect. Use
+`-s 2000000` on both; the default is far slower.
+
+What follows is observed behaviour of those two host tools, not of the core, and it has
+moved between builds: figures and quirks below are from 20251015.20 unless noted. Check
+against the build in use. Each rule names the symptom it produces, because most of them
+fail as something else entirely.
+
+### 5a. Copying files to the SD card
 
 ```sh
-mega65_ftp -e -y -c "put PROGRAM.M65 PROGRAM.M65" -c "exit"
+mega65_ftp -l /dev/cu.usbserial-XXXX -s 2000000 -c "put PROGRAM.M65" -c "exit"
 ```
 
-`-e` selects ethernet with auto-discovery and `-y` skips confirmation, which is needed
-for scripted `-c` commands. `-c "dir" -c "exit"` lists the card. Stamping a version
-string into the binary lets a script compare before uploading and skip identical builds.
+`-e` selects ethernet with auto-discovery instead, and is about **six times quicker**:
+one 223 KB file went at 218 KB/s over ethernet against 36 KB/s over serial at
+`-s 2000000`. It needs remote-control mode armed by hand — DIP switch 2 on, then
+SHIFT+POUND — and **that does not survive a reset from `m65 -F`**: the next transfer
+refuses outright, naming the two steps. The reset `mega65_ftp`'s own `exit` performs is
+not one of those, and consecutive invocations work; re-arm only after resetting the
+machine by other means.
 
----
+**A transfer rate under a few hundred KB is not a measurement.** `mega65_ftp` reports
+whole seconds, so a 14 KB file reads as 13.9 KB/s over either link. Time a large one.
+
+- **The machine must be idle.** In the tested build, `mega65_ftp` installs a helper into
+  RAM, so it hangs against a looping program. Reset first. It also leaves the helper
+  resident, which garbles the screen and takes the BASIC prompt away until the next
+  reset.
+- **Build `put` commands from a shell glob, not coloured `ls` output.** ANSI escapes
+  in filenames caused `stat()` failures while the tested command still exited 0.
+  Count the `put` lines and read the transfer output rather than filtering for a
+  success word.
+- **Compare file contents, not size or timestamp.** In the tested build, replacing a
+  same-size file often left the FAT date unchanged, while rebuilt binaries differed
+  at the same size. Hash the local file and compare that.
+
+### 5b. Starting a program
+
+```sh
+m65 -l /dev/cu.usbserial-XXXX -s 2000000 -F -1 PROGRAM.PRG
+```
+
+`-F` (reset) and `-1` (load) belong in **one call**: a later reset throws the injected
+program away, and without `-F` a program already looping leaves no prompt to type into.
+The `.prg` goes straight into RAM and need not be on the card, but any asset it reads
+must already be there.
+
+- **The loader may spin at 100% after transferring, holding the serial port** so that
+  nothing else can talk to the machine (seen with `-F -1` on 20251015.20). In that
+  case, wait about 45 s, then kill it. Compare memory against the `.prg` before
+  concluding that the load failed; an early kill can leave the entry bytes unwritten.
+- **Send `t0` down the monitor before typing.** On the tested setup, the CPU could be
+  left halted even when the loader exited 0, making synthetic keys appear ineffective.
+- **Type `SYS<entry>` rather than using `g`.** The tested `t1`, `g2000`, `t0` sequence
+  returned to BASIC, while `-r` could not start a `$2000` machine-code image.
+- **Type in lower case.** BASIC boots in upper-case/graphics mode, so shifted
+  upper-case letters can arrive as graphics.
+- **Read the echoed line back before retrying.** Slow character delivery can make a
+  retry append to the existing input and contaminate subsequent measurements. Search
+  for the typed text and require an exact match before continuing.
+- **Do not inject a key by writing `$D610`.** That register dequeues ASCII input; use
+  the `$D615`–`$D617` synthetic-key slots of §4.
+
+### 5c. Reading a running program back
+
+`m65harness`'s `read` works on any 28-bit address while the program runs, which is
+sufficient for readback. Two cautions:
+
+- **`settled()` and `snapshot()` freeze the machine** and show a screen that is not the
+  one being drawn. To watch a running program use raw `read`, including for the screen.
+- **In 8-bit text mode the screen is contiguous screen codes, one byte per cell.**
+  Do not de-interleave it as character-and-colour pairs; colour lives in colour RAM.
+  Decode per §3 before diagnosing a typing failure.
+- **A program meant for hardware should park rather than exit, and leave its diagnostic
+  where the monitor can read it.** Take that address from the link map every time: a
+  hand-written one reported plausible values belonging to something else after a buffer
+  moved underneath it. Clear it at start-up too, or a value from an earlier run is
+  indistinguishable from a failure.
+
+`m65 -S` renders a reconstruction from screen and glyph memory, not the VIC's output.
+Treat the result as diagnostic evidence only; it may not match a display that is being
+updated concurrently.
+
+### 5d. Attic RAM can stop answering
+
+**Observed on hardware, mechanism not established.** HyperRAM sometimes stops retaining
+writes, and **a reset does not bring it back — only a power cycle does**. Every symptom
+blames software: a Hyppo file load into Attic RAM reports success and stores nothing, so
+a format check on the loaded image fails and points at the parser.
+
+Test it directly before believing any software explanation — write two complementary
+patterns to an Attic address over the monitor and read them back:
+
+```
+$8000000 <- A5 5A, reads back 00 00   # dead: a reset will not fix this
+```
+
+Two patterns, not one: memory answering a single fixed value passes a one-pattern
+check, and complements fail a bus held high or low. A program loading into Attic RAM is
+worth giving the same probe at start-up.
 
 ## 6. Where the emulator and the hardware part company
 
@@ -241,6 +335,10 @@ emulator-passes-hardware-fails candidates:
   `BUFSEL` (`$D689` bit 7) mistakes go unnoticed there and fail on hardware
   (`registers.md` §7).
 - **A frozen program's thumbnail region is not populated** the way hardware populates it.
+- **Attic RAM has no wait states in the emulator**, which reads it out of a plain
+  array. So the cost of putting code or data in HyperRAM is exactly what xemu cannot
+  show, and any such figure has to come from hardware. Nor can xemu reproduce §5d.
+
 When something behaves differently on hardware, read the corresponding VHDL in
 `mega65-core` and the corresponding emulation in `xemu/targets/mega65/` and compare —
 the difference is usually explicit in one of them.
