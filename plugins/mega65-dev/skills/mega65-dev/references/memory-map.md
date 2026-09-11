@@ -165,8 +165,10 @@ Practical consequences:
 
 - `$D030` does **not** exist in the C64 personality. A program that starts in C64
   mode must knock to C65 or MEGA65 before touching it.
-- `$D640` (hypervisor traps) exists only in the MEGA65 personality.
-- The `$D02F` "knock" is two writes of specific values; a single write does nothing.
+- `$D640`–`$D67F` (hypervisor traps) work in the MEGA65 and ethernet personalities,
+  not in C64 or C65 (`hypervisor.md` §1).
+- Every `$D02F` write drops to the C64 personality; only the second byte of a
+  matching knock raises it again (`registers.md` §2).
 - Defensive startup: set the personality you need rather than assuming it.
 - **In hypervisor mode the personality is forced to MEGA65/VIC-IV.** The decoder
   substitutes `"11"` for the selected mode whenever `hypervisor_mode='1'`
@@ -235,5 +237,5 @@ To make all Chip RAM reachable at `0.0000`–`5.FFFF`:
 7. Install your own interrupt handlers and vectors, then re-enable interrupts.
 
 After step 4, `$D000`–`$DFFF` is RAM; reach I/O registers via their 28-bit addresses
-(`$FFD3xxx`) instead. After step 3, `$0000`/`$0001` are RAM too — the banking
-registers are only reachable while block 0 is *unmapped*.
+(`$FFD3xxx`) instead. A zero MAP leaves block 0 unmapped, so `$0000`/`$0001` stay
+the CPU port and step 4 works; they become RAM only if a MAP selects block 0.

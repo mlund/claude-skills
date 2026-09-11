@@ -191,8 +191,9 @@ Two edges worth remembering:
 
 - **`$0000`/`$0001` are the CPU port registers only while block 0 is unmapped.** Map
   block 0 with offset 0 and those two addresses become ordinary RAM — and the banking
-  registers become unreachable. They are also **write-only**, so `TRB`/`TSB` do not work
-  on them.
+  registers become unreachable. Reads return the DDR and port latch (`gs4510.vhdl`,
+  `when CPUPort`). **Writing `$40` or `$41` to `$00` does not set the DDR**: it clears
+  or sets the CPU's force-fast flag instead.
 - **I/O disappears if you map over it.** Selecting `$C000`–`$DFFF` with offset 0 gives
   RAM at `$D000`, not registers, whatever `$0001` holds.
 

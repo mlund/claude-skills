@@ -79,7 +79,7 @@ recolour every other byte of a 16-bit-mode row in a single job.
 
 **F018A vs F018B.** The two list formats differ by a sub-command byte, and which one
 the hardware expects depends on the core/ROM combination. `$D703` bit 0 selects it;
-the hypervisor trap `dmagic_autoset` (`$D642`, `A=$06`) sets it from the loaded ROM.
+the hypervisor trap `dmagic_autoset` (`$D642`, `A=$08`) sets it from the loaded ROM.
 Enhanced jobs can pin the format per job with option `$0A`/`$0B`, which is the robust
 choice. Getting this wrong produces jobs that transfer the wrong length or nothing.
 

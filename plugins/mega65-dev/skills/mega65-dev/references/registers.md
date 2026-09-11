@@ -122,7 +122,7 @@ the ones that matter for laying out a display.
 
 | Addr | Name | Width |
 |---|---|---|
-| `$D060`–`$D062` | `SCRNPTR` | Screen RAM base, 24-bit |
+| `$D060`–`$D062`, `$D063` bits 0–3 | `SCRNPTR` | Screen RAM base, 28-bit |
 | `$D064`–`$D065` | `COLPTR` | Colour RAM base, 16-bit (offset into the 32 KB colour RAM) |
 | `$D068`–`$D06A` | `CHARPTR` | Character set base, 24-bit |
 | `$D06C`–`$D06D` | `SPRPTRADR` | Sprite pointer address, 16-bit |

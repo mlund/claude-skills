@@ -91,7 +91,7 @@ when you need it.
 
 | Range | Owner | Notes |
 |---|---|---|
-| `$00`–`$01` | CPU I/O port | Hardware; write-only; unreachable if block 0 is mapped |
+| `$00`–`$01` | CPU I/O port | Hardware; unreachable if block 0 is mapped |
 | `$02`–`$09` | FAR registers | `bank`, `pc_hi`, `pc_lo`, `s_reg`, `a_reg`, `x_reg`, `y_reg`, `z_reg` — used **only** by `JSRFAR`, `JMPFAR` and BASIC's `SYS` |
 | `$0A` | `stkptr` | Allocated but never referenced |
 | `$0B`–`$8F` | **BASIC 65 workspace** | The KERNAL never touches it |
@@ -120,8 +120,10 @@ and `$D3`–`$D4`.
 
 **Budgeting for a machine-code program.** With BASIC displaced, `$0B`–`$8F` (minus
 `$56` if FAR-with-offset is used) is free, as is `$02`–`$0A` for a program that never
-calls `JSRFAR`/`JMPFAR`. That is roughly 140 bytes. `$90`–`$FF` must be left alone if
-any KERNAL call, interrupt handler, or screen output is used.
+calls `JSRFAR`/`JMPFAR`. That is roughly 140 bytes. `$90`–`$FA` must be left alone if
+any KERNAL call, interrupt handler, or screen output is used, apart from the free
+bytes above; `system.src` allocates nothing past `lintmp` (`$FA`). In C64 mode,
+BASIC 2 uses `$FF` (`baszpt`, `kernel64.src`).
 
 Two things that are **not** conflicts, despite appearances:
 
@@ -219,4 +221,4 @@ them.
 | `STZ` writes a non-zero byte | Same cause — `STZ` stores Z |
 | Screen output stops working after a disk call | The call changed MAP, `$D030`, or the I/O personality. Re-establish the map and personality, then `CLRCH` (`$FFCC`) to reset the channels. Reported in the field but not fully characterised — verify against `system.src` before relying on any specific remedy |
 | Filename not found although the bytes look right | Filenames are PETSCII: uppercase letters are `$C1`–`$DA`, not `$41`–`$5A` |
-| Program corrupts itself after using ZP | Wrote into `$90`–`$FF` while the KERNAL or an IRQ handler was live (§3) |
+| Program corrupts itself after using ZP | Wrote into `$90`–`$FA` while the KERNAL or an IRQ handler was live (§3) |

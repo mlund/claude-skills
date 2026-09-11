@@ -197,8 +197,8 @@ byte, and how palettes work across a line and down the screen — is
 The usual setup is V400 with `CHRYSCL = 0`, `NORRDEL` clear and `DBLRR` set
 (`$D051` bits 7 and 6): each displayed row spans two physical rasters, which is
 where the doubled character budget comes from. `CHRCOUNT` (`$D05E` plus two bits
-of `$D063`) counts *cells*, and `LINESTEP` (`$D058`) counts bytes and applies to
-colour RAM as well.
+of `$D063`) counts *cells*, and `LINESTEP` (`$D058`–`$D059`) counts bytes and
+applies to colour RAM as well.
 
 **A raster line has time to fetch a bounded number of cells, and past it the line
 is cut short.** Tokens count as well as glyphs. Measured on one machine at V400

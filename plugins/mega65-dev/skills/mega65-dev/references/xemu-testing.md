@@ -151,7 +151,7 @@ only half the rows — and the missing rows look exactly like blank ones. It als
 trailing spaces per line and drops trailing blank lines.
 
 For anything but plain 8-bit text, use `-dumpmem` and read the screen out of the dump
-at its real address and stride (`SCRNPTR` at `$D060`–`$D063`, row stride `LINESTEP` at
+at its real address and stride (`SCRNPTR` at `$D060`–`$D062` plus `$D063` bits 0–3, row stride `LINESTEP` at
 `$D058`–`$D059`). Colours come out of the same dump: the first 2 KB of colour memory is
 mirrored at `$1F800`.
 
