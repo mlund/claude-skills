@@ -32,6 +32,11 @@
       "name": "mega65-dev",
       "source": "./plugins/mega65-dev",
       "description": "Systems-level MEGA65 development: the 45GS02 memory model, MAP and banking, hardware registers, the KERNAL, the Hyppo hypervisor, and xemu-based testing, checked against the MEGA65 core VHDL and the MEGA65 Book."
+    },
+    {
+      "name": "tersify",
+      "source": "./plugins/tersify",
+      "description": "Cut code comments, docs, and commit messages to terse, why-over-what prose. Runs on Haiku."
     }
   ]
 }

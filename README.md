@@ -15,6 +15,7 @@ marketplace and a Codex plugin marketplace.
 /plugin install faunus
 /plugin install llvm-mos
 /plugin install mega65-dev
+/plugin install tersify
 ```
 
 Update later by re-running `/plugin marketplace add mlund/claude-skills` (or pulling this repo).
@@ -148,6 +149,20 @@ and the ROM sources, in that order of authority; known contradictions between th
 are recorded rather than papered over. The skill asks for paths to those
 repositories on first use and records nothing about the local setup.
 
+### tersify
+
+An agent that cuts code comments, docs, and commit messages to terse,
+why-over-what prose. Runs on Haiku to keep pre-commit passes cheap. By default
+it covers what `git diff HEAD` touches; named paths get a whole-file pass.
+
+- **Cut** — filler, salesman words, text restating code, history ("now",
+  "previously"), and brittle claims (line numbers, caller counts).
+- **Keep** — the why, a one-line "what" on functions and scripts, the steps
+  readers must follow, and numeric figures; unsure passages get flagged.
+
+It reads `AGENTS.md` or `CLAUDE.md` first; those rules win. Never commits.
+Claude Code only: Codex plugins lack agents.
+
 ## Layout
 
 ```
@@ -197,15 +212,20 @@ claude-skills/                      # this repo = a marketplace
     │       │   └── references/
     │       └── llvm-mos-dev/
     │           └── SKILL.md
-    └── mega65-dev/                 # one plugin = one skill (+ references)
-        ├── .codex-plugin/
-        │   └── plugin.json
+    ├── mega65-dev/                 # one plugin = one skill (+ references)
+    │   ├── .codex-plugin/
+    │   │   └── plugin.json
+    │   ├── .claude-plugin/
+    │   │   └── plugin.json
+    │   └── skills/
+    │       └── mega65-dev/
+    │           ├── SKILL.md
+    │           └── references/
+    └── tersify/                    # one plugin = one agent (Claude only)
         ├── .claude-plugin/
         │   └── plugin.json
-        └── skills/
-            └── mega65-dev/
-                ├── SKILL.md
-                └── references/
+        └── agents/
+            └── tersify.md
 ```
 
 More skills can be added under `plugins/` (each its own plugin) and listed in
