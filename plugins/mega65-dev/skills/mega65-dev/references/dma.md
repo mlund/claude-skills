@@ -37,13 +37,15 @@ The board/core revision and exact setup implementation were not recorded here;
 these are workload-specific measurements, not hardware guarantees.
 
 Measure several lengths and subtract a matched no-transfer control to separate
-harness overhead, setup, and per-byte cost. Do not trigger a raw zero-length job
-without checking its length encoding.
+harness overhead, setup, and per-byte cost. There is no zero-length job: **a count
+of zero copies 65,536 bytes**. Once the list is read, a 24-bit count (option `$90`
+supplies bits 16–23) of zero is replaced by `$010000` (`gs4510.vhdl`,
+`if dmagic_count = x"000000"`, `:5956`, core `4e58c243a`).
 
 | Option | Arg | Meaning |
 |---|---|---|
 | `$00` | — | End of options |
-| `$01` | — | Allow source and destination to cross megabyte boundaries |
+| `$01` | — | Allow source and destination to cross megabyte boundaries (this job only, see below) |
 | `$06` / `$07` | — | **Disable / enable** transparency — note the order, see below |
 | `$0A` / `$0B` | — | Use F018A / F018B list format |
 | `$0D` / `$0E` / `$0F` | — | Floppy raw flux write / read ignoring long gaps / read |
@@ -91,6 +93,20 @@ parsed at all is fixed by which trigger register the CPU wrote (`:8935`, `:8954`
 and chaining re-enters the trigger state without changing it, so **every job in an
 enhanced chain needs its own `$00`-terminated option prefix**, even an empty one. The
 line-scaling accumulators are the exception: they reset per chained job (`:5778-5785`).
+
+**Addresses wrap inside their megabyte by default.** The address counters carry
+into bits 27–20, but the core then restores those bits unless option `$01` or
+`$D703.1 NOMBWRAP` is set, so a job running past `$xFFFFF` continues at `$x00000`
+of the same megabyte without error (`gs4510.vhdl`, the
+`reg_dmagic_cross_mb_boundaries` / `reg_dmagic_no_default_mb_wrap` tests at
+`:6088`, `:6116`, `:6544`, `:6763`, core `4e58c243a`). Check any transfer whose
+source or destination range spans a megabyte boundary.
+
+- Option `$01` lasts one job (or chain): `dmagic_reset_options` clears it (`:3846`).
+- `NOMBWRAP` persists, but shares `$D703` with `EN018B`: a whole-byte write that sets
+  the list format also rewrites it (`:3395-3396`). It reads back (`:2500`), so
+  read-modify-write.
+- Hypervisor mode ignores both and always wraps.
 
 ### Hardware line drawing
 

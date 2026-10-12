@@ -82,6 +82,10 @@ the moment something touches `$D011`.
   register byte — writing it triggers a full recalculation.
 - Re-enabling HOTREG applies any update that became pending while it was off. To
   suppress that, write 0 to HOTREG again immediately before re-enabling.
+- The triggers are writes to `$D011`, `$D016`, `$D018` and `$D031`, and a change of
+  the CIA-2 VIC bank bits (`viciv.vhdl`, every `viciv_legacy_mode_registers_touched
+  <= '1'`, core `4e58c243a`). Writing the VIC-IV screen and character pointers
+  (`$D060`, `$D068`) triggers nothing; a recalculation writes them.
 
 **Symptom to remember:** "my VIC-IV setup reverted for no reason" is almost always a
 hot register write.
@@ -96,6 +100,11 @@ hot register write.
 | `$D054` bit 6 (`VFAST`) | MEGA65 fast mode (~40.5 MHz) |
 | `$D031` bit 6 (`FAST`) | C65 fast mode (~3.5 MHz) |
 | `$D030` bit 0 (C64 personality) | C128-style 2 MHz |
+
+`$D67D.4 CPUFAST` lets the hypervisor force 40.5 MHz while the userland speed bits
+read clear (`iomap.txt`), so reading those bits does not establish the clock. Force
+it with `$0000` before timing anything; on hardware, a program started without doing
+so measured about five times slower until it did.
 
 Slow-bus regions (the cartridge range at `$4000000`) run at 1–10 MHz regardless.
 Attic RAM access is roughly 10× slower than Chip RAM.
@@ -175,6 +184,18 @@ mode a cell is two bytes and the colour lives in the **high** byte of the colour
 | `$D06B` | 16-colour sprite mode enables |
 | `$D076`–`$D078` | V400 enables and Y MSBs |
 
+A 16-colour sprite (`$D06B`) is 16 pixels of 4 bits, 8 bytes a row (`sprite.vhdl`,
+core `4e58c243a`):
+
+- **The high nybble is the left pixel**, the opposite of an NCM cell
+  (`character-modes.md`): byte 0 loads at the top of the pixel vector, which is read
+  from its top four bits and rotated up four bits a pixel.
+- The palette index is the sprite number in bits 6–4, the nybble in bits 3–0, and
+  the bitplane-enable bit in bit 7 (`sprite_colour_out`), so each sprite has its own
+  16-entry bank. A drawing split across sprites needs its palette in each one's bank.
+- The transparent nybble is the low nybble of that sprite's colour register
+  `$D027+n`, not a fixed zero (`pixel_16 /= sprite_colour(3 downto 0)`).
+
 ### Raster
 
 | Addr | Name |
@@ -185,6 +206,15 @@ mode a cell is two bytes and the colour lives in the **high** byte of the colour
 | `$D07A` b7 | `FNRSTCMP` — compare in VIC-II rasters if set, physical if clear |
 | `$D07A` b6 | `EXTIRQS` — enable extra IRQ sources such as raster X |
 | `$D05D` b6 | `RSTDELEN` — delay raster counter and IRQs by one line to match pipeline latency |
+
+- **The VIC-II raster does not wrap with the frame.** `vicii_ycounter` stops at
+  `vicii_max_raster` until the next frame (`viciv.vhdl`, core `4e58c243a`), so under
+  taller geometry it can stop above the picture's bottom and `$D011.7` can rise inside
+  the picture. On hardware with the ROM's PAL geometry it held from about physical
+  raster 356 to the end of a frame whose bottom border started at 504. Time frames on
+  `$D052`/`$D053` and compare with `FNRSTCMP` clear.
+- Writing `$D011` or `$D012` sets `FNRSTCMP` (`vicii_is_raster_source <= '1'`), putting
+  the compare back on VIC-II rasters. Rewrite `$D07A` after either.
 
 The upper bits of `$D051`, `$D053`, and `$D07A` are unrelated control flags, not
 address bits — read the bit slices in `iomap.txt` before doing a whole-byte write.

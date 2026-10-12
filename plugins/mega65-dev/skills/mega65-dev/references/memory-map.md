@@ -136,6 +136,13 @@ compatibility, the **first 2 KB** is also visible at `1.F800`–`1.FFFF` — the
   megabyte, so `BANK`-style access and 1 MB DMA jobs cannot see it.
 - A program using ≤ 30 KB of colour data can move the colour-RAM base forward by
   `$0800` and reclaim the 2 KB window at `1.F800` as ordinary Chip RAM.
+- The window is the same memory as colour RAM's first 2 KB, not a copy. CPU writes to
+  `$1F8xx` also write colour RAM, and CPU addresses there resolve to `$FF80000`–`$FF807FF`
+  (`gs4510.vhdl`, the `x"001F"` tests in `write_long_byte` and the CPU address
+  resolver, core `4e58c243a`). On hardware a write to either address read back
+  from the other, with `$1F7F0` and `$20000` unaffected. So the reclaim holds only
+  while nothing writes colour RAM's first 2 KB; otherwise data placed there is
+  overwritten without error.
 - Colour RAM base is set by `$D064`/`$D065` (see `registers.md`).
 
 ---
