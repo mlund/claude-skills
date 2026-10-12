@@ -31,6 +31,10 @@ inlining, library calls, and layout effects.
 - Give immutable local tables static storage when identity and lifetime permit it,
   then verify materialization and section retention. Automatic storage does not force the
   optimizer to emit a runtime copy, nor does LTO guarantee merging static objects.
+- Check shifts by a runtime count. `x >> n` with a variable `n` compiles to a
+  `__lshrhi3` libcall for 8- and 16-bit operands at `-Os` and `-O2` (llvm-mos
+  `f5e2d46`, `mos-mega65-clang -fno-lto -S`); a constant count does not. Inspect hot
+  decoders for them before pricing anything else.
 - Compare lookup tables with arithmetic, including table bytes and access cost.
   Consider fixed-point only when its precision, range, and rounding meet the task.
 - Inspect wrapper call sites before choosing inline assembly, an out-of-line

@@ -51,6 +51,13 @@ Generate symbol maps from each normal build. Map formats can vary: validate
 required symbols, reject ambiguous matches, and fail on missing names. Do not
 carry hand-copied addresses into emulator scripts.
 
+A failed link still writes its `-Map` file. When a region overflows, `ld.lld` exits
+non-zero and writes no image, yet the map lists the sections it tried to place, and an
+image from an earlier link is left in place. Read sizes only from a link that exited 0;
+the overflow figure in the error message is the reliable number from a failed one.
+Reproduce with a 2000-byte `.rodata` and a 256-byte region (LLD from llvm-mos
+`f5e2d46`).
+
 Measure occupied regions and runtime memory separately from padded image size.
 Use linker assertions for expressible layout invariants; add a map-based check
 only where the linker cannot express the required condition.
