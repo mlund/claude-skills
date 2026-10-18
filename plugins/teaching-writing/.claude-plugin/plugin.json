@@ -1,0 +1,15 @@
+{
+  "name": "teaching-writing",
+  "description": "Write lecture slides, notes pages, puzzles, hints and explorable captions that teach, in the explanatory style of Dill & Bromberg adapted for slides.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mikael Lund"
+  },
+  "keywords": [
+    "writing",
+    "teaching",
+    "lectures",
+    "slides",
+    "pedagogy"
+  ]
+}

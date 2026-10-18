@@ -14,6 +14,11 @@
       "description": "Write and revise clear, concise, reader-focused scientific prose, combining Nature Masterclasses, Strunk & White, The Economist Style Guide, and Kirkwood-Shumaker-style theoretical exposition."
     },
     {
+      "name": "teaching-writing",
+      "source": "./plugins/teaching-writing",
+      "description": "Write lecture slides, notes pages, puzzles, hints and explorable captions that teach, in the explanatory style of Dill & Bromberg adapted for slides."
+    },
+    {
       "name": "faunus",
       "source": "./plugins/faunus",
       "description": "Author Faunus YAML input files and build, run, profile, and debug Faunus molecular simulations."
