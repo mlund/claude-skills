@@ -188,6 +188,13 @@ and check every slide with a picture.
 - **Lecture:** quizzes are short class prompts and nothing gates progress.
 - **Material:** notation matches the textbook, or the difference is stated once; chapters,
   equations and figures are cited by number.
+- **Consistency across slides, notes and figures:** dump all text (slides, notes, hints,
+  scene labels) and read it as one document. Each symbol means one thing and is written one
+  way (also matching earlier lectures); each named quantity keeps one name; each material
+  constant has one value, shown with the same rounding everywhere and matching the code that
+  computes the figures; numbers recalled from earlier lectures match those lectures; every
+  symbol is defined on or before its first use. Exercises may use slightly different
+  notation; say once how it maps.
 - **Exercises:** for each associated exercise, list the concepts, formulas and data it
   needs and where the material covers them; report any gap.
 - **Tutorial:** list the outcomes and map each to its puzzles (section and closing quiz);
