@@ -108,6 +108,16 @@ For every idea, in this order:
 7. **A limit or a check.** "With ε = 1 the energy vanishes: vacuum into vacuum costs
    nothing." Or compare with experiment.
 
+## Notation and model names
+
+Define model names, abbreviations and subscripts as well as symbols before first use.
+For a ratio, introduce both quantities and explain what their comparison measures. Put
+definitions needed to follow the argument on the slide; an aside or glossary supplements
+them.
+Avoid introducing a new symbol for a quantity used in only one calculation when its
+value or existing notation is clearer. Follow the author's explicit notation and unit
+choices consistently across prose, equations and figures.
+
 ## Slides vs notes
 
 - **On the slide:** short, but full sentences that carry meaning; no telegraphic
@@ -117,17 +127,21 @@ For every idea, in this order:
   derivation in prose, paragraphs that open with their topic, every step written out,
   sources for numbers. A student who missed the lecture should learn it from the notes.
 - Put a notes page after each section whose derivation does not fit on slides.
+- Keep supporting notes accessible in the student's normal reading or navigation path.
+  Supporting or optional material does not automatically mean hidden material; omit it
+  from that path only when the author requests this.
 
 ## Boxes: key concepts and take-home messages
 
-- **Key concept box** on the slide where an idea is defined: one or two sentences, or the
-  central equation with one line of meaning. At most one per slide.
-- **Take-home box** at the end of each section: the one sentence a student should keep.
+- Use a **key concept box** selectively where an idea is defined: one or two sentences,
+  or the central equation with one line of meaning. At most one per slide.
+- A **take-home box** can mark the end of a section: the one sentence a student should keep.
 - In Blikfang: a `shape` rect card (`fill: surface`, `radius: 16`, a 3-unit border in a
   theme role; `accent` for take-home, `line` for key concepts) placed *before* the text,
   with the text inset 30 units. Start the text with a bold label: **Key concept** or
   **Take-home**.
-- Boxes repeat what the slide says; that redundancy is the point.
+- Use a box when it makes the central point easier to find. Repetition should help recall;
+  avoid repeating the same statement in a heading, paragraph and box on one slide.
 
 ## Headings
 
@@ -169,10 +183,32 @@ State the claim, not the topic: "Charging a sphere costs q²/8πε₀εa", not "
 Food first, then everyday life, then research or industry with a real number and a
 source in the notes. Never invent a product, company or number.
 
+## Layout and cognitive load
+
+- Give each slide one teaching purpose. Establish a clear reading order: claim, evidence
+  or figure, then the conclusion or task. Split slides with competing arguments.
+- Use alignment, proximity and whitespace to group related content. Keep definitions
+  close to their equations and labels close to the features they describe.
+- Let the main figure or equation dominate. Use consistent type sizes and restrained
+  emphasis; remove competing decoration before shrinking text to make it fit.
+- Use builds to reveal meaningful steps at the pace of the explanation. Check both the
+  initial view and the completed slide; each should be intelligible.
+- Inspect rendered figures at presentation size. Leave room for axis titles, tick labels
+  and legends outside the plotting rectangle but inside the figure's bounds. Automated
+  layout checks supplement visual inspection; they do not establish legibility.
+
+## Revising existing material
+
+Read the author's current material before editing and preserve manual revisions. Treat
+the maintained deck or document as the source of truth; an earlier script or generated
+version may be stale. Make requested changes against the current version rather than
+reapplying an old whole-deck transformation.
+
 ## Layout cautions (Blikfang)
 
 With Blikfang, read its MCP guides first (`lecture`, `design`, `scenes`, `deck`), prefer Rhai
-scenes over JS explorables, and generate the deck from a script so it can be rebuilt.
+scenes over JS explorables. If a script creates the initial deck, distinguish that
+initial generation from later manual maintenance.
 
 Markdown renders past its frame, and puzzle hints and feedback render below the puzzle's
 frame. Size frames for the rendered text, leave about 130 units free under every puzzle,
@@ -180,7 +216,8 @@ and check every slide with a picture.
 
 ## Verify before handing over
 
-- Every slide checked with a picture: no text past its frame, room under every puzzle.
+- Every slide checked with a picture: no text past its frame, room under every puzzle,
+  and complete axis titles, tick labels and legends.
 - Every equation followed by its terms, a number and what it means (on the slide or in the
   notes).
 - Every explorable has predict, do and notice.
@@ -193,8 +230,8 @@ and check every slide with a picture.
   way (also matching earlier lectures); each named quantity keeps one name; each material
   constant has one value, shown with the same rounding everywhere and matching the code that
   computes the figures; numbers recalled from earlier lectures match those lectures; every
-  symbol is defined on or before its first use. Exercises may use slightly different
-  notation; say once how it maps.
+  symbol, subscript, abbreviation and model name is defined on or before its first use.
+  Exercises may use slightly different notation; say once how it maps.
 - **Exercises:** for each associated exercise, list the concepts, formulas and data it
   needs and where the material covers them; report any gap.
 - **Tutorial:** list the outcomes and map each to its puzzles (section and closing quiz);
