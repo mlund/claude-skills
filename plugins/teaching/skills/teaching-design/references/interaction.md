@@ -65,7 +65,8 @@ Mitigations that the literature supports:
 
 - Make hints **cost** something: a delay, a logged attempt, a required follow-up.
 - Require a **fresh item** after a hinted success — do not pass on the hinted attempt.
-- Prefer **free-form gate items**, which cannot be brute-forced.
+- Prefer **free-form gate items**, which cannot be brute-forced. The spatial equivalent: a
+  **continuous** handle judged by a check, not a few drop zones the student can try one by one.
 - **Detect** rapid-hint sequences rather than trusting the pass.
 - Never let `hint` be more attractive than `feedback`.
 
@@ -79,6 +80,11 @@ advantage goes to **surprising** answers. The wrong answer is the highest-encodi
 material.
 
 - Spend the real explanation **there**, ideally in the explorable, not in a minimal nudge to retry.
+- **Compute the consequence of the answer given** where a script can: "Γ = +0.45: the positive
+  area outweighs the negative, move up" teaches; "Not quite" does not. One rule then covers
+  every wrong answer, including ones the author never foresaw.
+- Draw that consequence for the **checked** answer, not the live control: a figure that updates
+  as the student drags gives the answer away before they commit.
 - This is also the anti-hint-abuse design: an explanation worth reading is not clicked past.
 - Never style it as a red failure state (see `colour.md`).
 

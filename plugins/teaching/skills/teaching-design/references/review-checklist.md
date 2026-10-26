@@ -8,7 +8,9 @@ only visible rendered. With Blikfang, check every slide with a picture.
 1. **Render every slide**, in both its initial and completed reveal state.
 2. **Walk the four high-yield checks** below first; they catch the most.
 3. **Run the lint rules**; each is mechanical enough to automate.
-4. **Report defects with the rule number and the slide**, not as general advice.
+4. **Judge composition in two passes** (`composition.md`): at thumbnail size without reading,
+   then for meaning; report any gap between the visual and the semantic hierarchy.
+5. **Report defects with the rule number and the slide**, not as general advice.
 
 ## The four that catch the most
 
@@ -67,6 +69,16 @@ only visible rendered. With Blikfang, check every slide with a picture.
 24. Text rendering past its frame → **error**.
 25. Less than ~130 units free under a puzzle → **error** (hints and feedback render below the frame).
 26. A figure missing axis titles, tick labels or a legend at presentation size → **error**.
+
+**Composition** (see `composition.md`; craft rules, not evidence)
+
+27. Edges that nearly align (within ~1 % of the canvas) → warning: snap them or separate them.
+28. The strongest element at thumbnail size is not the Tier 3 one → **error**.
+29. A Tier 3 line that wraps onto a second line → warning: move qualifiers to the body.
+30. Slides of one series with the figure, question or controls in different places → warning.
+31. A layout that changes (control extremes, a movie's last frame, the revealed puzzle) not
+    rendered → **error**: collisions hide in the states nobody looked at.
+32. Text filling its frame's width with no spare (~10 %) → warning: another renderer will wrap it.
 
 ## Cross-skill checks
 

@@ -30,6 +30,7 @@ Read the one you need; do not load them all.
 |---|---|
 | `references/text-roles.md` | assigning or styling text: the 18 roles, 4 tiers, the scale |
 | `references/colour.md` | choosing a palette, a ground, or feedback colours |
+| `references/composition.md` | arranging a slide, or judging its layout: alignment, grouping, balance, whitespace |
 | `references/interaction.md` | designing puzzles, hints, gates, feedback or explorables |
 | `references/evidence.md` | you need the number, its *k*, its CI or its caveat |
 | `references/review-checklist.md` | reviewing a deck, or wiring lint rules into a tool |
@@ -131,6 +132,12 @@ The four that catch the most:
 - A second Tier 3 element on a slide.
 - A `callout` or label not adjacent to its referent.
 - Feedback distinguished by hue alone.
+
+Then judge composition in two passes (`references/composition.md`): first without reading, at
+thumbnail size, for weight, alignment and grouping; then for meaning. The finding that matters
+is any gap between them: the strongest thing in pass 1 must be the Tier 3 element. For a slide
+whose layout changes (a handle, a slider, a movie, a puzzle's feedback), render the extremes and
+the last frame too.
 
 ## The core principles (one-screen summary)
 
