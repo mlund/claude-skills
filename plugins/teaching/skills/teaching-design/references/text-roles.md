@@ -82,13 +82,27 @@ Withholding contrast from chrome is **signalling by omission**, not absence of d
 | Role | Treatment |
 |---|---|
 | `signal` | momentary highlight tied to the current step; **then removed**. Dynamic cues beat static (d = 0.43 vs 0.38) |
-| `feedback` | **promote to Tier 3 while present** — the wrong-answer moment is the highest-encoding moment |
+| `feedback` | **promote while present** — the wrong-answer moment is the highest-encoding moment. Promote the *explanation* (body size or above, strongest ink), not the verdict word: "✓ Correct" or "Not quite" is a state label at Tier 2 at most. A verdict at Tier 3 beside the question makes two focal points and dwarfs the note that teaches |
 | `hint` | Tier 2, and deliberately **less** attractive than `feedback` |
 
 ### Register shifts (family only, salience-neutral)
 
 `code` (mono, ~0.95× to match optically) · `formula` (maths face, never faked with italic body) ·
 `quote` (secondary family or italic, offset — where enclosure earns its place).
+
+### Text inside figures
+
+Scene, plot and explorable text takes roles too; the budget does not stop at the figure's edge.
+Size it in the slide's own units, after the figure's scale:
+
+- a live value or the figure's key result (ΔP = 25 Pa, "checked Γ = −0.36") is a **`readout`**
+  (Tier 2) and counts against the ~3;
+- a label on the thing (z₀, c(z), "vapour") is a **`label`**, Tier 0 size, not smaller;
+- tick labels may sit at the floor (1.2 % of the canvas width), as chrome.
+
+The usual failure is the reverse order: tick-sized text on the very values the figure exists to
+show, which vanish in the thumbnail test. Contrast applies inside figures too, against whatever
+the text sits on (a shaded area, not just the ground).
 
 ## Mode-aware rendering
 

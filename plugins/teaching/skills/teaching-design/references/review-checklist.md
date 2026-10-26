@@ -79,6 +79,11 @@ only visible rendered. With Blikfang, check every slide with a picture.
 31. A layout that changes (control extremes, a movie's last frame, the revealed puzzle) not
     rendered → **error**: collisions hide in the states nobody looked at.
 32. Text filling its frame's width with no spare (~10 %) → warning: another renderer will wrap it.
+33. Figure text smaller than its role (a readout or key value below `readout` size, a label on the
+    thing below `label` size) → warning; figure text under the contrast floor against what lies
+    beneath it → **error**.
+34. A puzzle verdict ("Correct", "Not quite") larger than the explanation under it, or at Tier 3
+    beside the question → **error**.
 
 ## Cross-skill checks
 

@@ -98,6 +98,13 @@ compare versions, but the actionable line is the primary issue and its fix:
 Prefer removing or moving over restyling. Most composition fixes are a smaller element, a shared
 edge or more space, not a new colour or border.
 
+## Text inside figures
+
+Measure scene and plot text like any other text: its size on the slide (after the figure's
+scale), its role (`text-roles.md`, "Text inside figures") and its contrast against what lies
+under it. A tool's text report often lists text boxes only; when it does, read figure text off
+the picture and the script, and say that it was not measured.
+
 ## With element coordinates
 
 When the tool gives frames as well as a picture (Blikfang's `read_slide` with `run`), measure
