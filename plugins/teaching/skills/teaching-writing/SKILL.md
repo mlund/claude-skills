@@ -10,6 +10,10 @@ for the first time, often alone. Write for that student. The model is Dill & Bro
 *Molecular Driving Forces*: a simple model said plainly, every step shown, a number after
 every formula, and what the number means.
 
+**Pairs with `teaching-design`**, which owns how the material *looks and behaves*: text roles and
+salience, colour, progressive reveal, and the behaviour of puzzles, hints, gates and explorables.
+This skill decides what the words say; load the other one when laying out or reviewing a deck.
+
 Clarity rules from scientific writing still hold (lead with the point, active voice,
 simple words, be quantitative, one term per concept, define symbols with units). What
 changes is density: teaching material keeps the connecting steps and says key ideas more
@@ -150,6 +154,8 @@ State the claim, not the topic: "Charging a sphere costs q²/8πε₀εa", not "
 ## Puzzles and hints
 
 - Ask before telling: a prediction puzzle before the explanation or explorable.
+- Prefer a **free-form written prediction** to multiple choice where the answer can be checked:
+  open-ended predictions outperformed five fixed choices by ~20 points of conceptual gain.
 - Each wrong choice option is a real misconception, and its hint names it ("That is a
   transfer energy; solvation starts in vacuum").
 - Numeric and condition puzzles get a hint ladder: first where to look or which idea,
@@ -171,6 +177,10 @@ State the claim, not the topic: "Charging a sphere costs q²/8πε₀εa", not "
   Puzzles are more substantial (multi-step numbers, transfer to a new system), may gate the
   next section, and carry full hint ladders and reveals, since no one else will correct the
   student.
+  ⚠️ A gate plus a hint ladder plus multiple choice is the **hint-abuse** configuration: the answer
+  space is small enough to brute-force and hints shorten the search. Prefer free-form items, require
+  a fresh item after a hinted pass, and make the wrong-answer feedback the richest explanation in
+  the section — see `teaching-design`, `references/interaction.md`.
 
 ## Explorable captions (predict–observe–explain)
 
@@ -184,6 +194,9 @@ Food first, then everyday life, then research or industry with a real number and
 source in the notes. Never invent a product, company or number.
 
 ## Layout and cognitive load
+
+> Summary only — `teaching-design` holds the full system (text roles, salience and hue budgets,
+> measured palettes, reveal rules) and the evidence behind it. Load it before styling or reviewing.
 
 - Give each slide one teaching purpose. Establish a clear reading order: claim, evidence
   or figure, then the conclusion or task. Split slides with competing arguments.

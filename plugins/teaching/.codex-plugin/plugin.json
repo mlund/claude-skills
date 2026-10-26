@@ -1,0 +1,36 @@
+{
+  "name": "teaching",
+  "version": "0.1.0",
+  "description": "Write and design teaching material that explains: lecture slides, notes pages, puzzles, hint ladders, explorables and their visual design.",
+  "author": {
+    "name": "Mikael Lund",
+    "url": "https://github.com/mlund"
+  },
+  "repository": "https://github.com/mlund/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "writing",
+    "teaching",
+    "lectures",
+    "slides",
+    "pedagogy",
+    "design",
+    "explorables"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Teaching",
+    "shortDescription": "Write and design lecture material that explains, not just states.",
+    "longDescription": "Two skills: teaching-writing for the prose (picture first, every step, a number and its meaning), teaching-design for the visual and interaction design (text roles, colour, reveal, puzzles, gates and explorables), each grounded in multimedia-learning evidence.",
+    "developerName": "Mikael Lund",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use Teaching to revise these lecture slides.",
+      "Use Teaching to review this deck's visual design and puzzles."
+    ]
+  }
+}

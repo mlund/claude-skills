@@ -11,7 +11,7 @@ marketplace and a Codex plugin marketplace.
 ```
 /plugin marketplace add mlund/claude-skills
 /plugin install scientific-writing
-/plugin install teaching-writing
+/plugin install teaching
 /plugin install scientific-plotting
 /plugin install faunus
 /plugin install llvm-mos
@@ -80,7 +80,7 @@ Reference files cover chart selection, color/accessibility, design principles,
 statistics & uncertainty, journal specs, and a review checklist. The skill
 triggers when making or critiquing a figure for a paper, poster, or talk.
 
-### teaching-writing
+### teaching
 
 A skill for lecture material that teaches rather than states: slides, notes
 pages, puzzles, hint ladders and captions for interactive figures. It follows
@@ -89,6 +89,13 @@ the explanatory style of Dill & Bromberg's *Molecular Driving Forces*
 with boxed key concepts and take-home messages. It writes presented lectures
 (light slides, the speaker explains) differently from self-study tutorials
 (the text explains). Use it instead of scientific-writing for teaching material.
+
+The plugin also provides **teaching-design**, covering how the material looks
+and behaves rather than what it says: a text-role system with a salience
+budget, colour and ground choices with measured contrast, progressive reveal,
+and the behaviour of puzzles, hint ladders, mastery gates and explorables —
+each grounded in multimedia-learning evidence, with a review checklist and an
+evidence file that records what the research does *not* support.
 
 ### faunus
 

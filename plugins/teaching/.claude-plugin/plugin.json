@@ -1,0 +1,17 @@
+{
+  "name": "teaching",
+  "description": "Write and design teaching material that explains: lecture slides, notes pages, puzzles, hint ladders, explorables and their visual design.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mikael Lund"
+  },
+  "keywords": [
+    "writing",
+    "teaching",
+    "lectures",
+    "slides",
+    "pedagogy",
+    "design",
+    "explorables"
+  ]
+}

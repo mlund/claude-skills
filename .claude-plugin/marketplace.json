@@ -14,9 +14,9 @@
       "description": "Write and revise clear, concise, reader-focused scientific prose, combining Nature Masterclasses, Strunk & White, The Economist Style Guide, and Kirkwood-Shumaker-style theoretical exposition."
     },
     {
-      "name": "teaching-writing",
-      "source": "./plugins/teaching-writing",
-      "description": "Write lecture slides, notes pages, puzzles, hints and explorable captions that teach, in the explanatory style of Dill & Bromberg adapted for slides."
+      "name": "teaching",
+      "source": "./plugins/teaching",
+      "description": "Write and design teaching material that explains: lecture slides, notes pages, puzzles, hint ladders, explorables and their visual design."
     },
     {
       "name": "faunus",
