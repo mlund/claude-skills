@@ -17,10 +17,10 @@
       "category": "Productivity"
     },
     {
-      "name": "teaching-writing",
+      "name": "teaching",
       "source": {
         "source": "local",
-        "path": "./plugins/teaching-writing"
+        "path": "./plugins/teaching"
       },
       "policy": {
         "installation": "AVAILABLE",
