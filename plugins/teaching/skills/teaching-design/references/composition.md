@@ -71,6 +71,10 @@ fit at the start collide at another state.
   (a corner of the figure) or a fallback position, and check both.
 - Feedback and hints grow **downward**, longest at the reveal. Budget for that space, and keep
   the correct-answer note to one sentence; put the detail in the figure or a callout.
+- Render the **solved** state with what builds in on the solve, and the **wrong** state with
+  its note. Dragged items then rest in their zones, not at home: what builds into the space
+  they left collides wherever they are still drawn. An element that builds in still counts
+  as present; never stack two elements in one place on the bet that only one shows at a time.
 - Draw the consequence of the **checked** answer, not of where the control sits now. Shading
   that follows a live handle answers the question before the student commits.
 

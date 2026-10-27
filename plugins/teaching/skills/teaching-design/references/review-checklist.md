@@ -76,8 +76,9 @@ only visible rendered. With Blikfang, check every slide with a picture.
 28. The strongest element at thumbnail size is not the Tier 3 one → **error**.
 29. A Tier 3 line that wraps onto a second line → warning: move qualifiers to the body.
 30. Slides of one series with the figure, question or controls in different places → warning.
-31. A layout that changes (control extremes, a movie's last frame, the revealed puzzle) not
-    rendered → **error**: collisions hide in the states nobody looked at.
+31. A layout that changes (control extremes, a movie's last frame, a puzzle wrong, solved with
+    its builds, and revealed) not rendered → **error**: collisions hide in the states nobody
+    looked at. Two elements sharing one place because they never show at once → warning.
 32. Text filling its frame's width with no spare (~10 %) → warning: another renderer will wrap it.
 33. Figure text smaller than its role (a readout or key value below `readout` size, a label on the
     thing below `label` size) → warning; figure text under the contrast floor against what lies
