@@ -53,6 +53,10 @@ this skill owns terms, symbols, ensembles, signs and citations.
 - `references/equations.md` — the core relations with equation numbers and
   DOIs (KB definitions, Γ23 forms, scale and ensemble conversions, salts,
   estimators). Read it before writing or checking an equation.
+- `references/simulation.md` — practical route from MD/MC to KBIs and Γ23:
+  finite-size corrections, solute-centred estimators, implicit solvent,
+  salts, tools (KBKit and others) and a reporting checklist. Read it for any
+  Methods text or analysis that extracts KBIs or Γ from simulation.
 - `references/references.bib` — verified BibTeX for the cited works.
 
 Never invent a citation or DOI. If a relation is not in the reference files,
