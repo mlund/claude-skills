@@ -119,6 +119,9 @@ One solute molecule (protein, caffeine) in a water–cosolute box.
 | **pyKBI** (Dawass et al. 2019, 10.1016/j.fluid.2018.12.027) | Finite-volume corrected KBIs. | KBKit reproduces its published values. |
 | **ComplexMixtures.jl** (Martínez 2022, 10.1016/j.molliq.2021.117945) | Minimum-distance distributions around solutes of any shape, per-atom contributions. | Ordinary Voronoi assignment of counts; global normalization (glossary). |
 
+Before reporting, run the verification checks in equations.md §17; the relabelled-water test
+(item 10) and electroneutrality for salts (item 11) catch most estimator errors.
+
 ## 7. Reporting checklist
 
 1. Ensemble, box length, run length, number of each species, force fields.

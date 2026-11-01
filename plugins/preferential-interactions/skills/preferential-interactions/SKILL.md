@@ -178,3 +178,6 @@ say it needs a source.
    (Baynes & Trout 2003 for radius-weighted domains and exact group sums).
 6. Salts: single-ion vs salt-component quantities kept apart; |Z| term present.
 7. Each nontrivial relation cited at the claim with a DOI from the bib.
+8. Dimensions: every equation balances; KBIs carry units (nm³ or cm³ mol⁻¹);
+   R with per-mole, k_B with per-molecule quantities; Γ23, γ_i, N_ij and ρ3G23
+   are dimensionless (equations.md §16).
