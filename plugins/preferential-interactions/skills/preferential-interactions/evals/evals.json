@@ -27,7 +27,7 @@
         "Calls Gamma(delta) a running/solute-anchored KB integral and does not call it a finite-volume KBI",
         "States the ensemble (T, mu1, mu3 or dialysis)",
         "Includes citations with DOIs (in notes.md or the LaTeX)",
-        "Uses rho for number densities rather than c in new equations"
+        "Uses rho for number densities, or keeps the manuscript's c and explicitly flags it as a house-style deviation with the replacement"
       ]
     },
     {

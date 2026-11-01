@@ -46,18 +46,31 @@ this skill owns terms, symbols, ensembles, signs and citations.
 - **Explain**: explain a concept or derivation in house notation, mapping other
   schools' notation onto it, with DOIs for every relation used.
 
-## Reference files
+## Reference files (load only what the task needs)
 
-- `references/glossary.md` — every term and symbol, its definition, the house
-  choice, variants by school, and DOIs. Read it for any term not covered below.
-- `references/equations.md` — the core relations with equation numbers and
-  DOIs (KB definitions, Γ23 forms, scale and ensemble conversions, salts,
-  estimators). Read it before writing or checking an equation.
-- `references/simulation.md` — practical route from MD/MC to KBIs and Γ23:
-  finite-size corrections, solute-centred estimators, implicit solvent,
-  salts, tools (KBKit and others) and a reporting checklist. Read it for any
-  Methods text or analysis that extracts KBIs or Γ from simulation.
-- `references/references.bib` — verified BibTeX for the cited works.
+Read the one or two files that match the task, not all of them. For terms and
+citations, search rather than read: each glossary row and each BibTeX entry
+is one line.
+
+| need | file |
+|---|---|
+| a term, symbol, or another school's usage | `grep -i '<term>' references/glossary.md` (read a section only if the row is unclear) |
+| a DOI or BibTeX entry | `grep -i '<author or key>' references/references.bib` |
+| KBIs, excess numbers, solution relations (§1–3), KB inversion (§14) | `references/kb-integrals.md` |
+| Γ23 forms (§4), Wyman linkage (§5), ensemble offsets (§6), molal vs molar (§7), m-value (§11) | `references/gamma-linkage.md` |
+| counting estimators (§8), bulk ratio (§9), finite-volume KBI (§12), partitions and site excess (§13) | `references/estimators.md` |
+| salts (§10) | `references/salts.md` |
+| second derivatives, solute volume, interfaces from fluctuation theory (§15) | `references/fluctuations.md` |
+| dimensions and units (§16), verification checks (§17) | `references/checks.md` |
+| extracting KBIs or Γ from MD/MC, tools, Methods reporting | `references/simulation.md` |
+
+Typical loads: reviewing a manuscript → the files for the equations it
+contains plus `checks.md`; writing Methods for simulations → `simulation.md`
+and `estimators.md`; explaining salts → `salts.md` and `gamma-linkage.md`.
+
+After editing any reference file, run `python3 scripts/check_refs.py`. It
+checks file links (`file.md §N`), paper sections (`Author Year, §N`) and that
+every DOI is in references.bib.
 
 Never invent a citation or DOI. If a relation is not in the reference files,
 say it needs a source.
@@ -91,7 +104,7 @@ say it needs a source.
   - molar-scale coefficient **ρ3G23** (call it molar, never just "Γ"): the
     implicit-solvent estimator ⟨N⟩ − ρ3·Vol[D] converges here; it still
     contains the solute's excluded volume. Give the conversion when both
-    appear (see equations.md).
+    appear (gamma-linkage.md §7).
 - Pairing the dialysis Γ23 with a constant-(T, P) Wyman linkage is standard
   and exact; do not "correct" it. The offset to the (T, P, μ3) coefficient,
   φ3/(a33 φ1), is the same for every solute, so it cancels in ΔΓ23 only for
@@ -180,4 +193,4 @@ say it needs a source.
 7. Each nontrivial relation cited at the claim with a DOI from the bib.
 8. Dimensions: every equation balances; KBIs carry units (nm³ or cm³ mol⁻¹);
    R with per-mole, k_B with per-molecule quantities; Γ23, γ_i, N_ij and ρ3G23
-   are dimensionless (equations.md §16).
+   are dimensionless (checks.md §16).

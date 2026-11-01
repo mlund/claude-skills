@@ -3,8 +3,8 @@
 House terms are in **bold** and follow SKILL.md. Rows give the house term, the symbol, a short
 definition, each school's usage with its own DOI, and pitfalls. "avoid" marks a term the house
 style does not use in its own voice. Keep such terms only inside quotations or when you describe
-the cited paper's model. Page and equation numbers are the cited paper's own. For equations, see
-`equations.md`.
+the cited paper's model. Page and equation numbers are the cited paper's own. For equations, see the
+equation files listed in SKILL.md.
 
 House notation: 1 = water, 2 = solute, 3 = cosolute. ρ_i is a number density. Γ23 is the
 preferential interaction coefficient with the solute index first. N_ij = ρ_jG_ij counts j around i.
@@ -84,7 +84,7 @@ Conflicts in brief:
 | thermodynamic factor — **avoid** the symbol Γ | Γ^GC | The matrix A^GC = (B^GC)⁻¹. | Simon22 Eq. 21 (10.1063/5.0106162); "thermodynamic correction factor" G13 (10.1021/ct301017q) | It clashes with Γ23. Rename it or spell it out. Do not call a33 a thermodynamic factor (§4). |
 | ideal-solution KBI | G^SI_ij | KBIs of a symmetric ideal solution are nonzero. Only differences signal nonideality. | Ploetz 2010 (10.1063/1.3398466); M84 G12 = (G11 + G22)/2 (10.1063/1.447034) | It is a different "ideal" from the bulk reference (§8). |
 | thermodynamic limit | G∞, V → ∞ | The value of the KBI at infinite volume. | Simon22 (10.1063/5.0106162); "limiting KBIs" G13 (10.1021/ct301017q) | The plain G_ij in house style already means this limit. |
-| KB inversion | — | Recovers G_ij from κ_T, the PMVs V̄_i and the chemical-potential derivatives μ_ij (a33 in a binary solvent); see equations.md §14. | BN77 (10.1063/1.434669); Smith08, n components (10.1063/1.2982171); applied to caffeine–salt with activity derivatives from fitted ln γ and VPO, HHL23 (10.1021/acs.jpcb.3c01085) | BN77 is the original inversion (binary, water–ethanol); its Eqs. 2.1–2.13 were checked against the full text (equations.md §14). |
+| KB inversion | — | Recovers G_ij from κ_T, the PMVs V̄_i and the chemical-potential derivatives μ_ij (a33 in a binary solvent); see kb-integrals.md §14. | BN77 (10.1063/1.434669); Smith08, n components (10.1063/1.2982171); applied to caffeine–salt with activity derivatives from fitted ln γ and VPO, HHL23 (10.1021/acs.jpcb.3c01085) | BN77 is the original inversion (binary, water–ethanol); its Eqs. 2.1–2.13 were checked against the full text (kb-integrals.md §14). |
 | open-system derivative | — | k_BT(∂ρ_i/∂μ_j)_{T,V,μ′} = ρ_iρ_jG_ij + ρ_iδ_ij. | P08 Eq. 13 (10.1007/s12013-007-9005-0); S06a Eq. 4 (10.1021/jp056100e) | It is exact only in the open ensemble. Closed-system derivatives need matrix inversion (Simon22). |
 | excess solvation number, shell-corrected | N′_2i | N′_2i = N_2i + n_iV_E, with the excluded-volume part removed. | Sh04 Eq. 5 (10.1073/pnas.0305836101) | Shimizu only. Smith keeps excluded volume inside N_2j. |
 | solvation shell | 1st, 2nd | Defined by g(r) minima or by Voronoi neighbour order. | BT03 (10.1021/jp0363996); Z17 (10.1039/c6ra24736a); "two hydration layers" VYT09 (10.1021/jp903413v) | The distance-based and topological definitions differ. |

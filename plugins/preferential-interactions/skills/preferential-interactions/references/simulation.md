@@ -2,7 +2,7 @@
 
 Read this before writing or reviewing a Methods section that extracts KB integrals or a
 preferential interaction coefficient from simulation, or before running such an analysis.
-Equations referred to by § number are in `equations.md`. "(inference)" marks steps that no
+§ numbers refer to the equation files listed in SKILL.md. "(inference)" marks steps that no
 cited source states.
 
 Contents: 1 why raw integrals fail · 2 radial route (bulk mixtures) · 3 solute at infinite
@@ -30,7 +30,7 @@ does not arise; the finite range of the integral still does. (inference)
 
 Applied sequentially by KBKit (Peroutka et al. 2026), following Simon et al. 2022:
 
-**2a. Ganguly–van der Vegt RDF correction** (10.1021/ct301017q, Eq. 5; equations.md §9):
+**2a. Ganguly–van der Vegt RDF correction** (10.1021/ct301017q, Eq. 5; estimators.md §9):
 
     g^GvdV_ij(r) = g_ij(r) · N_j f(r) / [N_j f(r) − ΔN_ij(r) − δ_ij],   f(r) = 1 − (4π r³/3)/⟨V⟩
     ΔN_ij(r) = ρ_j ∫₀^r 4π r'² [g_ij(r') − 1] dr'
@@ -38,7 +38,7 @@ Applied sequentially by KBKit (Peroutka et al. 2026), following Simon et al. 202
 It removes the depletion of j from the rest of the box when j accumulates near i. (The KBKit
 docstring writes the upper limit of ΔN as r_max; the code integrates cumulatively to r.)
 
-**2b. Krüger finite-volume integral** (10.1021/jz301992u; equations.md §12), on the corrected g:
+**2b. Krüger finite-volume integral** (10.1021/jz301992u; estimators.md §12), on the corrected g:
 
     G^V_ij(L) = ∫₀^L [g_ij(r) − 1] 4π r² (1 − 3x/2 + x³/2) dr,   x = r/L,   L = sphere diameter
 
@@ -73,17 +73,17 @@ systematic error.
 
 One solute molecule (protein, caffeine) in a water–cosolute box.
 
-- **Radial form**: Γ23 = ρ3(G23 − G21) from two solute-centred RDFs (equations.md §4). The
+- **Radial form**: Γ23 = ρ3(G23 − G21) from two solute-centred RDFs (gamma-linkage.md §4). The
   corrections of §2 apply to each RDF. siba-p/kbkit's `pb` command computes exactly this.
 - **Counted-solvent form, preferred for nonspherical solutes** (Hervø-Hansen et al. 2023,
   10.1021/acs.jpcb.3c01085): Γ23(R) = n23(R) − (ρ3/ρ1)_bulk n21(R) over a layer or domain around
   the solute. Use the moving bulk ratio, (n3 − n23)/(n1 − n21) (Pierce et al. 2008 Eq. 56; Ploetz &
-  Smith 2013 §13; equations.md §9). The global box ratio underestimates Γ by the factor
+  Smith 2013 §13; estimators.md §9). The global box ratio underestimates Γ by the factor
   (1 − n21/n1). Judge convergence by a plateau in R or δ.
 - The moving bulk ratio plays the role of the GvdV correction for this estimator: both remove the
   depletion of the finite box. (inference)
 - The Krüger 1/L extrapolation applies to radial RDFs, also solute-centred ones, but not to a
-  solute-shaped domain D(δ): there the surface law does not hold (equations.md §12). Use the δ
+  solute-shaped domain D(δ): there the surface law does not hold (estimators.md §12). Use the δ
   plateau.
 - Plateaus reported in practice: caffeine Γ23 from running KBIs at r = 1.6–2.0 nm; group terms at
   ≈ 1.0 nm from the surface (Hervø-Hansen et al. 2023). Ploetz & Smith average over about one
@@ -93,7 +93,7 @@ One solute molecule (protein, caffeine) in a water–cosolute box.
 ## 4. Implicit-solvent (McMillan–Mayer) MC
 
 - No water particles: the estimator ⟨N3(D)⟩ − ρ3 Vol[D] gives the molar-scale ρ3G23, not the molal
-  Γ23. Convert with equations.md §7 before comparing with experiment or explicit-solvent results.
+  Γ23. Convert with gamma-linkage.md §7 before comparing with experiment or explicit-solvent results.
 - ρ3 must be the bulk density far from the solute. In canonical MC, N3/V includes the solute's
   excess and overestimates ρ3 for an accumulated cosolute; measure ρ3 in a far region or use GCMC
   at fixed cosolute activity. (inference, the same depletion as §1)
@@ -104,7 +104,7 @@ One solute molecule (protein, caffeine) in a water–cosolute box.
 - Ion–ion and ion–molecule RDFs are computed per ion; KBIs for the neutral salt component then
   follow from mole-fraction-weighted sums: G_iI = x₊G_i+ + x₋G_i−, and G_II′ = Σ x x′ G over the four
   ion pairs (KBKit, after Ploetz, Smyers & Smith 2025, 10.1021/acs.jpcb.4c07583).
-- This is the indistinguishable-ion or salt-component view (equations.md §10). Single-ion Γ±
+- This is the indistinguishable-ion or salt-component view (salts.md §10). Single-ion Γ±
   are well-defined counts, but only Γ+ + Γ− enters the linkage.
 - Lbadaoui-Darvas & Takahama 2019 (10.1021/acs.jpcb.9b06735) applied the Krüger and Dawass
   corrections to aqueous salts and recovered activity-coefficient derivatives close to experiment
@@ -119,7 +119,7 @@ One solute molecule (protein, caffeine) in a water–cosolute box.
 | **pyKBI** (Dawass et al. 2019, 10.1016/j.fluid.2018.12.027) | Finite-volume corrected KBIs. | KBKit reproduces its published values. |
 | **ComplexMixtures.jl** (Martínez 2022, 10.1016/j.molliq.2021.117945) | Minimum-distance distributions around solutes of any shape, per-atom contributions. | Ordinary Voronoi assignment of counts; global normalization (glossary). |
 
-Before reporting, run the verification checks in equations.md §17; the relabelled-water test
+Before reporting, run the verification checks in checks.md §17; the relabelled-water test
 (item 10) and electroneutrality for salts (item 11) catch most estimator errors.
 
 ## 7. Reporting checklist
