@@ -98,6 +98,16 @@ One solute molecule (protein, caffeine) in a water–cosolute box.
   excess and overestimates ρ3 for an accumulated cosolute; measure ρ3 in a far region or use GCMC
   at fixed cosolute activity. (inference, the same depletion as §1)
 - Hervø-Hansen et al. 2023 ran caffeine CG MC in both canonical and grand-canonical ensembles.
+- The continuum has no volume of its own, so the model cannot supply V̄2°, which the conversion needs.
+  At low cosolute φ1 ≈ 1 and k_BTκ_T ≈ 1 cm³ mol⁻¹ ≪ V̄2°, so Γ23 ≈ ρ3G23 + ρ3V̄2° (from Smith 2006a
+  Eq. 34, 10.1021/jp056100e). Take V̄2° from experiment, an explicit-water run or an estimate, and say which.
+- Differences survive better than absolute values: φ1 ∂lnK/∂ln a3 = Δ(ρ3G23) + ρ3ΔV̄2° (Smith 2006a,
+  Eq. 46), so for a process with small ΔV̄2° the implicit-solvent Δ(ρ3G23) ≈ ΔΓ23. When V̄2° is unknown,
+  report differences between states. (inference: the "small ΔV̄2°" criterion)
+- Two-domain quantities need an assumed water content: without water particles, B1 (and so K_p, b1)
+  is an assumption, e.g. the cosolute-accessible shell at bulk water density. State it.
+- Salts in a primitive model: Γ+ − Γ− = −Z still holds and is a convergence check (checks.md §17);
+  hydration-layer effects enter only through ion radii and whatever effective potentials the model has.
 
 ## 5. Salts
 

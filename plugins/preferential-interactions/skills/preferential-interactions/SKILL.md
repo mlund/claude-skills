@@ -104,7 +104,9 @@ say it needs a source.
   - molar-scale coefficient **ρ3G23** (call it molar, never just "Γ"): the
     implicit-solvent estimator ⟨N⟩ − ρ3·Vol[D] converges here; it still
     contains the solute's excluded volume. Give the conversion when both
-    appear (gamma-linkage.md §7).
+    appear (gamma-linkage.md §7); it needs V̄2°, which a continuum model
+    cannot supply, so name its source or report differences
+    (simulation.md §4).
 - Pairing the dialysis Γ23 with a constant-(T, P) Wyman linkage is standard
   and exact; do not "correct" it. The offset to the (T, P, μ3) coefficient,
   φ3/(a33 φ1), is the same for every solute, so it cancels in ΔΓ23 only for
