@@ -118,8 +118,9 @@ say it needs a source.
   subvolume (Schnell, Krüger, Simon), whose 1/L surface law does not apply to a
   solute-anchored domain. Convergence is judged by a plateau in δ.
 - Kronecker delta always with two indices, **δ_ij**. When quoting Ben-Naim's
-  preferential-solvation index δ_{A,S}, rename it (e.g. Δ_{A,S}) and note the
-  renaming once.
+  preferential-solvation index δ_{A,S}, rename it (e.g. Δ^PS_{A,S}) and note
+  the renaming once. Plain Δ_AB is taken: Ben-Naim (1977) uses it for
+  G_AA + G_BB − 2G_AB.
 
 ### Domains and partitions
 

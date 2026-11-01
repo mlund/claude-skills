@@ -12,7 +12,8 @@ house symbols, the original notation is given under the relation.
 
 Contents: 1 KB integrals · 2 excess numbers · 3 solution relations · 4 Γ23 · 5 linkage ·
 6 ensemble offsets · 7 molal vs molar scale · 8 estimators · 9 bulk ratio · 10 salts ·
-11 m-value · 12 finite-volume KBI (for contrast) · 13 partitions and site excess · 14 KB inversion
+11 m-value · 12 finite-volume KBI (for contrast) · 13 partitions and site excess · 14 KB inversion ·
+15 fluctuation theory: second derivatives, solute volume, interfaces
 
 ---
 
@@ -223,6 +224,7 @@ Moving bulk, taken from what remains outside R:
 - Source: Pierce et al. 2008, Eq. 56 (10.1007/s12013-007-9005-0); Shukla et al. 2009, Eq. 3 (10.1021/jp810949t). Vagenende et al. 2009, Eq. 7 (10.1021/jp903413v) uses the same form.
 - Notation: n1 and n3 are the box totals. n2j(R) is the raw count within R. Shukla writes n_i(r,t).
 - Pierce: "The correction can be significant for protein systems … as the value of n21 can be large."
+- Ploetz & Smith 2013, §13 (10.1002/9781118571767.ch4) give the same adjustment: the bulk ratio is the box totals minus what sits in the local region, "especially … for small systems and/or large values of Γ".
 - A fixed far bulk instead takes the ratio from a region beyond r* (Baynes & Trout 2003, Eq. 18, 10.1021/jp0363996).
 
 Global-box ratio bias (inference: exact algebra on Pierce Eq. 56):
@@ -261,6 +263,9 @@ Indistinguishable ions (KB school), with ρ3 = ν±ρ_salt:
 - The −|Z| term applies when the solute releases counterions identical to a salt ion (δ_Ic = 1). Smith 2006a and 2006b drop it.
 - With ν± = 2 and N23 − (ρ3/ρ1)N21 = Γ+ + Γ−, Pierce Eq. 22 is Record & Anderson Eq. 41, so Pierce's Γ23 is Γ_salt (verification.md).
 - In simulations, the cosolute count is the sum of the ion counts, n_sc(R) = n_s+(R) + n_s−(R) (Smith 2004, p. 18722).
+- Why ions are not independent species: with cation, anion and solvent as independent variables, electroneutrality makes the number-fluctuation matrix singular (Friedman & Ramanathan 1970, 10.1021/j100715a009; Kusalik & Patey 1987, 10.1063/1.452629). The usual fix is a salt "molecule" or indistinguishable ions; the latter matches Kusalik & Patey (Ploetz & Smith 2013, §16, 10.1002/9781118571767.ch4).
+- Dissent: Ben-Naim (Molecular Theory of Solutions, 2006, cited by Ploetz & Smith §16) holds that KB theory is valid for salts with independent ions, since KBIs are grand-canonical and electroneutrality is an unnecessary constraint on them; only the data to vary ion concentrations separately are missing. Ploetz & Smith adopt dependent ions for lack of data. Substituting N_2 = N_+ + N_− is an index change; electroneutrality then leaves one independent salt fluctuation.
+- (inference) For the house style: single-ion Γ± from simulation are well defined counts (Ben-Naim's view), but only Γ+ + Γ− is a thermodynamic derivative (§10 above). Say which view a sentence relies on.
 
 ## 11. m-value
 
@@ -318,7 +323,26 @@ Site excess on cells C_i(δ), which partition D(δ):
 - The implicit-solvent form is the house definition (SKILL.md). No input paper defines it.
 - (inference) KB reading: γ_i = ρ3[∫_{C_i} h23 dr − ∫_{C_i} h21 dr] is a cell-restricted piece of §8.1. Atom-centred integrals G_i3 − G_i1 each converge to the *whole* G23 − G21 for a rigid solute, so they cannot partition Γ.
 
-## 14. KB inversion (Smith 2008, 10.1063/1.2982171)
+## 14. KB inversion
+
+Binary original, Ben-Naim 1977 (10.1063/1.434669), species A and B:
+
+    η = ρ_A + ρ_B + ρ_Aρ_B(G_AA + G_BB − 2G_AB)                       [Eq. 2.1]
+    ζ = 1 + ρ_AG_AA + ρ_BG_BB + ρ_Aρ_B(G_AAG_BB − G_AB²)               [Eq. 2.2]
+    κ_T = ζ/(kTη),   V̄_A = [1 + ρ_B(G_BB − G_AB)]/η                    [Eqs. 2.3–2.4]
+    μ_AA = ρ_BkT/(ρ_AηV),   μ_AB = −kT/(ηV),   μ_αβ = (∂μ_α/∂N_β)_{T,P,N_γ}   [Eq. 2.6]
+    x_A(∂ln P_A/∂x_A)_{T,P} = ρ/η          (ideal vapour)             [Eq. 2.12]
+    V̄_AV̄_B = (ζ − ηG_AB)/η²                                            [Eq. 2.13]
+    Δ_AB = G_AA + G_BB − 2G_AB;  Δ_AB = 0 ⇔ symmetric ideal            [Eq. 2.14]
+    G_αβ = −V_αβ + I_αβ                                                [Eq. 3.6]
+
+- Procedure: η from vapour pressures (2.12), ζ from κ_T (2.3), G_AB from (2.13), then G_BB, G_AA from (2.4)–(2.5).
+- Eq. 2.11 is the corrected form of Eq. 4.88 in BN77's Ref. 4 (stated in BN77).
+- V_αβ is a nearly composition-independent exclusion volume (sphere of radius σ_αβ); I_αβ is the "affinity" part beyond σ_αβ. Z18 uses the same split (I_ij as affinity).
+- BN77 counts the c-component inversion as c(c + 1)/2 unknowns from 1 + c + c(c+1)/2 equations minus the c + 1 identities; it gave no ternary data.
+- Δ_AB collides with any rename of Ben-Naim's δ_A,S to Δ_A,S; use Δ^PS_A,S for the latter.
+
+Multicomponent, Smith 2008 (10.1063/1.2982171):
 
 Inversion gives the n(n+1)/2 integrals G_ij from κ_T, n − 1 independent PMVs and n(n − 1)/2
 independent chemical-potential derivatives.
@@ -340,4 +364,35 @@ Ternary, solute 2 at infinite dilution (1 = water, 3 = cosolute):
 - Salts: Smith keeps μ_ij general because activity-coefficient relations for salts are system dependent (Discussion). Applied to caffeine–salt with fitted ln γ and VPO: Hervø-Hansen et al. 2023 (10.1021/acs.jpcb.3c01085).
 - Matteoli & Lepori (10.1063/1.447034): G_ij are insensitive to κ_T and PMVs away from critical points, so SI values often suffice for those terms (Smith 2008, Conclusions).
 - Smith reads N_ij as the change in j within a "local spherical volume" on placing i at the centre (p. 124509-2). The house text keeps that reading for radial KBIs only.
+
+## 15. Fluctuation theory: second derivatives, solute volume, interfaces
+
+Source: Ploetz & Smith 2013, Adv. Chem. Phys. 153, 311 (10.1002/9781118571767.ch4). The PMC text
+lacks the equations, so the statements below are from prose; check equation forms in the original.
+
+- **Second cosolute derivative of K (§11.4)**: ∂²lnK/∂(ln a3)² is set by fluctuations of an
+  instantaneous preferential interaction coefficient Γ(t) in the local region (form presumably
+  N3(t) − (ρ3/ρ1)N1(t); the equation is stripped)
+  around each solute form. A near-zero second derivative (constant m-value) means similar Γ
+  fluctuations for both forms. Compare the nonlinear ΔΓ″23 of Heyda & Dzubiella 2014 (§11).
+- (inference) With an exact site partition, Γ(t) = Σγ_i(t), so the variance splits into site
+  covariances ⟨δγ_iδγ_j⟩. This would attribute the curvature to sites the way Σγ_i attributes Γ.
+- **Solute volume and reaction compressibility (§11.4)**: an instantaneous infinite-dilution pseudo
+  volume follows from the local solvent count, N1(t) versus the same volume of bulk. The pressure
+  second derivative of K involves fluctuations of that volume. (inference) The explicit-solvent counts
+  in D(δ) give the same quantity per site.
+- **Do not** apply bulk-system fluctuation formulas to each solute form: "a solute, even the size of
+  a protein, cannot be formally treated as a system", and the two forms are not independent species
+  (§11.4). This applies to any per-site compressibility or heat capacity.
+- **Convergence in practice (§13)**: they average running KBIs over about one solvation shell where
+  they flatten, and call the choice subjective. κ_T from plain integration is "questionable at best";
+  PMVs and chemical-potential derivatives converge better because they involve only *differences*
+  of KBIs. Γ23 = ρ3(G23 − G21) is such a difference.
+- **Planar analogue of a surface-anchored domain (§8.5)**: Gibbs adsorption at a liquid–vapour
+  interface uses Γ_j relative to the primary solvent, from ∫[g_j(z) − g_1(z)] dz along the normal,
+  integrated until the value stops changing ("many solvation shells"). Sign of Γ_j sets the sign of the
+  surface-tension change, since the activity derivative is positive. Likely underlying paper (not
+  checked against the review's reference list): Chen & Smith 2008 (10.1021/jp711062a).
+- Terminology: Ploetz & Smith's "local region" is an open sub-volume of bulk solution with random
+  origin (finite-volume KBI sense; see §12 above). Do not use it for the solute-anchored D(δ).
 
