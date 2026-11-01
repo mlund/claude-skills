@@ -61,7 +61,7 @@ Moving bulk, taken from what remains outside R:
 
     Γ23(R) = n23(R) − [(n3 − n23(R))/(n1 − n21(R))]·n21(R)
 
-- Source: Pierce et al. 2008, Eq. 56 (10.1007/s12013-007-9005-0); Shukla et al. 2009, Eq. 3 (10.1021/jp810949t). Vagenende et al. 2009, Eq. 7 (10.1021/jp903413v) uses the same form.
+- Source: Pierce et al. 2008, Eq. 56 (10.1007/s12013-007-9005-0); Shukla et al. 2009, Eq. 3 (10.1021/jp810949t). Vagenende et al. 2009, Eq. 7 (10.1021/jp903413v) uses the same form. Hervø-Hansen et al. 2023, SI Eq. S3 (10.1021/acs.jpcb.3c01085), uses it for caffeine in aqueous salt, preferred over RDF integration for non-spherical solutes because it needs only coordination numbers.
 - Notation: n1 and n3 are the box totals. n2j(R) is the raw count within R. Shukla writes n_i(r,t).
 - Pierce: "The correction can be significant for protein systems … as the value of n21 can be large."
 - Ploetz & Smith 2013, §13 (10.1002/9781118571767.ch4) give the same adjustment: the bulk ratio is the box totals minus what sits in the local region, "especially … for small systems and/or large values of Γ".

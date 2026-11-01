@@ -106,6 +106,33 @@ One solute molecule (protein, caffeine) in a water–cosolute box.
   report differences between states. (inference: the "small ΔV̄2°" criterion)
 - Two-domain quantities need an assumed water content: without water particles, B1 (and so K_p, b1)
   is an assumption, e.g. the cosolute-accessible shell at bulk water density. State it.
+- KB inversion of implicit-solvent output (Hervø-Hansen et al. 2023, 10.1021/acs.jpcb.3c01085,
+  section "Kirkwood–Buff Analysis of Experimental and/or Simulation Data", Eqs. 11–15; the
+  inversion equations are in kb-integrals.md §14): the MC excess chemical potential of the solute,
+  μ2^ex = ln γ2, is fitted to
+
+      ln γ2 = 2A2m2 + (3/2)B2m2² + C1m3 + C2m2m3                           [Eq. 13]
+      −(1/M1) ln a1 = m2 + A2m2² + B2m2³ + ν3m3 + A3m3^{3/2} + B3m3² + C1m2m3 + C2m2²m3   [Eq. 14]
+      ln γ3± = (1/ν3)[3A3m3^{1/2} + 2B3m3 + C1m2 + ½C2m2²]                 [Eq. 15, printed as (6/2)A3]
+
+  A2, B2 from salt-free data; C1, C2 per salt; A3, B3 binary salt parameters from experimental
+  water–salt data; Eq. 14 is the Gibbs–Duhem-consistent water activity (ν3 = ions per salt unit).
+  V̄_i and κ_T are infinite-dilution values, held constant. The inversion then returns all six
+  G_ij, including the water ones. The same fit takes experimental input instead: VPO residual
+  osmolalities give C1, C2 directly (Eq. 3, Table 2), so the route works for experiment or simulation.
+  - MC-SASA treats both water and salt implicitly (salt enters through a surface-tension term), so
+    the simulation contains only solute particles. What the model supplies is the m2- and
+    m3-dependence of ln γ2. G13 and G33 are set mainly by the experimental water–salt data, and G11, G12
+    lean on the external volumes and compressibility; the cosolute–solute information sits in
+    ∂ln γ2/∂m3. The
+    authors justify constant V̄_i because the KBIs "are only weakly dependent on" them and "are
+    dominated by changes in activity data".
+  - The inversion and the direct estimator need the same outside input (V̄2°); the inversion just
+    makes it explicit. It also gives a33 and so k_S without counting cosolute.
+  - (inference) The MC μ2^ex is a McMillan–Mayer quantity (constant solvent chemical potential, molar
+    concentrations). Using it as a Lewis–Randall molal ln γ2 at constant P neglects the scale and
+    ensemble conversion (gamma-linkage.md §7). The error is small at low solute and cosolute
+    concentration.
 - Salts in a primitive model: Γ+ − Γ− = −Z still holds and is a convergence check (checks.md §17);
   hydration-layer effects enter only through ion radii and whatever effective potentials the model has.
 

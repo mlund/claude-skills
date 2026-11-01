@@ -35,6 +35,12 @@ Indistinguishable ions (KB school), with ρ3 = ν±ρ_salt:
 - The −|Z| term applies when the solute releases counterions identical to a salt ion (δ_Ic = 1). Smith 2006a and 2006b drop it.
 - With ν± = 2 and N23 − (ρ3/ρ1)N21 = Γ+ + Γ−, Pierce Eq. 22 is Record & Anderson Eq. 41, so Pierce's Γ23 is Γ_salt (verification.md).
 - In simulations, the cosolute count is the sum of the ion counts, n_sc(R) = n_s+(R) + n_s−(R) (Smith 2004, p. 18722).
+- Neutral solute, salt A_ν+B_ν− at ρ_s, ρ± = ν±ρ_s, ρ3 = (ν+ + ν−)ρ_s (total ion density):
+
+      z+N2+ = z+ρ+G2+ = |z−|ρ−G2− = |z−|N2−,   N23 = N2+ + N2−,
+      G23 = (ν+G2+ + ν−G2−)/(ν+ + ν−)
+
+  Source: Hervø-Hansen et al. 2023, SI p. S2 (10.1021/acs.jpcb.3c01085), after Gee et al. 2011 (10.1021/ct100517z). The first relation is electroneutrality of the excess, the Z = 0 case of Γ+ − Γ− = −Z, and a convergence check on per-ion RDFs. Here ρ3 counts ions, not salt units, so Γ23 = ρ3(G23 − G21) is per ion; divide by ν = ν+ + ν− for per salt unit.
 - Why ions are not independent species: with cation, anion and solvent as independent variables, electroneutrality makes the number-fluctuation matrix singular (Friedman & Ramanathan 1970, 10.1021/j100715a009; Kusalik & Patey 1987, 10.1063/1.452629). The usual fix is a salt "molecule" or indistinguishable ions; the latter matches Kusalik & Patey (Ploetz & Smith 2013, §16, 10.1002/9781118571767.ch4).
 - Dissent: Ben-Naim (Molecular Theory of Solutions, 2006, cited by Ploetz & Smith 2013, §16) holds that KB theory is valid for salts with independent ions, since KBIs are grand-canonical and electroneutrality is an unnecessary constraint on them; only the data to vary ion concentrations separately are missing. Ploetz & Smith adopt dependent ions for lack of data. Substituting N_2 = N_+ + N_− is an index change; electroneutrality then leaves one independent salt fluctuation.
 - (inference) For the house style: single-ion Γ± from simulation are well defined counts (Ben-Naim's view), but only Γ+ + Γ− is a thermodynamic derivative (§10 above). Say which view a sentence relies on.

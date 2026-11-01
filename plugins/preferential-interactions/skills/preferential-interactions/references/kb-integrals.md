@@ -114,6 +114,15 @@ Ternary, solute 2 at infinite dilution (1 = water, 3 = cosolute):
 - μ_ij is not a33. Smith notes the definition is "slightly different" from his earlier ones; it uses ln N_j at constant P and the other N_k. Translate before combining with §3.
 - Other G_ij follow by index changes, e.g. G32^∞ from Eq. 34 with 1 ↔ 3. Then Γ23 = ρ3(G23 − G21) (gamma-linkage.md §4).
 - Stability: μ_ii ≥ 0 and μ_ij < 0 for i ≠ j (Eq. 23). A negative N12 constrains the data (Eqs. 28–29).
-- Salts: Smith keeps μ_ij general because activity-coefficient relations for salts are system dependent (Discussion). Applied to caffeine–salt with fitted ln γ and VPO: Hervø-Hansen et al. 2023 (10.1021/acs.jpcb.3c01085).
+- Salts: Smith keeps μ_ij general because activity-coefficient relations for salts are system dependent (Discussion). Applied by Hervø-Hansen et al. 2023 (10.1021/acs.jpcb.3c01085) to caffeine–salt: inverted implicit-solvent MC output (fitted ln γ2 from μ2^ex, experimental salt activities, Gibbs–Duhem, infinite-dilution V̄_i and κ_T); the same fit accepts experimental VPO input (simulation.md §4).
+- Hervø-Hansen et al. 2023 (10.1021/acs.jpcb.3c01085) write the same inversion as
+
+      δ_ik − c_kV̄_k = Σ_j (δ_ij + N_ij) μ_jk                            [Eq. 11]
+      RTκ_T = Σ_j (δ_ij + N_ij) V̄_j                                      [Eq. 12]
+      μ_ij = (∂ln a_i/∂ln m_j)_{T,p,m_k≠j},   N_ij = G_ijρ_j
+
+  solved for i = 1 and k ≠ 1. These are Smith 2008 Eqs. 6–7 with c_k for ρ_k: for j ≠ 1, ln N_j at
+  fixed N_k (k ≠ j, including N1) changes as ln m_j, so the molal derivative equals Smith's μ_ij.
+  RT pairs with molar V̄ and c (per-molecule form: k_BT with ρ).
 - Matteoli & Lepori (10.1063/1.447034): G_ij are insensitive to κ_T and PMVs away from critical points, so SI values often suffice for those terms (Smith 2008, Conclusions).
 - Smith reads N_ij as the change in j within a "local spherical volume" on placing i at the centre (p. 124509-2). The house text keeps that reading for radial KBIs only.
