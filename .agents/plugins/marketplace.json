@@ -53,6 +53,18 @@
       "category": "Productivity"
     },
     {
+      "name": "preferential-interactions",
+      "source": {
+        "source": "local",
+        "path": "./plugins/preferential-interactions"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "llvm-mos",
       "source": {
         "source": "local",

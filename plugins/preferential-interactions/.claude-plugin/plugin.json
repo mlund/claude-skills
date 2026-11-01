@@ -1,0 +1,16 @@
+{
+  "name": "preferential-interactions",
+  "description": "Review, write, and explain scientific text on preferential interaction coefficients and Kirkwood–Buff theory with consistent, sourced terminology, notation, ensembles, and sign conventions.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mikael Lund"
+  },
+  "keywords": [
+    "kirkwood-buff",
+    "preferential-interaction",
+    "preferential-binding",
+    "solution-thermodynamics",
+    "cosolute",
+    "terminology"
+  ]
+}

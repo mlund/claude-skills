@@ -1,0 +1,48 @@
+{
+  "skill_name": "preferential-interactions",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review the terminology and notation in ~/github/manus_preferential_binding/main.tex: naming of Γ, ensembles, concentration scales, sign words and citations. List the problems with fixes; don't edit the file.",
+      "expected_output": "Flags c for number density, the molar-scale nature of the implicit-solvent estimator, K_p not matching Record's definition, missing ensemble statement, substrate/ligand role words, and missing credit to Baynes & Trout 2003; fixes cite DOIs.",
+      "files": [],
+      "assertions": [
+        "Flags that the implicit-solvent estimator converges to the molar-scale coefficient (rho3 G23), not the molal Gamma23",
+        "Flags that no ensemble / held-constant variables are stated for Gamma",
+        "Flags K_p,i as inconsistent with Record's local-to-bulk partition coefficient",
+        "Flags c used for number density (house style rho)",
+        "Notes Baynes & Trout 2003 as prior art for radius-weighted domains / exact group sums",
+        "Cites at least three DOIs in the fixes",
+        "Does not wrongly claim the T,P Wyman linkage is inconsistent with the dialysis Gamma"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Write a methods paragraph (LaTeX) relating our finite-domain Γ(δ) = ⟨N(δ)⟩ − c Vol[D(δ)] and its explicit-solvent counterpart to Kirkwood–Buff theory, for the manuscript in ~/github/manus_preferential_binding/main.tex. Cite sources.",
+      "expected_output": "House notation (ρ, Γ23, water/solute/cosolute); molal vs molar scales named with the conversion; solute-anchored running KBI, not finite-volume; ensemble stated; DOIs/citations at each relation.",
+      "files": [],
+      "assertions": [
+        "States Gamma23 = rho3(G23 - G21) at infinite dilution of the solute",
+        "Distinguishes the molal (explicit-solvent) and molar-scale (implicit-solvent, rho3 G23) coefficients",
+        "Calls Gamma(delta) a running/solute-anchored KB integral and does not call it a finite-volume KBI",
+        "States the ensemble (T, mu1, mu3 or dialysis)",
+        "Includes citations with DOIs (in notes.md or the LaTeX)",
+        "Uses rho for number densities rather than c in new equations"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Explain why only Γ+ + Γ− enters the Wyman linkage for a salt, and how Smith's indistinguishable-ion approach relates to Record's single-ion coefficients. Include the electroneutrality term and sources.",
+      "expected_output": "Correct sign of the Z term (Γ+ − Γ− = −Z, +|Z| for a polyanion; Γ+ + Γ− = |Z| + 2Γ_salt), ν± conversions, translation between schools, DOIs.",
+      "files": [],
+      "assertions": [
+        "Gives Gamma+ - Gamma- = -Z with the correct sign (+|Z| for a polyanion)",
+        "Gives Gamma+ + Gamma- = |Z| + 2 Gamma_salt or the equivalent Smith/Pierce form with -|Z|",
+        "Explains that single-ion coefficients are not independent thermodynamic derivatives because of electroneutrality",
+        "Describes Smith's indistinguishable-ion species with rho3 = nu+- rho_salt (or equivalent)",
+        "Cites Record & Anderson 1995 and Smith 2004 or Pierce 2008 with DOIs",
+        "States that Smith/Pierce's indistinguishable-ion ν±Γ23 subtracts the |Z| electroneutrality term, so the salt-component Γ23 equals Record's Γ_salt (ν±Γ23 = Γ+ + Γ− − |Z|), not Γ+ + Γ−"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "preferential-interactions",
+  "version": "0.1.0",
+  "description": "Review, write, and explain scientific text on preferential interaction coefficients and Kirkwood–Buff theory with consistent, sourced terminology, notation, ensembles, and sign conventions.",
+  "author": {
+    "name": "Mikael Lund",
+    "url": "https://github.com/mlund"
+  },
+  "repository": "https://github.com/mlund/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "kirkwood-buff",
+    "preferential-interaction",
+    "preferential-binding",
+    "solution-thermodynamics",
+    "cosolute",
+    "terminology"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Preferential Interactions",
+    "shortDescription": "Consistent Kirkwood–Buff and preferential-interaction terminology for scientific text.",
+    "longDescription": "A sourced glossary and house style for preferential interaction coefficients, Kirkwood–Buff integrals, ensembles, concentration scales, salts, and site decompositions, used to review drafts, write passages, and explain concepts with DOIs.",
+    "developerName": "Mikael Lund",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use Preferential Interactions to review the terminology in this draft.",
+      "Use Preferential Interactions to explain Γ23 in Kirkwood–Buff terms."
+    ]
+  }
+}

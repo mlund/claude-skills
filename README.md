@@ -13,6 +13,7 @@ marketplace and a Codex plugin marketplace.
 /plugin install scientific-writing
 /plugin install teaching
 /plugin install scientific-plotting
+/plugin install preferential-interactions
 /plugin install faunus
 /plugin install llvm-mos
 /plugin install mega65-dev
@@ -80,6 +81,17 @@ Reference files cover chart selection, color/accessibility, design principles,
 statistics & uncertainty, journal specs, and a review checklist. The skill
 triggers when making or critiquing a figure for a paper, poster, or talk.
 
+
+### preferential-interactions
+
+A skill for reviewing, writing, and explaining text on preferential interaction
+coefficients and Kirkwood–Buff theory. The field's schools (Smith and Shimizu;
+Record; Trout; Ben-Naim; the finite-volume KB community) use the same words for
+different quantities, so the skill pairs a **house style** (Scatchard
+numbering with water/solute/cosolute, Γ23 at fixed T, μ1, μ3, explicit
+ensemble and concentration scale, "accumulated/excluded" rather than "bound")
+with a **sourced glossary** where every term and conflicting usage carries a
+DOI, and a sheet of core relations checked against the original papers.
 ### teaching
 
 A skill for lecture material that teaches rather than states: slides, notes
