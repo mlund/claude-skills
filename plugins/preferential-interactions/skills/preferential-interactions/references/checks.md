@@ -59,7 +59,7 @@ from the cited identities but are not presented as checks by any source.
 3. G_ij = G_ji, hence ρ_iN_ij = ρ_jN_ji although N_ij ≠ N_ji. Asymmetric measured pairs mean unconverged sampling.
 4. Inversion round trip: G_ij → (κ_T, V̄_i, a33 or μ_ij) by the forward relations (kb-integrals.md §3, BN77 Eqs. 2.1–2.6) → G_ij by inversion (kb-integrals.md §14). Inputs must return to machine precision. (inference)
 5. Γ23 = φ1(∂m3/∂m2)_{T,P,μ3} + φ3(∂m3/∂m2)_{T,P,μ1}, and (∂m3/∂m2)_{T,P,μ1} = Γ23 − 1/a33 (gamma-linkage.md §6).
-6. Σγ_i = Γ and Σv_i = Vol[D] for an exact partition (estimators.md §13).
+6. For an exact partition, Σγ_i = Γ_molar(D) for implicit-solvent excesses and Γ23(D) for counted-solvent excesses, and Σv_i = Vol[D] (estimators.md §13).
 
 **Limits with known answers**
 7. Ideal gas: all G = 0, k_BTκ_T = 1/ρ, a33 = 1. A closed box biases the raw integral (−0.456 nm³ in the siba-p/kbkit validation); corrections must remove it.
@@ -74,11 +74,11 @@ from the cited identities but are not presented as checks by any source.
 
 **Cross-checks between estimators, one trajectory**
 14. Molal vs molar with explicit water: Γ23(δ) − ρ3G23(δ) = −ρ3G21(δ), and G21 → k_BTκ_T − V̄2 at infinite dilution without cosolute (Smith 2008, Eq. 34). This yields V̄2 per molecule; compare it with the NpT box-volume difference with and without solute. (inference)
-15. Σγ_i plateau versus ρ3(G23 − G21) from solute-centred RDFs with GvdV correction and Krüger extrapolation (simulation.md §2–3).
+15. Counted-solvent Σγ_i plateau versus ρ3(G23 − G21) from solute-centred RDFs with GvdV correction and Krüger extrapolation (simulation.md §2–3).
 16. Partition invariance: total Γ must not depend on power, additive or ordinary Voronoi assignment; only site terms may. (inference)
 17. r_3 invariance: at large δ the plateau must not depend on the cosolute radius used to build D(δ). (inference)
 18. Bulk ratio: n23 − (n3/n1)n21 = Γ23(R)(1 − n21/n1) (estimators.md §9); compare global and moving ratios numerically.
-19. Two-domain round trip: Γ = b1·ASA·(m3/m1)(K_p − 1) (Pierce 2008, Eq. 50) must reproduce γ_i where v_i^acc > 0. (inference)
+19. Two-domain round trip: Γ = b1·ASA·(m3/m1)(K_p − 1) (Pierce 2008, Eq. 50) must reproduce counted-solvent γ_i (the same molal scale) where v_i^acc > 0. (inference)
 20. Linkage routes: ΔΓ23 (molal) equals [Δ(ρ3G23) + ρ3ΔV̄2]/φ1 (Smith 2006a, Eq. 46, 10.1021/jp056100e).
 
 **Convergence**

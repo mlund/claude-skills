@@ -93,13 +93,18 @@ This is the open subvolume V of a homogeneous fluid:
 
 ## 13. Partitions and site excess
 
-Ownership rules for a point r. R_i is the radius of solute atom i, and p = r_lig + δ:
+House domain D(δ) is the union of spheres of radius R_i + r_3 + δ around
+solute atoms; δ is thickness beyond the cosolute-accessible surface. Treat it as
+an integration region whose excess converges, not a physical bound layer.
+K_p is reserved for Record's local-to-bulk ratio (§8.3).
+
+Ownership rules for a point r. R_i is the radius of solute atom i, and p = r_3 + δ:
 
     radical (power):       owner = argmin_i [ |r − r_i|² − (R_i + p)² ]
     additively weighted:   owner = argmin_i [ |r − r_i| − R_i ]
     ordinary Voronoi:      owner = argmin_i |r − r_i|
 
-- Power: this is the house definition (SKILL.md). No input paper uses it for Γ.
+- Power: this is the house definition. No input paper uses it for Γ.
 - Additively weighted: Baynes & Trout 2003, p. 14062, which measures "center of mass of each solvent molecule to the van der Waals surface of every atom" (10.1021/jp0363996). Also Shukla & Trout 2011 (10.1021/jp108586b) and Vagenende & Trout 2012 (10.1016/j.bpj.2012.08.011).
 - Ordinary: Martínez & Shimizu 2017, Eq. 6 (10.1021/acs.jctc.7b00599); Martínez 2022 (10.1016/j.molliq.2021.117945). Each count goes to the atom of the minimum-distance pair.
 - Voronoi solvation shells (Zeindlhofer et al. 2018, Eqs. 14–17, 10.1063/1.5009802) are whole-molecule cells. Their excess is Δñ_ij(S) = ñ_ij(S) − N_Ac_jṼ(S), resolved by shell rather than by solute site.
@@ -117,5 +122,5 @@ Site excess on cells C_i(δ), which partition D(δ):
 - Explicit form: Baynes & Trout 2003, Eqs. 14–15, Γ_XP,i = ⟨n^II_X,i − (n^I_X/n^I_W)n^II_W,i⟩ (10.1021/jp0363996). The sum is exact only if every local molecule is assigned to exactly one group.
 - Residue form: Vagenende & Trout 2012, Eqs. 2–3 (10.1016/j.bpj.2012.08.011).
 - Overlapping cutoffs break the sum: Vagenende et al. 2009, p. 11748 (10.1021/jp903413v).
-- The implicit-solvent form is the house definition (SKILL.md). No input paper defines it.
+- The implicit-solvent form is the house definition. No input paper defines it.
 - (inference) KB reading: γ_i = ρ3[∫_{C_i} h23 dr − ∫_{C_i} h21 dr] is a cell-restricted piece of §8.1. Atom-centred integrals G_i3 − G_i1 each converge to the *whole* G23 − G21 for a rigid solute, so they cannot partition Γ.

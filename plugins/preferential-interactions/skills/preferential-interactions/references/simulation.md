@@ -89,7 +89,8 @@ One solute molecule (protein, caffeine) in a water–cosolute box.
 - Plateaus reported in practice: caffeine Γ23 from running KBIs at r = 1.6–2.0 nm; group terms at
   ≈ 1.0 nm from the surface (Hervø-Hansen et al. 2023). Ploetz & Smith average over about one
   solvation shell where the integral flattens, and call the choice subjective.
-- With a site partition, report Σγ_i alongside the radial Γ23 from the same trajectory as a check.
+- With a site partition, report the counted-solvent Σγ_i alongside the radial Γ23 from the same
+  trajectory as a check. The implicit-solvent Σγ_i is molar and does not compare directly.
 
 ## 4. Implicit-solvent (McMillan–Mayer) MC
 

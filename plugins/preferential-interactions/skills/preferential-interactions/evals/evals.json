@@ -3,36 +3,36 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Review the terminology and notation in ~/github/manus_preferential_binding/main.tex: naming of Γ, ensembles, concentration scales, sign words and citations. List the problems with fixes; don't edit the file.",
-      "expected_output": "Flags c for number density, the molar-scale nature of the implicit-solvent estimator, K_p not matching Record's definition, missing ensemble statement, substrate/ligand role words, and missing credit to Baynes & Trout 2003; fixes cite DOIs.",
+      "prompt": "Review this excerpt for terminology, notation, ensembles, scales and citations. List problems and fixes; do not edit files. Separate scientific errors from optional house preferences. Excerpt: “We use c for number density. In an implicit-water simulation, the preferential binding coefficient Γ23 is the molal quantity ⟨N3(D)⟩ − c3 Vol[D]. Positive Γ23 proves that ligands occupy binding sites on the substrate. We define K_p,i = ⟨N3,i⟩/(c3 v_i), the Record partition coefficient. The local cells assign each solvent molecule to the atom with the nearest van der Waals surface, using |r−r_i|−R_i. We introduce this decomposition here without reference to earlier group decompositions. Finally, the constant-(T,P) Wyman relation uses the equilibrium-dialysis Γ23 for a 1:1 conformational change.”",
+      "expected_output": "Flags the molar/molal scale error, missing estimator ensemble, unsupported site-binding claim, incorrect Record K_p identification and missing prior attribution. Treats c as an optional house preference; preserves the valid 1:1 Wyman pairing. Fixes cite supporting DOIs.",
       "files": [],
       "assertions": [
         "Flags that the implicit-solvent estimator converges to the molar-scale coefficient (rho3 G23), not the molal Gamma23",
         "Flags that no ensemble / held-constant variables are stated for Gamma",
         "Flags K_p,i as inconsistent with Record's local-to-bulk partition coefficient",
-        "Flags c used for number density (house style rho)",
+        "Treats c for number density as a house-style preference, not a scientific error",
         "Notes Baynes & Trout 2003 as prior art for radius-weighted domains / exact group sums",
-        "Cites at least three DOIs in the fixes",
+        "Cites supporting DOIs for the substantive scientific fixes",
         "Does not wrongly claim the T,P Wyman linkage is inconsistent with the dialysis Gamma"
       ]
     },
     {
       "id": 2,
-      "prompt": "Write a methods paragraph (LaTeX) relating our finite-domain Γ(δ) = ⟨N(δ)⟩ − c Vol[D(δ)] and its explicit-solvent counterpart to Kirkwood–Buff theory, for the manuscript in ~/github/manus_preferential_binding/main.tex. Cite sources.",
-      "expected_output": "House notation (ρ, Γ23, water/solute/cosolute); molal vs molar scales named with the conversion; solute-anchored running KBI, not finite-volume; ensemble stated; DOIs/citations at each relation.",
+      "prompt": "Write one LaTeX Methods paragraph from this supplied context; do not read or write external files. The manuscript defines c_i as number densities, components 1/2/3 as water/protein/cosolute, and D(δ) as a growing solute-anchored domain including the protein core. One protein is simulated at infinite dilution. Relate the implicit-water count ⟨N3(D)⟩ − c3 Vol[D] and the explicit-water count ⟨N3(D) − (c3/c1)N1(D)⟩ to KB integrals. Distinguish their scales and explain what additional information conversion requires. Preserve c_i, state the relevant ensemble, and supply supporting DOIs in the response.",
+      "expected_output": "Preserves manuscript c_i notation; distinguishes molar and molal excess, gives their KB limits and sourced conversion with its required thermodynamic inputs, identifies a solute-anchored running integral, and states the ensemble. No unsolicited files.",
       "files": [],
       "assertions": [
         "States Gamma23 = rho3(G23 - G21) at infinite dilution of the solute",
         "Distinguishes the molal (explicit-solvent) and molar-scale (implicit-solvent, rho3 G23) coefficients",
         "Calls Gamma(delta) a running/solute-anchored KB integral and does not call it a finite-volume KBI",
         "States the ensemble (T, mu1, mu3 or dialysis)",
-        "Includes citations with DOIs (in notes.md or the LaTeX)",
-        "Uses rho for number densities, or keeps the manuscript's c and explicitly flags it as a house-style deviation with the replacement"
+        "Includes supporting DOIs in the response",
+        "Preserves the supplied c_i notation without treating it as a scientific error or creating unsolicited files"
       ]
     },
     {
       "id": 3,
-      "prompt": "Explain why only Γ+ + Γ− enters the Wyman linkage for a salt, and how Smith's indistinguishable-ion approach relates to Record's single-ion coefficients. Include the electroneutrality term and sources.",
+      "prompt": "Explain why only Γ+ + Γ− enters the Wyman linkage for a 1:1 salt around a fixed-charge polyanion with no other charged species, and how Smith's indistinguishable-ion approach relates to Record's single-ion coefficients. Include the electroneutrality term and sources.",
       "expected_output": "Correct sign of the Z term (Γ+ − Γ− = −Z, +|Z| for a polyanion; Γ+ + Γ− = |Z| + 2Γ_salt), ν± conversions, translation between schools, DOIs.",
       "files": [],
       "assertions": [

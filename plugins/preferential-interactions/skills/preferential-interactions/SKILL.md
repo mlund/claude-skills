@@ -1,203 +1,113 @@
 ---
 name: preferential-interactions
 description: >-
-  Review, write, and explain scientific text on preferential interaction
-  coefficients (Γ23), Kirkwood–Buff (KB) integrals, preferential binding,
-  exclusion and hydration, cosolute and salt effects on macromolecules, and
-  their site- or residue-resolved decompositions from simulations. Use whenever
-  a draft, manuscript, referee report, or explanation touches KB theory,
-  Wyman linkage, local–bulk domain models, osmolytes/denaturants/salts around
-  proteins or small solutes, or Voronoi/radical partitions of solvation excess —
-  even if the user only asks to "check the wording", "fix notation", or
-  "explain Γ". Supplies a sourced glossary with DOIs, a house style, and
-  conflict notes between the Smith, Shimizu, Record, Trout, Ben-Naim and
-  finite-volume KB schools.
+  Review, write, and explain preferential interaction coefficients, Kirkwood–Buff
+  theory, Wyman linkage, and simulation solvation excesses. Use for scientific
+  terminology, notation, ensembles, concentration scales, salts, and site
+  decompositions in these topics, including wording-only reviews.
 ---
 
-# Preferential interactions: terminology and conventions
+# Preferential interactions
 
-The literature on preferential interactions spans several schools that use the
-same words for different things and different words for the same thing. The
-same symbol Γ, the word "preferential solvation", or the phrase "finite-volume
-KB integral" can mean opposite or unrelated quantities depending on the paper.
-A reader who meets an inconsistency stops trusting the derivation. This skill
-keeps text consistent with one house style, while knowing every school's usage
-so that cited work is described in its own terms and translated correctly.
+Resolve differences between the Smith, Shimizu, Record, Trout, Ben-Naim and
+finite-volume KB conventions using the sourced references below. Translate
+cited work faithfully; distinguish scientific errors from house preferences.
 
-Pair it with a prose skill (e.g. scientific-writing) for sentence-level style;
-this skill owns terms, symbols, ensembles, signs and citations.
+## Modes and scope
 
-## Modes
+- **Review:** report substantive issues first, with location, problem, fix and
+  supporting DOI. Label optional house-style suggestions separately. Do not
+  expand a wording-only request into a full scientific audit unless the wording
+  hides a substantive error.
+- **Write:** preserve the existing document's notation and requested format.
+  For standalone text, use the house conventions below. Define symbols, scales
+  and held-constant variables once per relevant context, rather than repeating
+  them at every occurrence. When inserting text, keep the document's notation
+  throughout, flag any symbol you had to add, and never silently mix two
+  notations.
+- **Explain:** map the question's notation to the relevant convention and cite
+  the sources supporting nontrivial relations.
 
-- **Review**: read the text, then report each terminology, notation, sign,
-  ensemble or scale problem as *location — problem — fix — source (DOI)*. Rank
-  substantive errors (wrong ensemble, wrong sign, wrong scale, a quantity
-  mislabelled as another) above style deviations. When the text cites a paper
-  that uses another convention, check that the translation is right rather than
-  forcing house style onto the quotation.
-- **Write**: draft or revise using the house style below. Define each symbol
-  at first use, cite the source of each nontrivial relation at the claim, and
-  state the ensemble and concentration scale whenever a Γ value appears.
-  When the text goes into an existing document, follow that document's
-  notation so the insert reads as one piece, and list each place where it
-  departs from house style (e.g. c for density, "ligand" for cosolute) with
-  the suggested replacement. A silent mix of two notations is worse than
-  either one.
-- **Explain**: explain a concept or derivation in house notation, mapping other
-  schools' notation onto it, with DOIs for every relation used.
+A prose skill such as scientific-writing is optional when sentence-level editing
+is requested and that skill is available; it is not a dependency.
 
-## Reference files (load only what the task needs)
+## Load only what is needed
 
-Read the one or two files that match the task, not all of them. For terms and
-citations, search rather than read: each glossary row and each BibTeX entry
-is one line.
+All paths below are relative to this SKILL.md's directory, **not the user's
+working directory**. Resolve that directory from the loaded skill path before
+searching references or executing scripts. Do not change the user's project
+files merely to use the skill.
 
-| need | file |
+Start with the relevant section or search result; expand only to resolve missing
+context. Do not read every reference or load scripts just to run them. For term
+or citation lookups, use `rg -n -i '<term or author>' <resolved-file-path>`;
+each glossary row and BibTeX entry is one line.
+
+| Need | Resource |
 |---|---|
-| a term, symbol, or another school's usage | `grep -i '<term>' references/glossary.md` (read a section only if the row is unclear) |
-| a DOI or BibTeX entry | `grep -i '<author or key>' references/references.bib` |
+| Terminology, symbols, school-specific usage | Search `references/glossary.md` |
+| DOI or bibliographic entry | Search `references/references.bib` |
 | KBIs, excess numbers, solution relations (§1–3), KB inversion (§14) | `references/kb-integrals.md` |
-| Γ23 forms (§4), Wyman linkage (§5), ensemble offsets (§6), molal vs molar (§7), m-value (§11) | `references/gamma-linkage.md` |
-| counting estimators (§8), bulk ratio (§9), finite-volume KBI (§12), partitions and site excess (§13) | `references/estimators.md` |
-| salts (§10) | `references/salts.md` |
-| second derivatives, solute volume, interfaces from fluctuation theory (§15) | `references/fluctuations.md` |
-| dimensions and units (§16), verification checks (§17) | `references/checks.md` |
-| extracting KBIs or Γ from MD/MC, tools, Methods reporting; PMF and B22 slopes, finite solute, slow states (§8) | `references/simulation.md` |
+| Γ23 (§4), Wyman linkage (§5), ensemble offsets (§6), molal/molar conversion (§7), m-values (§11) | `references/gamma-linkage.md` |
+| Counting (§8), bulk ratio (§9), finite-volume KBI (§12), partitions and site excess (§13) | `references/estimators.md` |
+| Salts and electroneutrality (§10) | `references/salts.md` |
+| Second derivatives, solute volume, interfaces (§15) | `references/fluctuations.md` |
+| Prose review checklist | `references/review.md` |
+| Units (§16) and verification checks (§17) | `references/checks.md` |
+| Simulation extraction, finite-size corrections, tools, Methods; pair linkage and slow states (local §8) | `references/simulation.md` |
 
-Typical loads: reviewing a manuscript → the files for the equations it
-contains plus `checks.md`; writing Methods for simulations → `simulation.md`
-and `estimators.md`; explaining salts → `salts.md` and `gamma-linkage.md`.
+For a review, use the checklist and load the sections supporting the equations
+under review; consult only the applicable checks. A term lookup need not load equation files.
+`simulation.md` has its own section numbering; the other equation files share
+sections 1–17. Qualify cross-file section references with the filename.
 
-After editing any reference file, run `python3 scripts/check_refs.py`. It
-checks file links (`file.md §N`), paper sections (`Author Year, §N`) and that
-every DOI is in references.bib.
+## Essential conventions
 
-When applying simulation.md §8 (PMF or B22 slopes, finite solute, slow states),
-or after editing it, run `python3 scripts/check_pair_linkage.py`. It needs numpy
-and tests the relations on an exact lattice, not the user's data; for their data,
-use items 24–27 in `checks.md`. If numpy is missing, say the check was skipped.
+Existing document notation and explicit user choices take precedence over house
+preferences. Preserve source notation in quotations and describe its mapping.
 
-Never invent a citation or DOI. If a relation is not in the reference files,
-say it needs a source.
+- House numbering: 1 = water, 2 = solute, 3 = cosolute. Prefer number densities
+  ρ_i, molarities C_i and Γ23 with the solute index first. Other schools may put
+  the cosolute first. Use δ for domain thickness and δ_ij for a Kronecker delta.
+- Γ23 is the molal equilibrium-dialysis coefficient
+  (∂m3/∂m2)_{T,μ1,μ3}; at solute infinite dilution,
+  Γ23° = ρ3(G23 − G21). State concentration scale and ensemble when reporting
+  or comparing values.
+- The implicit-solvent count ⟨N3(D)⟩ − ρ3Vol[D] gives the **molar excess**
+  Γ_molar(D) = ρ3G23(D), not molal Γ23. It includes excluded volume.
+  Explicit-solvent counting uses ⟨N3(D) − (ρ3/ρ1)N1(D)⟩.
+  Conversion needs additional thermodynamic information: gamma-linkage.md §7.
+- Γ23 > 0 means accumulated; Γ23 < 0 means excluded. Never call Γ23 > 0 "bound"
+  in the text's own voice: thermodynamic excess need not be site binding. Reserve
+  "bound" for an occupancy count with a stated criterion. Local contact enrichment
+  can coexist with net exclusion.
+- Call the integral over D(δ) a solute-anchored running KBI. It is not a
+  finite-volume fluctuation KBI; their convergence corrections differ
+  (estimators.md §12).
+- Site counts must partition the domain without overlap. Their sum is
+  Γ_molar(D) for implicit-solvent excesses and Γ23(D) for counted-solvent
+  excesses. Domain geometry, power/additive/ordinary Voronoi distinctions and
+  attribution are in estimators.md §13.
+- Dialysis Γ23 can appear in a constant-(T, P) Wyman linkage. Do not flag this
+  pairing as an ensemble error. Check stoichiometry and offsets for association
+  using gamma-linkage.md §5–7; do not assume the 1:1 cancellation applies.
+- For salts, consult salts.md §10 before translating single-ion coefficients,
+  salt-component coefficients or indistinguishable-ion notation. State valence,
+  charge and activity conventions; only neutral combinations are independent
+  thermodynamic derivatives.
 
-## House style
+## Sources and maintenance checks
 
-### Components and roles
+Never invent a citation or DOI. Distinguish source statements from inferences.
+If a needed relation is absent, identify the source gap and verify an appropriate
+primary source when available; do not treat the reference collection as exhaustive.
 
-- Scatchard numbering: **1 = water (solvent), 2 = solute, 3 = cosolute**.
-  "Solute" is the macromolecule or small molecule whose environment is studied
-  (protein, caffeine); "cosolute" is the added species (osmolyte, denaturant,
-  salt ions). Avoid "cosolvent" for salts and "biomolecule" for small solutes;
-  keep other papers' words only inside quotations.
-- In implicit-solvent (McMillan–Mayer) work, component 1 is absent as
-  particles; say so when it matters.
+After editing reference files, run `python3 <skill-dir>/scripts/check_refs.py`.
+This checks cross-references and DOI coverage, not scientific validity.
 
-### The coefficient
-
-- Name: **preferential interaction coefficient**, symbol **Γ23**
-  (solute index first), defined as (∂m3/∂m2)_{T,μ1,μ3}, the
-  equilibrium-dialysis coefficient. Not "preferential binding coefficient",
-  not "preferential interaction parameter": the latter is Timasheff's
-  (∂μ2/∂m3), a different derivative.
-- At infinite dilution of the solute, **Γ23 = ρ3(G23 − G21)**.
-- Ions: Γ+ and Γ− (single-ion coefficients). Use the bare Γ only after Γ23 is
-  defined and the meaning is unambiguous.
-- Always state the **ensemble** (which variables are held constant) and the
-  **concentration scale** when reporting or comparing Γ:
-  - molal Γ23 = ρ3(G23 − G21): the explicit-solvent counted-solvent estimator
-    converges here;
-  - molar-scale coefficient **ρ3G23** (call it molar, never just "Γ"): the
-    implicit-solvent estimator ⟨N⟩ − ρ3·Vol[D] converges here; it still
-    contains the solute's excluded volume. Give the conversion when both
-    appear (gamma-linkage.md §7); it needs V̄2°, which a continuum model
-    cannot supply, so name its source or report differences
-    (simulation.md §4).
-- Pairing the dialysis Γ23 with a constant-(T, P) Wyman linkage is standard
-  and exact; do not "correct" it. The offset to the (T, P, μ3) coefficient,
-  φ3/(a33 φ1), is the same for every solute, so it cancels in ΔΓ23 only for
-  1:1 processes (folding, conformational change). For association
-  (A + B ⇌ AB) it does not cancel; say so when it matters.
-
-### Sign words
-
-- Γ23 > 0: the cosolute is **accumulated**; Γ23 < 0: it is **excluded**.
-  Define these by the sign of Γ23 alone.
-- Never say "bound" for Γ23 > 0. Reserve "bound" for a cutoff occupancy count,
-  and say that it is one.
-- Avoid "preferential solvation/hydration" as a sign word: it means water
-  enrichment in some papers and cosolute excess in others.
-- Remember that "excluded" can coexist with an increased local cosolute
-  density (excluded volume dominates); say so when it could mislead.
-
-### KB quantities
-
-- Kirkwood–Buff integral (KBI) **G_ij** = ∫[g_ij(r) − 1] dr in the open
-  (grand-canonical) system, infinite range.
-- **Excess coordination number N_ij = ρ_j G_ij**, j counted around i.
-- Number densities **ρ_i**; molality m_i; molarity C_i. Do not use c for
-  number density.
-- **Running KBI**: an integral truncated at finite R (radial). The quantity
-  over a solute-shaped domain is a **solute-anchored running KBI**. It is *not*
-  a finite-volume KBI: that term means the fluctuation integral G^V of an open
-  subvolume (Schnell, Krüger, Simon), whose 1/L surface law does not apply to a
-  solute-anchored domain. Convergence is judged by a plateau in δ.
-- Kronecker delta always with two indices, **δ_ij**. When quoting Ben-Naim's
-  preferential-solvation index δ_{A,S}, rename it (e.g. Δ^PS_{A,S}) and note
-  the renaming once. Plain Δ_AB is taken: Ben-Naim (1977) uses it for
-  G_AA + G_BB − 2G_AB.
-
-### Domains and partitions
-
-- **Integration domain D(δ)**: the union of spheres of radius R_i + r_3 + δ
-  around solute atoms, where r_3 is the cosolute exclusion radius; **δ** is its thickness beyond the cosolute-accessible
-  surface. Present D(δ) as a region of integration whose estimate converges,
-  not as a physical bound layer ("local domain" carries Record's two-domain
-  assumptions; use it only when describing that model).
-- **Radical (power) tessellation**: each solute atom owns the points with the
-  smallest power distance |r − r_i|² − (R_i + r_3 + δ)². Site excess
-  γ_i = ⟨N_i⟩ − ρ3 v_i, with Σγ_i = Γ exactly.
-- Distinguish other partition rules by name: **ordinary Voronoi**
-  (closest atom; equal radii; Martínez & Shimizu, ComplexMixtures),
-  **additively weighted Voronoi** (nearest van der Waals surface,
-  |r − r_i| − R_i; Baynes & Trout 2003), and **Voronoi solvation shells**
-  (molecular cells ordered by neighbour shell; Schröder group). Power and
-  additive weighting both reduce to ordinary Voronoi at equal radii; power
-  ownership moves with δ, additive ownership does not.
-- **K_p**: the local-to-bulk partition coefficient in Record's sense
-  (local/bulk cosolute-to-water ratio); do not reuse the symbol for other
-  local enrichment measures.
-
-### Salts
-
-- Report single-ion coefficients Γ+ and Γ− (these decompose by site) and use
-  their sum in the linkage, ∂ln K_obs/∂ln a± = Δ(Γ+ + Γ−) (Record & Anderson
-  1995, Eq. 42).
-- State the electroneutrality term: with Z the signed solute charge,
-  Γ+ − Γ− = −Z, so Γ+ − Γ− = +|Z| for a polyanion (Record & Anderson 1995,
-  Eq. 29); and Γ+ + Γ− = |Z| + 2Γ_salt. Only the sum is a neutral-salt
-  derivative.
-- When citing Smith or Pierce, translate their **indistinguishable-ion**
-  species (ρ3 = ν±ρ_salt, ν±Γ23 = N23 − (ρ3/ρ1)N21 − |Z|) into Γ±.
-
-### Units and other schools' indices
-
-- m-values: state units and the sign convention (Pierce et al. use M⁻¹ with
-  β absorbed; Smith 2004 uses kJ mol⁻¹ M⁻¹). Prefer kJ mol⁻¹ M⁻¹ for reporting.
-- Papers with letter labels (Γ_XP in Baynes & Trout; Γ3,2 in Record & Anderson)
-  put the cosolute first. Map them to Γ23 when citing, e.g. "Γ_XP (Γ23 here)".
-
-## Review checklist
-
-1. Each Γ: ensemble stated? Scale (molal vs molar) stated? Name and index
-   order per house style?
-2. Sign words: accumulated/excluded, never "bound" for Γ > 0.
-3. Symbols: ρ for densities, δ_ij with two indices, δ alone only for thickness,
-   Γ not reused (e.g. for a thermodynamic-factor matrix) without comment.
-4. "Finite-volume KBI" used for a solute-anchored quantity? Replace.
-5. Partition rule named precisely; prior schemes attributed correctly
-   (Baynes & Trout 2003 for radius-weighted domains and exact group sums).
-6. Salts: single-ion vs salt-component quantities kept apart; |Z| term present.
-7. Each nontrivial relation cited at the claim with a DOI from the bib.
-8. Dimensions: every equation balances; KBIs carry units (nm³ or cm³ mol⁻¹);
-   R with per-mole, k_B with per-molecule quantities; Γ23, γ_i, N_ij and ρ3G23
-   are dimensionless (checks.md §16).
+After editing simulation.md §8 or its lattice script, or when specifically
+validating those relations, run
+`python3 <skill-dir>/scripts/check_pair_linkage.py`. It requires numpy; report a
+skip if unavailable. Routine explanations need not rerun this unchanged check.
+It tests an implicit-solvent lattice, not the user's data, explicit-solvent
+(T, P) forms or ions. For applicable data checks, use checks.md §17, items 24–27.
