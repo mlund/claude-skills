@@ -65,8 +65,7 @@ Indistinguishable ions (KB school), with ρ3 = ν±ρ_salt:
   charge fluctuation zᵀB(k)z → k²/(4πℓ_B), independent of composition and ion correlations. It
   holds only for Coulomb (p = 1). Debye–Hückel point ions satisfy it; DH with ion sizes in general
   does not.
-- Origin of the moment conditions (inference: the algebra below is ours; Martin 1988,
-  10.1103/RevModPhys.60.1075, reviews the sum rules). Neutrality is not a constraint on the
+- Origin of the moment conditions (inference: the derivation below is ours). Neutrality is not a constraint on the
   partition function; it follows from the 1/k² Coulomb kernel. With the multicomponent
   Ornstein–Zernike relation B(k)⁻¹ = diag(1/ρ) − Ĉ(k), and Ĉ(k) = −4πℓ_B zzᵀ/k² + Ĉ^SR(k) with
   Ĉ^SR regular at k = 0, the Sherman–Morrison formula gives
@@ -76,8 +75,7 @@ Indistinguishable ions (KB school), with ρ3 = ν±ρ_salt:
   Order k⁰ vanishes (zeroth moment), order k² is 1/(4πℓ_B) (second moment), and a screening
   constant first appears at order k⁴. Bulk neutrality has the same origin: a net charge Q in a
   region of size L costs ∝ Q²ℓ_B/L, which outgrows every extensive term, so excess charge goes to
-  the boundary and only neutral combinations of ionic μ are measurable (Lieb & Lebowitz 1972,
-  10.1016/0001-8708(72)90023-0, prove the thermodynamic limit of Coulomb matter). This supports
+  the boundary and only neutral combinations of ionic μ are measurable. This supports
   Ben-Naim's reading (Dissent item below): ion KBIs are well defined, and B is singular because
   of the interaction, not because of an added constraint. A model whose electrostatics is
   truncated (finite û(k → 0)) has a nonsingular B; any neutrality then comes from neutral-pair
@@ -88,8 +86,9 @@ Indistinguishable ions (KB school), with ρ3 = ν±ρ_salt:
   the atmosphere. A truncated or short-ranged electrostatic kernel (decaying faster than r^−3) is
   outside the Stillinger–Lovett conditions, so the residual then partly reflects the model. The
   Z = 0, R → ∞ case is the Gee/Hervø-Hansen relation above.
-- Caution, screening lengths: Kumari & Podgornik 2024 (10.1063/5.0187324) define κ² =
-  4πℓ_B Σ_ij z_iz_j[(∂²βf/∂c∂c)⁻¹]_ij. With the identity in kb-integrals.md §1 this is 4πℓ_B zᵀBz,
+- Caution, screening lengths: Kumari & Podgornik 2024 (10.1063/5.0187324; only the abstract checked,
+  the formula's exact form not verified) obtain κ² from free-energy second derivatives, of the form
+  κ² = 4πℓ_B Σ_ij z_iz_j[(∂²βf/∂c∂c)⁻¹]_ij. With the identity in kb-integrals.md §1 this is 4πℓ_B zᵀBz,
   which is zero for exact correlations (Stillinger & Lovett Eq. 22). Their finite values come
   from a free energy whose net-charge Coulomb energy is removed, as in mean-field theory. Do not
   evaluate the expression with simulated or experimental KBIs of independent ions; a finite
