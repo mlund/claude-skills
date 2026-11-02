@@ -65,33 +65,39 @@ Indistinguishable ions (KB school), with ρ3 = ν±ρ_salt:
   charge fluctuation zᵀB(k)z → k²/(4πℓ_B), independent of composition and ion correlations. It
   holds only for Coulomb (p = 1). Debye–Hückel point ions satisfy it; DH with ion sizes in general
   does not.
-- Origin of the moment conditions (inference: the derivation below is ours). Neutrality is not a constraint on the
-  partition function; it follows from the 1/k² Coulomb kernel. With the multicomponent
-  Ornstein–Zernike relation B(k)⁻¹ = diag(1/ρ) − Ĉ(k), and Ĉ(k) = −4πℓ_B zzᵀ/k² + Ĉ^SR(k) with
-  Ĉ^SR regular at k = 0, the Sherman–Morrison formula gives
+- Origin of the moment conditions. Neutrality is a property of the equilibrium state, not a
+  constraint on the partition function: a uniform state satisfying the BGY equations cannot
+  sustain a bulk electric field, so Σ_α z_αρ_α = 0 (Martin 1988, Eqs. 2.10–2.12 and footnote 3,
+  10.1103/RevModPhys.60.1075). For the one-component plasma, Martin derives Ĉ(k) → −βv̂(k) at
+  small k from the BGY hierarchy (Eq. 2.47). Taking the multicomponent analogue (inference from
+  here), Ĉ(k) = −4πℓ_B zzᵀ/k² + Ĉ^SR(k) with Ĉ^SR regular at k = 0, the Ornstein–Zernike relation
+  B(k)⁻¹ = diag(1/ρ) − Ĉ(k) and the Sherman–Morrison formula give
 
       zᵀB(k)z = (k²/4πℓ_B) κ_eff²/(k² + κ_eff²),    κ_eff² = 4πℓ_B zᵀ[diag(1/ρ) − Ĉ^SR]⁻¹z.
 
-  Order k⁰ vanishes (zeroth moment), order k² is 1/(4πℓ_B) (second moment), and a screening
-  constant first appears at order k⁴. Bulk neutrality has the same origin: a net charge Q in a
-  region of size L costs ∝ Q²ℓ_B/L, which outgrows every extensive term, so excess charge goes to
-  the boundary and only neutral combinations of ionic μ are measurable. This supports
-  Ben-Naim's reading (Dissent item below): ion KBIs are well defined, and B is singular because
-  of the interaction, not because of an added constraint. A model whose electrostatics is
-  truncated (finite û(k → 0)) has a nonsingular B; any neutrality then comes from neutral-pair
-  moves.
+  Order k⁰ vanishes (zeroth moment), order k² is 1/(4πℓ_B) (second moment; Martin Eq. 1.28), and
+  a screening constant first appears at order k⁴. Check: for the OCP, κ_eff² = 4πℓ_B ρk_BT ∂ρ/∂P
+  and the k⁴ term reproduces Martin's compressibility sum rule (Eq. 2.58, whose χ_T is ∂ρ/∂P by
+  dimensions). The moment conditions hold in conducting phases; Martin notes that the second
+  moment fails where ions bind into non-screening dipoles (Sec. II.D). A large open subvolume
+  has charge fluctuations proportional to its surface, not its volume (Martin Eq. 1.33). This
+  supports Ben-Naim's reading (Dissent item below): ion KBIs are well defined, and B is singular
+  because of the interaction, not an added constraint. A model whose electrostatics is truncated
+  (finite û(k → 0)) has a nonsingular B; any neutrality then comes from neutral-pair moves.
 - Running charge as a simulation check: Q_C(R) from per-ion running KBIs around a charged solute
   should reach zero once R exceeds the ion atmosphere (Ploetz et al. 2025 show it as an intensive,
   non-diverging diagnostic). A residual plateau signals unconverged RDFs or a box too small for
   the atmosphere. A truncated or short-ranged electrostatic kernel (decaying faster than r^−3) is
   outside the Stillinger–Lovett conditions, so the residual then partly reflects the model. The
   Z = 0, R → ∞ case is the Gee/Hervø-Hansen relation above.
-- Caution, screening lengths: Kumari & Podgornik 2024 (10.1063/5.0187324; only the abstract checked,
-  the formula's exact form not verified) obtain κ² from free-energy second derivatives, of the form
-  κ² = 4πℓ_B Σ_ij z_iz_j[(∂²βf/∂c∂c)⁻¹]_ij. With the identity in kb-integrals.md §1 this is 4πℓ_B zᵀBz,
-  which is zero for exact correlations (Stillinger & Lovett Eq. 22). Their finite values come
-  from a free energy whose net-charge Coulomb energy is removed, as in mean-field theory. Do not
-  evaluate the expression with simulated or experimental KBIs of independent ions; a finite
-  screening length needs a Coulomb-subtracted (short-range direct-correlation) response.
+- Caution, screening lengths: Kumari & Podgornik 2024 (10.1063/5.0187324; equations checked in
+  arXiv:2311.10602v1) write κ² = (4πℓ_B/e²)[Σ_ij e_ie_j(∂²f/∂c_i∂c_j)⁻¹ + c₁e²N₁(∂²g̃/∂φ²)⁻¹]
+  (Eq. 19), the second term from macroion charge regulation, and equivalently as charge
+  fluctuations at fixed charges (Eq. 17). Their f (Eq. 5) is ideal mixing plus the
+  charge-regulation free energy; electrostatics enters only through the mean-field potential ψ
+  (Poisson–Boltzmann, Eq. 14). With exact Coulomb correlations the first term is 4πℓ_B zᵀBz
+  (kb-integrals.md §1), which is zero (Stillinger & Lovett Eq. 22). Do not evaluate the formula
+  with simulated or experimental KBIs of independent ions; a finite screening length then needs
+  the Coulomb-subtracted response of the previous items.
 - Dissent: Ben-Naim (Molecular Theory of Solutions, 2006, cited by Ploetz & Smith 2013, §16) holds that KB theory is valid for salts with independent ions, since KBIs are grand-canonical and electroneutrality is an unnecessary constraint on them; only the data to vary ion concentrations separately are missing. Ploetz & Smith adopt dependent ions for lack of data. Substituting N_2 = N_+ + N_− is an index change; electroneutrality then leaves one independent salt fluctuation.
 - (inference) For the house style: single-ion Γ± from simulation are well defined counts (Ben-Naim's view), but only Γ+ + Γ− is a thermodynamic derivative (§10 above). Say which view a sentence relies on.
