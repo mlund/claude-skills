@@ -62,7 +62,7 @@ is one line.
 | salts (§10) | `references/salts.md` |
 | second derivatives, solute volume, interfaces from fluctuation theory (§15) | `references/fluctuations.md` |
 | dimensions and units (§16), verification checks (§17) | `references/checks.md` |
-| extracting KBIs or Γ from MD/MC, tools, Methods reporting | `references/simulation.md` |
+| extracting KBIs or Γ from MD/MC, tools, Methods reporting; PMF and B22 slopes, finite solute, slow states (§8) | `references/simulation.md` |
 
 Typical loads: reviewing a manuscript → the files for the equations it
 contains plus `checks.md`; writing Methods for simulations → `simulation.md`
@@ -71,6 +71,11 @@ and `estimators.md`; explaining salts → `salts.md` and `gamma-linkage.md`.
 After editing any reference file, run `python3 scripts/check_refs.py`. It
 checks file links (`file.md §N`), paper sections (`Author Year, §N`) and that
 every DOI is in references.bib.
+
+When applying simulation.md §8 (PMF or B22 slopes, finite solute, slow states),
+or after editing it, run `python3 scripts/check_pair_linkage.py`. It needs numpy
+and tests the relations on an exact lattice, not the user's data; for their data,
+use items 24–27 in `checks.md`. If numpy is missing, say the check was skipped.
 
 Never invent a citation or DOI. If a relation is not in the reference files,
 say it needs a source.

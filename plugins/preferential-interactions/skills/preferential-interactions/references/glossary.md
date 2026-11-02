@@ -29,7 +29,7 @@ ST11 Shukla & Trout 2011 · VYT09 Vagenende, Yap & Trout 2009 · VT12 Vagenende 
 Z17/Z18 Zeindlhofer et al. 2017/2018 · MS17 Martínez & Shimizu 2017 · M22 Martínez 2022 ·
 BN88/BN12 Ben-Naim 1988/2012 · M84 Matteoli & Lepori 1984 · Simon22 Simon et al. 2022 · HD14 Heyda & Dzubiella 2014 · HHL23 Hervø-Hansen et al. 2023 ·
 K13 Krüger et al. 2013 · D18 Dawass et al. 2018 · G13 Ganguly & van der Vegt 2013 ·
-KV18 Krüger & Vlugt 2018 · BN77 Ben-Naim 1977 · Smith08 Smith 2008.
+KV18 Krüger & Vlugt 2018 · BN77 Ben-Naim 1977 · Smith08 Smith 2008 · H55a/H55b Hill 1955 I/II.
 
 ---
 
@@ -46,7 +46,7 @@ KV18 Krüger & Vlugt 2018 · BN77 Ben-Naim 1977 · Smith08 Smith 2008.
 | denaturant | — | A cosolute with Γ_D3 > Γ_N3, which shifts N ⇌ D toward D. | P08 p. 3 (10.1007/s12013-007-9005-0); ACR02 "perturbing solute" classes (10.1021/jp012627p) | The classification is thermodynamic, not mechanistic. |
 | component (electroneutral) | 2J, 3 | An electroneutral species or combination of species. | ACR02 p. 419 (10.1021/jp012627p); RA95 Appendix (10.1016/S0006-3495(95)80254-7) | Narrower than "species". A salt is one component but two species. |
 | ligand — **avoid** | — | Older manuscript word for the cosolute. | foundations notes (main.tex); RA95 "bound 'as ligand'" water (10.1016/S0006-3495(95)80254-7) | Implies site binding. Use "cosolute". |
-| McMillan–Mayer (implicit-solvent) level | — | Water is a continuum and μ1 is implicitly fixed. | scale relation S06a Eq. 14 (10.1021/jp056100e); ensemble identification is an inference | The water term in Γ is absent, not absorbed. Γ then converges to the molar ρ3G23 (§3). |
+| McMillan–Mayer (implicit-solvent) level | — | Water is a continuum and μ1 is implicitly fixed. | scale relation S06a Eq. 14 (10.1021/jp056100e); ensemble H55a Eqs. 21, 43, 49 (10.1063/1.1742068) | The water term in Γ is absent, not absorbed. Γ then converges to the molar ρ3G23 (§3). |
 | Hofmeister salt | — | A salt cosolute classed by its Hofmeister-series effect. | ACR02 p. 418 (10.1021/jp012627p); Pegram & Record 2008 (10.1021/jp800816a) | A salt is two species, so report Γ± (§7). |
 
 Conflicts in brief:
@@ -116,6 +116,8 @@ Conflicts in brief:
 | open / semi-open / closed | — | Open: T, V, μ_all. Semi-open: T, P, μ3 or T, P, μ1. Closed: T, P, N. | S06b pp. 851–853 (10.1529/biophysj.105.078790); P08 Table 1 (10.1007/s12013-007-9005-0) | Spelling varies (semiopen, semi-open, semi open). The house style uses "semi-open". |
 | simulation ensemble | NPT, NVT | The ensemble used to estimate the μVT quantity. | VYT09 p. 11745 "approximation" (10.1021/jp903413v); SST09 "calculated in the NTP ensemble" (10.1021/jp810949t) | Simulating in NPT does not make Γ the (T, P) coefficient. State which coefficient the estimator targets. |
 | **molar-scale coefficient** | ρ3G23 | (∂ρ3/∂ρ2)_{T,μ1,μ3} = ρ3G23 = N23. | S06a Eq. 14 (10.1021/jp056100e); molar two-domain form RA95 Eq. A6 (10.1016/S0006-3495(95)80254-7) | It contains the solute's excluded volume and is large and negative for proteins. Never call it plain "Γ". |
+| osmotic second virial coefficient | B22 | B22 = −½G22° at fixed μ1, μ3. | H55a Eq. 89, written 𝔅2 (10.1063/1.1742068) | Its cosolute slope follows from counted excesses (simulation.md §8). |
+| crowder (impermeant solute b) | G_2b | At low ρ_b, ln γ2 = −ρ2G22° − ρ_bG_2b°; a crowder acts as a dilute cosolute held behind the membrane. | H55b Eqs. 31, 33, written b_ab (10.1063/1.1740737); G_ab identification is an inference | Hill calls b a second protein. |
 | mole-fraction coefficient | (∂x3/∂x2)_{T,μ1,μ3} | Equals −x3 + x1ρ3(G23 − G21). | S06a Eq. 16 (10.1021/jp056100e) | — |
 | weight-based coefficient | ξ23 | (∂w3/∂w2), with Γ23 = (M2/M3)ξ23. | S06a Eq. 1 (10.1021/jp056100e) | Eisenberg's density-increment quantity. |
 | preferential hydration coefficient | Γ21, ν21 | The water analogue. P08 Eq. 39 gives ΔΓ21 = −(ρ1/ρ3)ΔΓ23. Sh04 gives ν21 = N21 − (n1/n3)N23. | P08 Eqs. 39–41 (10.1007/s12013-007-9005-0); Sh04 Eqs. 1, 3, molarity n_i (10.1073/pnas.0305836101) | The 1 ↔ 3 swap is invalid unless molality is redefined (P08 p. 11). |
@@ -163,7 +165,7 @@ Conflicts in brief:
 | vapour-pressure osmometry, isopiestic distillation | — | These measure the (T, P, μ1) coefficient. | S04 p. 18719 (10.1021/jp0474879); ACR02 (10.1021/jp012627p); Courtenay 2000 (10.1021/bi992887l) | Convert to Γ23 with −1/a33 (§3). |
 | Wyman/Tanford binding numbers | B3, B1 | Γ23 = B3 − (ρ3/ρ1)B1. In KB terms, B_i are excess numbers over the whole solution. | P08 Eqs. 2, 6 (10.1007/s12013-007-9005-0); S04 p. 18718 (10.1021/jp0474879) | In RA95 (10.1016/S0006-3495(95)80254-7), B_i,2 instead means *local-domain* contents. They are not virial coefficients. |
 | site-binding model — **avoid** for Γ | Δn, K_b | βΔΔG = −Δn ln(1 + K_bρ3). | P08 Eq. 47, "clearly incorrect for weak binding cosolvents" (10.1007/s12013-007-9005-0) | It implies 2:3 complexes. |
-| exchange model | K_e | βΔΔG = −Δn ln(a1 + K_ea3) (Schellman). It allows Γ < 0. | P08 Eq. 48 (10.1007/s12013-007-9005-0); S1,3 link RA95 Eq. 54 (10.1016/S0006-3495(95)80254-7) | — |
+| exchange model | K_e | βΔΔG = −Δn ln(a1 + K_ea3) (Schellman). It allows Γ < 0. | P08 Eq. 48 (10.1007/s12013-007-9005-0); S1,3 link RA95 Eq. 54 (10.1016/S0006-3495(95)80254-7) | (inference) Eq. 5 of H55b (10.1063/1.1740737) with n independent sites, each always holding 1 or 3, gives this form. |
 | transfer free energy | Δμ^tr_P | ≈ −RTΓ_XP when Γ is proportional to m_X. | BT03 Eqs. 1–7 (10.1021/jp0363996) | — |
 | cosolute effect on μ2* | — | −β(∂μ2*/∂ln ρ3)_{T,P} = Γ23a33. A positive Γ means salting in. | P08 Eq. 26 (10.1007/s12013-007-9005-0); S04 Eq. 5 (10.1021/jp0474879) | — |
 | Setschenow (salting-out) constant | k_S | k_S = −Γ23a33/ρ_salt, a33 = 1/[1 + ρ3(G33 − G13)]; k_S > 0 means salting out. Follows from the μ2* row with ρ3 = νρ_salt. | HHL23 SI Eq. S5 (10.1021/acs.jpcb.3c01085); main text Eq. 3: ΔOsm/(m2m3) ≈ (1/RT)(∂μ2/∂m3)_{m2,μ1,T} = C1 + C2m2, which is k_S in kg mol⁻¹ (molal salt, natural log) when C2 ≈ 0 | This k_S is a natural-log slope per mole of salt (not of ions). Experimental tables often use log10(S0/S) = k_S c_salt, smaller by ln 10; check the base and the concentration unit before comparing. |
@@ -230,7 +232,7 @@ Conflicts in brief:
 |---|---|---|---|---|
 | **accumulated** | Γ23 > 0 | The cosolute is in excess relative to the bulk ratio. Defined by the sign of Γ23 alone. | "preferentially accumulated" RA95 p. 787 (10.1016/S0006-3495(95)80254-7); ACR02 p. 424 with Γ_μ3 (10.1021/jp012627p); "preferential binding" P08 (10.1007/s12013-007-9005-0) | ACR02 classifies by Γ_μ3, whose sign can differ from Γ_μ1. |
 | **excluded** | Γ23 < 0 | The cosolute is depleted relative to the bulk ratio. | "preferential exclusion" RA95 (10.1016/S0006-3495(95)80254-7), P08 p. 3 (10.1007/s12013-007-9005-0); "preferentially excluded" MS17 (10.1021/acs.jctc.7b00599) | An excluded cosolute can still show augmented contact density (MS17 ms p. 24; M22, 10.1016/j.molliq.2021.117945). Say so when that could mislead. |
-| bound / preferential binding — **avoid** for Γ > 0 | n_bound | Reserve "bound" for a cutoff occupancy count, and say that it is one. | BT03 "excess … bound" (10.1021/jp0363996); MS17 "preferentially bound" (10.1021/acs.jctc.7b00599); P08 keeps "binding" as thermodynamic (10.1007/s12013-007-9005-0) | Sh04 says exclusion "is not merely a lack of binding" (10.1073/pnas.0305836101). |
+| bound / preferential binding — **avoid** for Γ > 0 | n_bound | Reserve "bound" for a cutoff occupancy count, and say that it is one. | BT03 "excess … bound" (10.1021/jp0363996); MS17 "preferentially bound" (10.1021/acs.jctc.7b00599); P08 keeps "binding" as thermodynamic (10.1007/s12013-007-9005-0) | Sh04 says exclusion "is not merely a lack of binding" (10.1073/pnas.0305836101). H55a Eq. 38 (10.1063/1.1742068): the thermodynamic excess is the bound count plus a free term, and only the sum is independent of the definition of binding. |
 | preferential solvation — **avoid** as a sign word | — | Means *opposite* things in different schools. | Water accumulation, Γ < 0: RA95 p. 787 (10.1016/S0006-3495(95)80254-7). Cosolute excess, Γ > 0: VT12 (10.1016/j.bpj.2012.08.011), VYT09 (10.1021/jp903413v), M22 (10.1016/j.molliq.2021.117945). Relative, "of S with respect to A": BN88 (10.1007/BF02918361) | Use accumulated/excluded instead. |
 | preferential hydration — **avoid** as a sign word | Γ21 | A synonym for exclusion in Smith's papers. Shimizu defines it as the parameter ν21. | P08 p. 3, S06a p. 2866 (10.1007/s12013-007-9005-0; 10.1021/jp056100e); ν21 Sh04 (10.1073/pnas.0305836101); BT03, VT12 Γ < 0 (10.1021/jp0363996) | If used, write "preferential hydration (Γ21 = −(ρ1/ρ3)Γ23 > 0)". |
 | preferential dehydration | Γ_uw < 0 | MS17's word for water depletion. | MS17 ms p. 22 (10.1021/acs.jctc.7b00599) | Avoid; it invites a binding picture. |

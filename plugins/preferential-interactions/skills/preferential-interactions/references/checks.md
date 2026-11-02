@@ -85,3 +85,9 @@ from the cited identities but are not presented as checks by any source.
 21. Converged Γ23 is independent of box size, and agrees between GCMC and NVT with GvdV correction. (inference)
 22. Krüger extrapolation: L·G^V linear in L over ≥ 1 nm with R² ≥ 0.99 (KBKit criterion, Peroutka et al. 2026); F^∞ in nm⁴ (§16).
 23. Block averages (first versus second half) give sampling error; the spread between estimators gives systematic error (simulation.md §2).
+
+**Pair linkage and slow states** (simulation.md §8; all inference)
+24. Finite difference: ΔN23(r) at one composition must match Δln g22(r)/Δln a3 from two nearby compositions, and −½∫g22ΔN23 dr must match ΔB22/Δln a3. Use ΔΓ23 at (T, P). This is the main test on real data.
+25. Asakura–Oosawa: run hard spheres with an ideal cosolute through the same counting code. ΔN23(r) must equal ρ3V_overlap(r). It tests the pipeline cheaply.
+26. Salt, 1:1: Δ(Γ+ − Γ−)(r) = −Δ⟨Z⟩(r), with Z the solute charge including titrated protons. It is zero only at fixed solute charge; with charge regulation, pairing can shift ⟨Z⟩. Any other charged species in the count must be included in the sum. For dilute fixed point charges, Δ(N2+ + N2−)(r) → ½κZ²ℓ_B e^(−κr).
+27. States: where exchange is fast enough to sample, Σ pσ(s3σ + N23^σ) must match the unrestrained N23, using the same bound label throughout.

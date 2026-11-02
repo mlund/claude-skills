@@ -60,6 +60,7 @@ are shared across the equation files; SKILL.md maps each § to its file.
 - a3 may be on any scale (Pierce).
 - Record & Anderson pair this (T, P) derivative with the *dialysis* Γ3,2J. Smith states that the relation is "valid for the molality based preferential interactions in any ensemble". Pierce adds the condition "only for processes with a 1:1 stoichiometry" (p. 9).
 - (inference) For A + B ⇌ AB the solute-independent offset of §6 does not cancel in Δ. It contributes φ3/(a33φ1) per molecule lost.
+- Resolved by pair distance, and for B22: simulation.md §8.
 
 **5.2 Concentration form and pseudo-chemical potential**:
 

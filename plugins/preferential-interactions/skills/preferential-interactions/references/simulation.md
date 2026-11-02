@@ -6,7 +6,8 @@ preferential interaction coefficient from simulation, or before running such an 
 cited source states.
 
 Contents: 1 why raw integrals fail · 2 radial route (bulk mixtures) · 3 solute at infinite
-dilution · 4 implicit-solvent MC · 5 salts · 6 tools · 7 reporting checklist
+dilution · 4 implicit-solvent MC · 5 salts · 6 tools · 7 reporting checklist · 8 PMF and B22
+slopes, finite solute, slow states
 
 ## 1. Why raw running integrals fail
 
@@ -170,3 +171,83 @@ Before reporting, run the verification checks in checks.md §17; the relabelled-
 4. For Γ: ensemble and concentration scale (molal Γ23 versus molar ρ3G23), bulk-ratio choice.
 5. For salts: ion or salt-component quantities, and the electroneutrality treatment.
 6. Software and version, with DOI or repository URL.
+
+## 8. PMF and B22 slopes, finite solute, slow states
+
+Translated from Hill 1955 I (10.1063/1.1742068) and II (10.1063/1.1740737). Hill works at the
+McMillan–Mayer level with explicit binding and writes no G_ij or Γ. Hill's a is cosolute 3, P is
+solute 2, x is the absolute activity of 3, and 𝔅2 is B22. Everything here is (inference) unless an
+equation is cited, and it still needs a literature source before being called established.
+
+Tested by `scripts/check_pair_linkage.py` (exact 1D lattice, implicit solvent) and by hand against
+the analytic limits noted below. The (T, P) forms rest on Gibbs–Duhem algebra only, and nothing
+has been run on a protein. To check an analysis that uses this section, see checks.md §17,
+items 24–27; the script tests the relations, not your data.
+
+Notation: ΔX(r) = X(pair held at r) − 2X(isolated solute), with the excess counted in D(δ) around
+the pair or the single solute.
+
+**Bound and thermodynamic excess.** Hill I, Eq. 38 splits the excess into a cutoff-dependent bound
+count and a free remainder; only their sum is thermodynamic. Per solute at m2 → 0, with fixed V,
+μ1 and μ3:
+
+    N23 = ρ3G23 = ⟨s⟩ + free excess                [Hill I, Eq. 38; Smith 2006a, Eq. 14]
+
+- The sum is the molar coefficient. Hill notes that dialysis work customarily neglects the free
+  term, but it holds the excluded volume (Hill I, p. 629), which is ≈ −ρ3V̄2 and dominates for
+  weak cosolutes (gamma-linkage.md §7).
+- Hill advises dropping explicit binding when it is weak, because the split is then arbitrary.
+
+**Slope of the PMF at each distance.** One run at one composition gives the slope of the PMF:
+
+    implicit (T, μ1):  ∂ln g22(r)/∂ln a3 = ΔN23(r)
+    explicit (T, P):   ∂ln g22(r)/∂ln a3 = ΔΓ23(r) = ΔN23(r) − (ρ3/ρ1)ΔN21(r)
+    salt:              ∂ln g22(r)/∂ln a± = Δ(Γ+ + Γ−)(r)   (molar scale if implicit; fixed pH)
+
+- g22 is normalized to bulk, so the association offset of gamma-linkage.md §5 does not enter here.
+- The implicit and explicit forms are different derivatives. Adding cosolute in implicit MC holds
+  μ1 fixed and lets P rise, so convert before comparing with experiment at fixed P
+  (gamma-linkage.md §7).
+- Check, cosolute: ideal cosolute and hard spheres give ΔN23 = ρ3V_overlap, the Asakura–Oosawa
+  result βw = −ρ3V_overlap.
+- Check, salt: Debye–Hückel point charges give ½κZ²ℓ_B e^(−κr) from both sides, to leading order.
+
+**Slope of B22.** B22 = −½G22° (Hill I, Eq. 89), measured at dialysis equilibrium, so:
+
+    ∂B22/∂ln a3 = −½ ∫ g22(r) ΔN23(r) dr          (ΔΓ23 if explicit at T, P)
+
+For an aggregating solute, B22 = B22(monomer) − K2 with K2 = c010/c100² (Hill II, Eqs. 19, 23).
+The split depends on the cutoff for "aggregate"; B22 does not.
+
+**Finite solute concentration.** Hill II, Eq. 9 gives the series for the bound count at fixed γ and
+W. With all derivatives free it applies to the thermodynamic excess:
+
+    per solute:    (ρ3 − ρ3°)/ρ2 = ∂ln c1/∂ln a3 − ρ2∂B22/∂ln a3 − ½ρ2²∂B3/∂ln a3 − …
+    differential:  (∂ρ3/∂ρ2)_{T,μ1,μ3} = ∂ln c1/∂ln a3 − 2ρ2∂B22/∂ln a3 − (3/2)ρ2²∂B3/∂ln a3 − …
+                                       = ρ3G23/(1 + ρ2G22)
+
+- ρ3° is the density at the same μ1, μ3 without solute, and the derivatives are at fixed ρ2. The two
+  quantities agree only at ρ2 → 0; the second is the derivative of ρ2 times the first.
+- Counting cosolute around a protein in a box gives the per-solute form, which sizes the error of
+  one protein in a box, ρ2 = 1/V. Periodic images are not an isotropic g22, so treat it as an order
+  of magnitude. The differential form is the molar counterpart of the molal form in
+  gamma-linkage.md §4.
+- Ions: the per-solute term reduces to the Donnan result, N2+ + N2− rising by Z²ρ2/(4ρ_s), with ρ_s
+  the salt density (Z²ρ2/(2ρ_s) in the differential form). For Z = 10, a (10 nm)³ box and 100 mM
+  salt, that is ≈ 0.4 ions per solute.
+
+**Slowly exchanging states.** Counting does not converge for a site with a long residence time.
+Treat each slow state σ (site occupancy, protonation, conformation) as its own solute, and take pσ
+from a separate binding or titration free energy:
+
+    Γ23 = Σσ pσ (s3σ − m3s1σ + Γ23^σ)
+    ∂pσ/∂ln a3 = pσ (Γσ,total − ⟨Γ⟩)                 (Γσ,total = s3σ − m3s1σ + Γ23^σ)
+    g22(r) = Σσσ′ pσpσ′ gσσ′(r)                      [Hill I, Eq. 87; pσ at m2 → 0]
+
+- Γ23^σ counts only cosolute and water outside the state's bound set. On the implicit scale, drop
+  the water terms and read N23.
+- The label must be identical in pσ and in the conditional runs; the total is then independent of
+  the definition (Hill I, Eq. 36).
+- The binding polynomial c1 = Σ x^s H (Hill I, Eq. 71) carries these weights. Fixed-charge MC runs
+  can be combined this way, which includes charge-regulation attraction (Hill I, Eq. 87, after
+  Kirkwood & Shumaker).

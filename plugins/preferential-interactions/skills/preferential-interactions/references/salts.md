@@ -90,6 +90,13 @@ Indistinguishable ions (KB school), with ρ3 = ν±ρ_salt:
   the atmosphere. A truncated or short-ranged electrostatic kernel (decaying faster than r^−3) is
   outside the Stillinger–Lovett conditions, so the residual then partly reflects the model. The
   Z = 0, R → ∞ case is the Gee/Hervø-Hansen relation above.
+- Effective charge depends on the cutoff; its limit does not. Hill's isoelectric condition,
+  z + Σ_i z_iM̄_i/M̄_P = 0 (Hill 1955 II, Eq. 10, 10.1063/1.1740737), counts bound ions only and
+  holds at one activity. (inference) Over D(δ), with bulk neutrality cancelling the volume term,
+  Z_eff(δ) = ⟨Z⟩ + Σ_i z_i⟨N_i(D(δ))⟩ → 0 at every activity, the solute form of Q_C(∞) = 0, with
+  ⟨Z⟩ including titrated protons and i running over all other ions. An
+  isoelectric point based on Z_eff therefore depends on δ. Hill defers ions to a 1954 chapter
+  (not read), and ∂/∂ln x_i of one ion alone cannot be realized, so use ∂/∂ln a±.
 - Caution, screening lengths: Kumari & Podgornik 2024 (10.1063/5.0187324; equations checked in
   arXiv:2311.10602v1) write κ² = (4πℓ_B/e²)[Σ_ij e_ie_j(∂²f/∂c_i∂c_j)⁻¹ + c₁e²N₁(∂²g̃/∂φ²)⁻¹]
   (Eq. 19), the second term from macroion charge regulation, and equivalently as charge
