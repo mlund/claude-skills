@@ -42,5 +42,29 @@ Indistinguishable ions (KB school), with ρ3 = ν±ρ_salt:
 
   Source: Hervø-Hansen et al. 2023, SI p. S2 (10.1021/acs.jpcb.3c01085), after Gee et al. 2011 (10.1021/ct100517z). The first relation is electroneutrality of the excess, the Z = 0 case of Γ+ − Γ− = −Z, and a convergence check on per-ion RDFs. Here ρ3 counts ions, not salt units, so Γ23 = ρ3(G23 − G21) is per ion; divide by ν = ν+ + ν− for per salt unit.
 - Why ions are not independent species: with cation, anion and solvent as independent variables, electroneutrality makes the number-fluctuation matrix singular (Friedman & Ramanathan 1970, 10.1021/j100715a009; Kusalik & Patey 1987, 10.1063/1.452629). The usual fix is a salt "molecule" or indistinguishable ions; the latter matches Kusalik & Patey (Ploetz & Smith 2013, §16, 10.1002/9781118571767.ch4).
+- Local electroneutrality in KB form (Ploetz, Smyers & Smith 2025, 10.1021/acs.jpcb.4c07583; the
+  PMC text lacks the equations, so the form is from the prose): the charge within radius R of a
+  particle C,
+
+      Q_C(R) = z_C + Σ_j z_jρ_jG_Cj(R),        Q_C(∞) = 0,
+
+  where C is any ion or a neutral molecule (z_C = 0) and j runs over all ions. Ploetz et al. note
+  that Q_C deviates from zero over several nm at ambient conditions. Stillinger & Lovett 1968
+  (10.1063/1.1670358) add a second-moment condition on the same distributions.
+- Why the matrix is singular: in matrix form Q_i(∞) = 0 reads Bz = 0, with B from
+  kb-integrals.md §1 and z the vector of ion charges (inference: an algebraic step from the
+  relation above). The charge vector is the null vector, so zᵀBz = ⟨δQ²⟩/V = 0: a large open subvolume has no net
+  charge fluctuation per volume. This is the singularity in the next item.
+- Running charge as a simulation check: Q_C(R) from per-ion running KBIs around a charged solute
+  should reach zero once R exceeds the ion atmosphere (Ploetz et al. 2025 show it as an intensive,
+  non-diverging diagnostic). A residual plateau signals unconverged RDFs, a box too small for the
+  atmosphere, or a truncated electrostatic kernel. The Z = 0, R → ∞ case is the Gee/Hervø-Hansen
+  relation above.
+- Caution, screening lengths: Kumari & Podgornik 2024 (10.1063/5.0187324) define κ² =
+  4πℓ_B Σ_ij z_iz_j[(∂²βf/∂c∂c)⁻¹]_ij. With the identity in kb-integrals.md §1 this is 4πℓ_B zᵀBz,
+  which vanishes when B carries the exact Coulomb correlations (inference). The finite values come
+  from a free energy whose net-charge Coulomb energy is removed, as in mean-field theory. Do not
+  evaluate the expression with simulated or experimental KBIs of independent ions; a finite
+  screening length needs a Coulomb-subtracted (short-range direct-correlation) response.
 - Dissent: Ben-Naim (Molecular Theory of Solutions, 2006, cited by Ploetz & Smith 2013, §16) holds that KB theory is valid for salts with independent ions, since KBIs are grand-canonical and electroneutrality is an unnecessary constraint on them; only the data to vary ion concentrations separately are missing. Ploetz & Smith adopt dependent ions for lack of data. Substituting N_2 = N_+ + N_− is an index change; electroneutrality then leaves one independent salt fluctuation.
 - (inference) For the house style: single-ion Γ± from simulation are well defined counts (Ben-Naim's view), but only Γ+ + Γ− is a thermodynamic derivative (§10 above). Say which view a sentence relies on.

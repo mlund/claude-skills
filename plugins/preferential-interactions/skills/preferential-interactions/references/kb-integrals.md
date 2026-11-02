@@ -32,6 +32,11 @@ are shared across the equation files; SKILL.md maps each § to its file.
 
 - Source: Pierce et al. 2008, Eq. 13 (10.1007/s12013-007-9005-0); Smith 2006a, Eq. 4 (10.1021/jp056100e).
 - Matrix form: B_ab = ρ_aρ_bG_ab + ρ_aδ_ab (Simon et al. 2022, Eq. 16, 10.1063/5.0106162). Simon Eq. 27 prints −δ_abρ_a, which is a typo.
+- Free-energy curvature: since βμ_i = ∂(βf)/∂ρ_i, with f the Helmholtz free energy per volume, B is
+  the inverse Hessian, B = [∂²(βf)/∂ρ_i∂ρ_j]⁻¹. Kumari & Podgornik 2024 (10.1063/5.0187324) use this
+  Legendre-transform relation between the Hessians of f(ρ) and of the pressure p(μ). A quantity
+  defined by "second derivatives of the free energy with respect to concentrations" is therefore
+  a KB fluctuation quantity. For ions, see salts.md §10 before using it.
 
 ## 2. Excess numbers
 

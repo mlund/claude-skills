@@ -143,6 +143,8 @@ One solute molecule (protein, caffeine) in a water–cosolute box.
   ion pairs (KBKit, after Ploetz, Smyers & Smith 2025, 10.1021/acs.jpcb.4c07583).
 - This is the indistinguishable-ion or salt-component view (salts.md §10). Single-ion Γ±
   are well-defined counts, but only Γ+ + Γ− enters the linkage.
+- Check per-ion RDFs with the running charge Q_C(R) = z_C + Σ_j z_jρ_jG_Cj(R), which must reach
+  zero (salts.md §10).
 - Lbadaoui-Darvas & Takahama 2019 (10.1021/acs.jpcb.9b06735) applied the Krüger and Dawass
   corrections to aqueous salts and recovered activity-coefficient derivatives close to experiment
   (as reported by Peroutka et al. 2026).
