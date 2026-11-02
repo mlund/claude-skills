@@ -7,7 +7,7 @@ cited source states.
 
 Contents: 1 why raw integrals fail · 2 radial route (bulk mixtures) · 3 solute at infinite
 dilution · 4 implicit-solvent MC · 5 salts · 6 tools · 7 reporting checklist · 8 PMF and B22
-slopes, finite solute, slow states
+slopes, finite solute, slow states · 9 experimental comparison data
 
 ## 1. Why raw running integrals fail
 
@@ -199,6 +199,16 @@ count and a free remainder; only their sum is thermodynamic. Per solute at m2 �
   weak cosolutes (gamma-linkage.md §7).
 - Hill advises dropping explicit binding when it is weak, because the split is then arbitrary.
 
+Schellman 2003 (10.1016/S0006-3495(03)74459-2) publishes the matching split for a hard shell plus
+a contact term, at low cosolute:
+
+    ρ3G23 = −ρ3x + ρ3∫_{outside} h23 dr            [Schellman 2003, Eqs. A3–A5, as −C3°B23/N_a]
+
+- x is the volume inside the shell, here D(0). The mapping from B23 to G23 is an inference.
+- Schellman calls the appendix heuristic. ΔB23 = −m/RT (Eq. 11) holds only in special cases, and a
+  KB integral replaces the virial coefficient otherwise (p. 121).
+- This sources the split, not the pair-distance relations below.
+
 **Slope of the PMF at each distance.** One run at one composition gives the slope of the PMF:
 
     implicit (T, μ1):  ∂ln g22(r)/∂ln a3 = ΔN23(r)
@@ -218,7 +228,8 @@ count and a free remainder; only their sum is thermodynamic. Per solute at m2 �
     ∂B22/∂ln a3 = −½ ∫ g22(r) ΔN23(r) dr          (ΔΓ23 if explicit at T, P)
 
 For an aggregating solute, B22 = B22(monomer) − K2 with K2 = c010/c100² (Hill II, Eqs. 19, 23).
-The split depends on the cutoff for "aggregate"; B22 does not.
+The split depends on the cutoff for "aggregate"; B22 does not. Schellman 2003, Eq. 9 has the same
+form for cosolute association, B23 = −K.
 
 **Finite solute concentration.** Hill II, Eq. 9 gives the series for the bound count at fixed γ and
 W. With all derivatives free it applies to the thermodynamic excess:
@@ -252,3 +263,28 @@ from a separate binding or titration free energy:
 - The binding polynomial c1 = Σ x^s H (Hill I, Eq. 71) carries these weights. Fixed-charge MC runs
   can be combined this way, which includes charge-regulation attraction (Hill I, Eq. 87, after
   Kirkwood & Shumaker).
+
+## 9. Experimental comparison data
+
+Lysozyme at pH 6.0 and 20 °C in 0.02 M NaCl, by densimetry (Arakawa & Timasheff 1985, Tables I–II,
+10.1016/S0006-3495(85)83932-1). These are dialysis coefficients on the molal scale, so compare them
+with counted-solvent Γ23, or convert implicit-solvent results first (gamma-linkage.md §7).
+
+| solvent | (∂g3/∂g2)_{T,μ1,μ3}, g/g | Γ23 (approx.) | ΔT_m/M, °C, no GuHCl |
+|---|---|---|---|
+| 1 M L-Pro | −0.0406 ± 0.0093 | −5.0 | 4 |
+| 1 M L-Ser | −0.0497 ± 0.0030 | −6.8 | 7 |
+| 0.667 M taurine | −0.0331 ± 0.0051 | −3.8 | 9 |
+| 1 M GABA | −0.0699 ± 0.0082 | −9.7 | 6 |
+| 1 M sarcosine | −0.0461 ± 0.0038 | −7.4 | 6 |
+| 0.5 M Val | −0.0487 ± 0.0089 | −5.9 | −2 (0.25 M), 0 (0.5 M) |
+
+- (inference) Γ23 = (M2/M3)(∂g3/∂g2), with M2 ≈ 14300 g/mol and standard cosolute masses; neither
+  is taken from the paper.
+- Native-state exclusion does not predict stabilization: Val is excluded but does not stabilize.
+  Linkage needs ΔΓ23. The authors suggest favourable contact with nonpolar groups exposed on
+  unfolding.
+- TMAO has no value: v̄3 = 0.96 mL/g is too close to water for densimetry. Counting has no such limit.
+- Use the table, not the text, for (∂g1/∂g2). The text says 0.2–0.4 g/g, while Table II lists
+  0.32–0.79 g/g and is consistent with −(1/g3)(∂g3/∂g2).
+- Salts: salts.md §10.

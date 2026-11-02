@@ -65,7 +65,7 @@ from the cited identities but are not presented as checks by any source.
 7. Ideal gas: all G = 0, k_BTκ_T = 1/ρ, a33 = 1. A closed box biases the raw integral (−0.456 nm³ in the siba-p/kbkit validation); corrections must remove it.
 8. Hard spheres: G = (S(0) − 1)/ρ with Carnahan–Starling S(0) (siba-p/kbkit validation).
 9. Symmetric ideal mixture: G_ij^SI = k_BTκ_T − V̄_i − V̄_j + Σ_kρ_kV̄_k² (Smith 2008, Eq. 35) gives Δ_AB = 0 (BN77 Eq. 2.14) and ∂ln a/∂ln x = 1.
-10. Relabelled water: relabel a random fraction of water molecules as "cosolute". Then G23 = G21 and Γ23 = 0 exactly; any nonzero value is bulk-ratio, closed-box or bookkeeping error. Implicit-solvent analogue: a cosolute interacting with the solute only by excluded volume, whose ρ3G23(δ) must plateau at −ρ3 × excluded volume. (inference)
+10. Relabelled water: relabel a random fraction of water molecules as "cosolute". Then G23 = G21 and Γ23 = 0 exactly; any nonzero value is bulk-ratio, closed-box or bookkeeping error. This is Timasheff's inert cosolvent, with δB3/δB1 = m3/m1 and no effect on K (Timasheff 1998, 10.1073/pnas.95.13.7363; the mapping is an inference). Implicit-solvent analogue: a cosolute interacting with the solute only by excluded volume, whose ρ3G23(δ) must plateau at −ρ3 × excluded volume. (inference)
 
 **Physical constraints**
 11. Salts: Γ+ − Γ− = −Z with Z signed (Record & Anderson 1995, Eq. 29, 10.1016/S0006-3495(95)80254-7). Simulated single-ion counts must satisfy it at the plateau; failure means too small a domain or a contaminated bulk region.

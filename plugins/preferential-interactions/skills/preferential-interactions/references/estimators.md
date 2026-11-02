@@ -34,7 +34,7 @@ Domain-restricted integral (house definition; (inference), the domain generalisa
 
 - The scale identification is cited: Smith 2006a, Eq. 14 (10.1021/jp056100e).
 - The McMillan–Mayer level fixes μ1, which makes the ensemble (T, μ1, μ3): both sides of the membrane share every solvent activity (Hill 1955 I, Eqs. 21, 43, 49, 10.1063/1.1742068).
-- D contains the solute, so for a solute core impenetrable to cosolute, Γ_molar(D(0)) = −ρ3Vol[D(0)]: pure excluded volume. Compare Ben-Naim 2012, Eqs. 3.6–3.7 (10.1063/1.4772463).
+- D contains the solute, so for a solute core impenetrable to cosolute, Γ_molar(D(0)) = −ρ3Vol[D(0)]: pure excluded volume. Compare Ben-Naim 2012, Eqs. 3.6–3.7 (10.1063/1.4772463). Schellman 2003, Eqs. A3–A5 makes the same split with the ASA envelope as a hard shell (10.1016/S0006-3495(03)74459-2).
 - Zeindlhofer et al. 2018, Eqs. 5–7 give the same form, Δn_ij = n_ij − N_Ac_jV, with V including the solute (10.1063/1.5009802).
 - This estimator does not give the molal Γ23. Convert with gamma-linkage.md §7.
 

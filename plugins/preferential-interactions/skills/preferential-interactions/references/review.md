@@ -12,7 +12,9 @@ apply only the items the request and text call for.
 3. Sign: accumulated and excluded follow the sign of Γ23 alone. Γ23 > 0 is not called "bound" in
    the text's own voice, and "excluded" is not read as no local enrichment.
 4. Mislabelled quantity: "finite-volume KBI" for a solute-anchored domain (estimators.md §12);
-   Timasheff's preferential interaction parameter for Γ23; K_p for anything but Record's ratio.
+   K_p for anything but Record's ratio. "Preferential interaction parameter" must say which
+   derivative it means: Timasheff's papers use it for both (∂μ2/∂m3) and (∂g3/∂g2), so neither
+   reading is an error by itself (glossary).
 5. Partitions: the rule is named and exclusive, and the sum carries the right scale. Earlier work
    is credited, for example Baynes & Trout 2003 for radius-weighted domains and exact group sums
    (estimators.md §13).

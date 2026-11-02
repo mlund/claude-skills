@@ -18,6 +18,9 @@ are shared across the equation files; SKILL.md maps each § to its file.
 - Source: Pierce et al. 2008, Eq. 1 (10.1007/s12013-007-9005-0); Record & Anderson 1995, Eq. 4 (10.1016/S0006-3495(95)80254-7).
 - Original notation: Record & Anderson write Γ3,2, with the cosolute index first, and Γ°3,2 for the m2 → 0 limit. Anderson et al. 2002 write Γ_μ1,μ3 (Eq. 4, 10.1021/jp012627p).
 - Smith 2006a, p. 2865: V is implicitly fixed as well (10.1021/jp056100e).
+- Timasheff: "preferential binding parameter" (∂m3/∂m2)_{T,P,μ3} ≈ (∂m3/∂m2)_{T,μ1,μ3} (Timasheff 1998, pp. 360–361, 10.1016/S0065-3233(08)60656-7), and Γ_PL (Timasheff 2002, Eq. 7, 10.1073/pnas.122225399).
+- (inference) The size of that approximation is the §6 offset, φ3/(a33φ1).
+- Weight form: (∂g3/∂g2) = (M3/M2)(∂m3/∂m2) = A3 − g3A1, with g_i in g per g water (Timasheff 1998, Eqs. 9a, 12a; Arakawa & Timasheff 1982, Eq. 6, 10.1021/bi00268a034).
 
 **4.2 Infinite dilution of the solute**:
 
@@ -92,6 +95,7 @@ are shared across the equation files; SKILL.md maps each § to its file.
 
 - Source: Smith 2006a (10.1021/jp056100e).
 - The molal Γ23 is "always larger in magnitude". The molar coefficient "includes the excluded volume effect of the protein" and is "not well suited for the analysis of simulation data" when distances are measured from the surface (pp. 2866–2867).
+- (inference) Γ23° and V̄2° = RTκ_T − N21V̄1 − N23V̄3 (kb-integrals.md §3) together fix N21 and N23, so counted excess numbers are determinate even though site occupancies are not (Timasheff 2002, Eq. 9, 10.1073/pnas.122225399).
 - Two-domain molar form: Γ^exp3,2 = B3,2(1 − C3V̄3) − C3V̄2 − C3B1,2V̄1 (Record & Anderson 1995, Eq. A6, 10.1016/S0006-3495(95)80254-7). It contains the −C3V̄2 excluded-volume term.
 - Notes estimate: the molal–molar gap is ≈ ρ3V̄2 at low cosolute. That is ≈ 0.14 per mol L⁻¹ for a caffeine-sized solute (V̄2 ≈ 140 cm³ mol⁻¹, approximate) and ≈ 10 per mol L⁻¹ for a 10⁴ cm³ mol⁻¹ protein.
 

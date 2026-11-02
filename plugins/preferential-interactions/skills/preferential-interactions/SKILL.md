@@ -54,7 +54,7 @@ each glossary row and BibTeX entry is one line.
 | Second derivatives, solute volume, interfaces (§15) | `references/fluctuations.md` |
 | Prose review checklist | `references/review.md` |
 | Units (§16) and verification checks (§17) | `references/checks.md` |
-| Simulation extraction, finite-size corrections, tools, Methods; pair linkage and slow states (local §8) | `references/simulation.md` |
+| Simulation extraction, finite-size corrections, tools, Methods; pair linkage and slow states (local §8); experimental comparison data (local §9) | `references/simulation.md` |
 
 For a review, use the checklist and load the sections supporting the equations
 under review; consult only the applicable checks. A term lookup need not load equation files.
