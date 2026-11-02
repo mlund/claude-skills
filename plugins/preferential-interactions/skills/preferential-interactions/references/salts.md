@@ -65,6 +65,23 @@ Indistinguishable ions (KB school), with ρ3 = ν±ρ_salt:
   charge fluctuation zᵀB(k)z → k²/(4πℓ_B), independent of composition and ion correlations. It
   holds only for Coulomb (p = 1). Debye–Hückel point ions satisfy it; DH with ion sizes in general
   does not.
+- Origin of the moment conditions (inference: the algebra below is ours; Martin 1988,
+  10.1103/RevModPhys.60.1075, reviews the sum rules). Neutrality is not a constraint on the
+  partition function; it follows from the 1/k² Coulomb kernel. With the multicomponent
+  Ornstein–Zernike relation B(k)⁻¹ = diag(1/ρ) − Ĉ(k), and Ĉ(k) = −4πℓ_B zzᵀ/k² + Ĉ^SR(k) with
+  Ĉ^SR regular at k = 0, the Sherman–Morrison formula gives
+
+      zᵀB(k)z = (k²/4πℓ_B) κ_eff²/(k² + κ_eff²),    κ_eff² = 4πℓ_B zᵀ[diag(1/ρ) − Ĉ^SR]⁻¹z.
+
+  Order k⁰ vanishes (zeroth moment), order k² is 1/(4πℓ_B) (second moment), and a screening
+  constant first appears at order k⁴. Bulk neutrality has the same origin: a net charge Q in a
+  region of size L costs ∝ Q²ℓ_B/L, which outgrows every extensive term, so excess charge goes to
+  the boundary and only neutral combinations of ionic μ are measurable (Lieb & Lebowitz 1972,
+  10.1016/0001-8708(72)90023-0, prove the thermodynamic limit of Coulomb matter). This supports
+  Ben-Naim's reading (Dissent item below): ion KBIs are well defined, and B is singular because
+  of the interaction, not because of an added constraint. A model whose electrostatics is
+  truncated (finite û(k → 0)) has a nonsingular B; any neutrality then comes from neutral-pair
+  moves.
 - Running charge as a simulation check: Q_C(R) from per-ion running KBIs around a charged solute
   should reach zero once R exceeds the ion atmosphere (Ploetz et al. 2025 show it as an intensive,
   non-diverging diagnostic). A residual plateau signals unconverged RDFs or a box too small for
