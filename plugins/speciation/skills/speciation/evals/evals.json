@@ -1,0 +1,52 @@
+{
+  "skill_name": "speciation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A student wrote this for our methods section. Review it for terminology and physics, list problems and fixes, don't rewrite it:\n\n\"Charge regulation of a weak polyacid gel in equilibrium with a salt reservoir was simulated with the ESPResSo constant-pH ensemble (grand canonical) at pH 7, which by construction is the pH inside the gel. According to IUPAC, pH is defined as the chemical potential of H+, which excludes the Donnan potential, whereas Guggenheim (1929) showed that the Donnan potential has no physical meaning at all, so we do not discuss it. Results for the local pH are compared with a pH-meter reading of the gel. Since pH-pKa is a universal parameter, all curves are plotted against pH-pKa.\"",
+      "expected_output": "Finds substantive errors and separates them from style.",
+      "files": [],
+      "assertions": [
+        "Identifies ESPResSo ConstantpHEnsemble as lacking a counterion term (uncorrected) and so biased with explicit ions",
+        "Flags that this constant-pH setup cannot be assumed to capture Donnan partitioning or to give the pH inside the gel",
+        "Says IUPAC defines pH through activity and does not state whether the Donnan term is excluded",
+        "Notes that Guggenheim modified the 1929 position in 1930, or otherwise qualifies 'no physical meaning'",
+        "Flags comparing a meter reading in a gel with a simulated pH as lacking fundamental H+ interpretation",
+        "Flags 'local pH' needs a definition",
+        "Says pH-pKa universality holds only under conditions, such as unchanged ionic strength",
+        "Separates house-style suggestions from errors"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "my faunus titration of a colloid with 600 surface COOH sites (pKa 5.4, pH 5.1, 100 mM NaCl) comes out with basically all sites ionized and a hugely negative energy, ideal would be around 200. colloid is degrees_of_freedom: Rigid, and I use [\"⚛HA + Cl- = ⚛A + ~H+\", !pK 5.4], [\"⚛HA = Na+ + ⚛A + ~H+\", !pK 5.4], [\"= Na+ + Cl-\", !dG 0.0] with activity 0.1 on Na+ and Cl-. what's wrong, and once fixed what tests should I run to trust the result? also does pH 5.1 here mean inside the cell or the reservoir?",
+      "expected_output": "Diagnoses Rigid; proposes tests that can fail; explains pH_in.",
+      "files": [],
+      "assertions": [
+        "Identifies Rigid dropping site-site Coulomb as the cause",
+        "Recommends RigidAlchemical with keep_excluded_coulomb",
+        "Flags that activity 0.1 is not 100 mM concentration, because an activity coefficient is needed",
+        "Explains pH_in is pH_res with reservoir salt activity and that the move depends on a_H a_Cl and a_H/a_Na",
+        "Marks that interpretation as depending on the salt activity, or as non-consensus",
+        "Recommends an ACP vs DAP consistency test",
+        "Recommends an ideal limit test against Henderson-Hasselbalch",
+        "Warns closed RxMC seeded from open-run ion counts is a weak test because of charge balance"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "A referee on our charge regulation paper says we must discuss the Donnan potential because we couple to a salt reservoir. We use paired titration moves plus NaCl pair exchange in Faunus and only report ionization against reservoir conditions. Levin's papers would make a big deal of this. Do we need it? Draft a short reply to the referee and one or two sentences for the Methods.",
+      "expected_output": "Accurate position, fair to Levin, usable text.",
+      "files": [],
+      "assertions": [
+        "Says the potential cancels in pair moves and so is not needed to obtain the results",
+        "States that Donnan partitioning is nevertheless captured by the simulation",
+        "Names cases where it would be needed, such as relating system pH to reservoir pH",
+        "Methods text states pH is the reservoir value, or labels pH with phase",
+        "Methods text states that salt activity and pair exchange are used",
+        "Does not present the input interpretation as settled consensus, or attributes the positions",
+        "Is respectful and fair to Levin's position rather than dismissive"
+      ]
+    }
+  ]
+}

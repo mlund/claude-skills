@@ -1,0 +1,34 @@
+{
+  "name": "speciation",
+  "version": "0.1.0",
+  "description": "Write, review and develop algorithms for pH, titration, charge regulation and Donnan effects in molecular simulation.",
+  "author": {
+    "name": "Mikael Lund",
+    "url": "https://github.com/mlund"
+  },
+  "repository": "https://github.com/mlund/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "constant-ph",
+    "titration",
+    "charge-regulation",
+    "donnan",
+    "reaction-ensemble",
+    "monte-carlo"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Speciation",
+    "shortDescription": "House terms, pitfalls and tests for pH, titration and Donnan work in simulation.",
+    "longDescription": "Sourced house language with translations between schools, common traps, and verification tests for constant-pH, reaction-ensemble and Donnan simulations, in documents and in code.",
+    "developerName": "Mikael Lund",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Review this section on constant-pH simulations for terminology and physics."
+    ]
+  }
+}

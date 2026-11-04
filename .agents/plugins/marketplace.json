@@ -65,6 +65,18 @@
       "category": "Productivity"
     },
     {
+      "name": "speciation",
+      "source": {
+        "source": "local",
+        "path": "./plugins/speciation"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "llvm-mos",
       "source": {
         "source": "local",

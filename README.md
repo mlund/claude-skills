@@ -14,6 +14,7 @@ marketplace and a Codex plugin marketplace.
 /plugin install teaching
 /plugin install scientific-plotting
 /plugin install preferential-interactions
+/plugin install speciation
 /plugin install faunus
 /plugin install llvm-mos
 /plugin install mega65-dev
@@ -81,6 +82,13 @@ Reference files cover chart selection, color/accessibility, design principles,
 statistics & uncertainty, journal specs, and a review checklist. The skill
 triggers when making or critiquing a figure for a paper, poster, or talk.
 
+
+### speciation
+
+A skill for writing, reviewing and developing algorithms for pH, titration, charge
+regulation and Donnan effects in molecular simulation. The literature's disputes are
+largely about labels, so it pairs a **house language** (pH_sys and pH_res, GCT, ΔΦ) with
+translations between schools, common traps, and verification tests that can actually fail.
 
 ### preferential-interactions
 

@@ -1,0 +1,17 @@
+{
+  "name": "speciation",
+  "description": "Write, review and develop algorithms for pH, titration, charge regulation and Donnan effects in molecular simulation, with house terms, translations, pitfalls and verification tests.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mikael Lund"
+  },
+  "keywords": [
+    "constant-ph",
+    "titration",
+    "charge-regulation",
+    "donnan",
+    "reaction-ensemble",
+    "monte-carlo",
+    "terminology"
+  ]
+}
