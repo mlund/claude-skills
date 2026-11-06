@@ -4,7 +4,9 @@ description: >-
   Write and revise scientific prose (papers, abstracts, grants, reviews, theses)
   that is clear, concise, and reader-focused. Use when drafting or editing any
   scholarly text, or when the user asks to make writing more scientific,
-  clearer, tighter, more readable, or higher-impact. Combines Nature
+  clearer, tighter, more readable, or higher-impact. Also use to review or
+  critique a manuscript, grant, or thesis chapter before submission; long
+  texts are reviewed by parallel agents, one per concern. Combines Nature
   Masterclasses' "Writing for Greater Impact" readability principles, Strunk &
   White's Elements of Style, The Economist Style Guide, and a
   Kirkwood-Shumaker model for theoretical exposition.
@@ -36,6 +38,10 @@ Three style sources plus one worked exemplar, used together:
   sentence before the point is right.
 - **Revising:** run the checklist in §6 as separate passes, one concern per
   read. Don't fix everything at once.
+- **Reviewing** an existing text longer than ~800 words (paper, grant,
+  thesis chapter): read `references/review.md`. It asks the user where to
+  focus, then splits the §6 passes across parallel reviewer agents and merges
+  their findings.
 - **When you edit the user's text,** name the principle briefly (e.g. "active
   voice", "zombie noun", "ambiguous *this*") and show the before/after. Teach the
   pattern; don't lecture.
