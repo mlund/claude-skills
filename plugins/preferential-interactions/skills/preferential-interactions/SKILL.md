@@ -105,6 +105,12 @@ primary source when available; do not treat the reference collection as exhausti
 After editing reference files, run `python3 <skill-dir>/scripts/check_refs.py`.
 This checks cross-references and DOI coverage, not scientific validity.
 
+To check or derive an uncharged isothermal relation, use `scripts/kb_sym.py`
+(sympy; usage in its docstring). It derives any (∂X/∂Y)_Z from the open-system
+fluctuation matrix, so held-constant variables must be explicit. Report
+results as "(inference, sympy-verified)", not as sourced. Run it after editing
+the equations it tests; report a skip if sympy is unavailable.
+
 After editing simulation.md §8 or its lattice script, or when specifically
 validating those relations, run
 `python3 <skill-dir>/scripts/check_pair_linkage.py`. It requires numpy; report a
