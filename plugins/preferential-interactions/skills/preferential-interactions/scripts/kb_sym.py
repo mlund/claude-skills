@@ -21,6 +21,10 @@ Usage:
     g23 = s.d(s.m("3"), s.m("2"), fixed=[s.mu["1"], s.mu["3"]])
     check(s.dilute(g23, "2"), s.rho["3"] * (s.G("2", "3") - s.G("1", "2")))
 
+    # Linkage for A + B ⇌ C with a molal K, against ΔΓ23:
+    term = s.link("2", "3", scale="molal")
+    s.reaction(term, "2", {"A": -1, "B": -1, "C": 1})
+
 Run this file to verify the skill's equations; exit status 1 on a failure.
 Salts need an electroneutrality constraint that is not built in (salts.md §10).
 """
@@ -92,6 +96,39 @@ class KB:
         if sp.simplify(den.subs(r, 0)) != 0:
             return sp.cancel(num.subs(r, 0) / den.subs(r, 0))
         return sp.limit(expr, r, 0)
+
+    def link(self, solute, wrt, scale="molar", solvent="1"):
+        """One dilute species' term in (∂ln K/∂βμ_wrt)°_{T,P}: −(∂βμ°/∂βμ_wrt).
+
+        βμ° = βμ − ln c, with c on the scale K is written in. Only the molar case
+        is Ben-Naim's pseudo-chemical potential (ln Λ³ dropped: T-only). Molal and
+        mole-fraction cases are standard-state potentials on those scales; their
+        bulk-dependent terms decide whether an offset survives Σν (see reaction).
+        """
+        c = {"molar": self.rho[solute], "molal": self.m(solute, solvent),
+             "molefrac": self.x(solute)}[scale]
+        return -self.dilute(self.d(self.mu[solute] - sp.log(c), self.mu[wrt], [self.P, c]), solute)
+
+    def species(self, expr, solute, name):
+        """Rename the solute's KBIs so one dilute-solute result describes species `name`."""
+        return expr.subs({self.G(o, solute): self.G(o, name) for o in self.labels if o != solute})
+
+    def reaction(self, expr, solute, nu):
+        """Σ_k ν_k expr_k for a reaction among dilute species, e.g. nu={"A": -1, "B": -1, "C": 1}.
+
+        Valid because dilute species do not interact, so each enters through its own KBIs.
+        """
+        return sum(n * self.species(expr, solute, k) for k, n in nu.items())
+
+
+def offset(lhs, rhs, solute_syms):
+    """lhs − rhs if it is free of the solute's parameters, else None.
+
+    A "Δ" relation (linkage) holds exactly when this offset is solute-independent;
+    it then cancels only in reactions with Σν = 0.
+    """
+    diff = sp.simplify(sp.cancel(sp.together(lhs - rhs)))
+    return None if diff.free_symbols & set(solute_syms) else diff
 
 
 def check(lhs, rhs, trials=20, seed=1):
@@ -169,6 +206,28 @@ def _selftest():
     # Pseudo-chemical potential βμ2* = βμ2 − ln ρ2; ρ2 fixed is the dilute (T,P) path.
     dmu2 = s.dilute(s.d(mu2 - sp.log(r2), sp.log(r3), [s.P, r2]), "2")
     t("Pierce 26 −β∂μ2*/∂lnρ3 = Γ23 a33", -dmu2, g0 * a33)
+
+    # Wyman linkage, gamma-linkage.md §5; Record & Anderson 1995 (10.1016/S0006-3495(95)80254-7).
+    # "inference" rows follow from the identities above but are not printed in a source.
+    solute = [G12, G22, G23]
+    L = {sc: s.link("2", "3", sc) for sc in ("molar", "molal", "molefrac")}
+    t("Smith06a 45 per-species term = Γ23° (molar K: inference)", L["molar"], g0)
+    t("(inference) molal K: offset φ3/(a33φ1)", offset(L["molal"], g0, solute), phi3 / (a33 * phi1))
+    t("(inference) molal K: term = (∂m3/∂m2)°_{P,μ3}", L["molal"], gP3)
+    t("(inference) mole-frac K: offset solute-indep.",
+      offset(L["molefrac"], g0, solute) is not None, True)
+    t("Smith06a 46 φ1∂lnK − ρ3(G23 + V̄2°) solute-indep.",
+      offset(phi1 * L["molar"], r3 * G23 + r3 * V2, solute), -r3 * kTk)
+    t("Pierce 39–41 ∂lnK/∂ln a1 = Γ21 = −(ρ1/ρ3)Γ23",
+      s.link("2", "1", "molar"), -(r1 / r3) * g0)
+
+    # Stoichiometry: association A + B ⇌ C, Σν = −1, versus isomerisation N ⇌ D, Σν = 0.
+    assoc, iso = {"A": -1, "B": -1, "C": 1}, {"N": -1, "D": 1}
+    dG = lambda nu: s.reaction(g0, "2", nu)
+    t("(inference) A+B⇌C, molar K: ΔΓ23 exactly", s.reaction(L["molar"], "2", assoc), dG(assoc))
+    t("(inference) A+B⇌C, molal K: ΔΓ23 − φ3/(a33φ1)",
+      s.reaction(L["molal"], "2", assoc), dG(assoc) - phi3 / (a33 * phi1))
+    t("Pierce 5 N⇌D, molal K: ΔΓ23 (1:1 cancels)", s.reaction(L["molal"], "2", iso), dG(iso))
 
     width = max(len(n) for n, _ in results)
     for name, res in results:

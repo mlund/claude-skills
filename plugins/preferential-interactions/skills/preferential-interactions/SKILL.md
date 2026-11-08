@@ -107,7 +107,8 @@ This checks cross-references and DOI coverage, not scientific validity.
 
 To check or derive an uncharged isothermal relation, use `scripts/kb_sym.py`
 (sympy; usage in its docstring). It derives any (∂X/∂Y)_Z from the open-system
-fluctuation matrix, so held-constant variables must be explicit. Report
+fluctuation matrix, so held-constant variables must be explicit. For linkage
+claims, `link` and `reaction` test a stoichiometry on the scale K is written in. Report
 results as "(inference, sympy-verified)", not as sourced. Run it after editing
 the equations it tests; report a skip if sympy is unavailable.
 

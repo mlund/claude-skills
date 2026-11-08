@@ -61,8 +61,9 @@ are shared across the equation files; SKILL.md maps each § to its file.
 
 - Source: Pierce et al. 2008, Eq. 5 (10.1007/s12013-007-9005-0); Smith 2006a, Eq. 45 (10.1021/jp056100e); Record & Anderson 1995, Eq. 1 (10.1016/S0006-3495(95)80254-7).
 - a3 may be on any scale (Pierce).
-- Record & Anderson pair this (T, P) derivative with the *dialysis* Γ3,2J. Smith states that the relation is "valid for the molality based preferential interactions in any ensemble". Pierce adds the condition "only for processes with a 1:1 stoichiometry" (p. 9).
-- (inference) For A + B ⇌ AB the solute-independent offset of §6 does not cancel in Δ. It contributes φ3/(a33φ1) per molecule lost.
+- Record & Anderson pair this (T, P) derivative with the *dialysis* Γ3,2J. Smith states that the relation is "valid for the molality based preferential interactions in any ensemble". Pierce adds the condition "only for processes with a 1:1 stoichiometry" (p. 9). That condition is about the choice of ensemble for Γ23: the §6 offsets depend only on the bulk solution and cancel in Δ only when Σν = 0.
+- The scale of K matters separately. Pierce defines K from molar pseudo-chemical potentials (Eqs. 14, 31), and notes that the scale of K is arbitrary only "due to the unit stoichiometries … In general this will not be the case" (p. 9).
+- (inference, sympy-verified, `scripts/kb_sym.py`) Each dilute species contributes Γ_k + c to ∂ln K/∂ln a3, so a reaction gives ΔΓ23 + cΣν. The offset c depends on the scale of K. For **molar** K, c = 0 with dialysis Γ23, for any stoichiometry. For **molal** K, c = φ3/(a33φ1): the per-species term is exactly (∂m3/∂m2)°_{T,P,μ3}. Mole-fraction K gives another bulk-only c. For A + B ⇌ AB (Σν = −1), a molal K therefore gives ΔΓ23 − φ3/(a33φ1) with dialysis Γ23.
 - Resolved by pair distance, and for B22: simulation.md §8.
 
 **5.2 Concentration form and pseudo-chemical potential**:
