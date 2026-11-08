@@ -17,7 +17,7 @@ are shared across the equation files; SKILL.md maps each § to its file.
 
 - Source: Pierce et al. 2008, Eq. 11 (10.1007/s12013-007-9005-0).
 - Also: Simon et al. 2022, Eq. 3, written G^∞_ab (10.1063/5.0106162); Ganguly & van der Vegt 2013, Eq. 1 (10.1021/ct301017q).
-- Original theory: Kirkwood & Buff 1951 (10.1063/1.1748352). Its wording and equation numbers were not checked.
+- Original theory: Kirkwood & Buff 1951 (10.1063/1.1748352). Its wording and equation numbers were not checked. Ben-Naim 2024, ch. 3 (ISBN 978-0-443-21915-3) rederives it "essentially the same as in the original publication except for some additional details and one correction".
 
 **1.2 Fluctuation form** (an open region of volume V):
 

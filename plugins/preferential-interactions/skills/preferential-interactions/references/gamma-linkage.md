@@ -64,6 +64,11 @@ are shared across the equation files; SKILL.md maps each § to its file.
 - Record & Anderson pair this (T, P) derivative with the *dialysis* Γ3,2J. Smith states that the relation is "valid for the molality based preferential interactions in any ensemble". Pierce adds the condition "only for processes with a 1:1 stoichiometry" (p. 9). That condition is about the choice of ensemble for Γ23: the §6 offsets depend only on the bulk solution and cancel in Δ only when Σν = 0.
 - The scale of K matters separately. Pierce defines K from molar pseudo-chemical potentials (Eqs. 14, 31), and notes that the scale of K is arbitrary only "due to the unit stoichiometries … In general this will not be the case" (p. 9).
 - (inference, sympy-verified, `scripts/kb_sym.py`) Each dilute species contributes Γ_k + c to ∂ln K/∂ln a3, so a reaction gives ΔΓ23 + cΣν. The offset c depends on the scale of K. For **molar** K, c = 0 with dialysis Γ23, for any stoichiometry. For **molal** K, c = φ3/(a33φ1): the per-species term is exactly (∂m3/∂m2)°_{T,P,μ3}. Mole-fraction K gives another bulk-only c. For A + B ⇌ AB (Σν = −1), a molal K therefore gives ΔΓ23 − φ3/(a33φ1) with dialysis Γ23.
+- Sourced non-1:1 case: Ben-Naim 2024, Eq. 8.107 (ISBN 978-0-443-21915-3), for self-assembly nM ⇌ A in water W and solute S with M and A dilute, and Δμ = μ_A − nμ_M:
+
+      (∂Δμ/∂N_S)_{T,P,N_W,N_M,N_A} = (kT/Vη){(n−1) + ρ_W[nG_MS − G_AS − (n−1)G_SW − nG_MW + G_AW + (n−1)G_WW]}
+
+  Here η is the binary W–S η of kb-integrals.md §14. Eq. 8.62 is the 1:1 case, F ⇌ U, with Δμ = μ_F − μ_U and no bulk term. (inference, sympy-verified) Each species contributes Vβ(∂μ_i/∂N_S) = −V̄_S + ρ_W(G_iW − G_iS)/η. The bulk terms therefore sum to −ΣνV̄_S = (n−1)V̄_S: the stoichiometry offset for a K counted in molecule numbers of the closed system.
 - Resolved by pair distance, and for B22: simulation.md §8.
 
 **5.2 Concentration form and pseudo-chemical potential**:

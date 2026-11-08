@@ -229,6 +229,20 @@ def _selftest():
       s.reaction(L["molal"], "2", assoc), dG(assoc) - phi3 / (a33 * phi1))
     t("Pierce 5 N⇌D, molal K: ΔΓ23 (1:1 cancels)", s.reaction(L["molal"], "2", iso), dG(iso))
 
+    # Closed-system Le Chatelier form, Ben-Naim 2024 (ISBN 978-0-443-21915-3), W = 1, S = 3.
+    # Vβ(∂μ_i/∂N_S)_{T,P,N'}: at fixed N_W, dN_S = N_W d(ρ3/ρ1), with ρ2/ρ1 fixed.
+    etaWS = r1 + r3 + r1 * r3 * (G11 + G33 - 2 * G13)
+    f = s.dilute(s.d(mu2, r3 / r1, [s.P, r2 / r1]), "2") / r1
+    t("(inference) BN24 per species −V̄_S + ρ_W(G_iW − G_iS)/η",
+      f, -s2.vbar("3") + r1 * (G12 - G23) / etaWS)
+    n = sp.Symbol("n", positive=True)
+    W, S, M, A = "1", "3", "M", "A"
+    t("BN24 8.107 nM⇌A, Δμ = μ_A − nμ_M", s.reaction(f, "2", {"A": 1, "M": -n}),
+      ((n - 1) + r1 * (n * s.G(M, S) - s.G(A, S) - (n - 1) * G13 - n * s.G(M, W)
+                       + s.G(A, W) + (n - 1) * G11)) / etaWS)
+    t("BN24 8.62 F⇌U, Δμ = μ_F − μ_U", s.reaction(f, "2", {"F": 1, "U": -1}),
+      r1 * ((s.G("U", S) - s.G("F", S)) + (s.G("F", W) - s.G("U", W))) / etaWS)
+
     width = max(len(n) for n, _ in results)
     for name, res in results:
         print(f"{name:<{width}}  {res or 'FAIL'}")
