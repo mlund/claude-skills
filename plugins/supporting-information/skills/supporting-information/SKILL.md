@@ -39,6 +39,24 @@ available. `references/interview.md` lists the topics and where each answer goes
 ask (non-interactive runs), write the open questions to a `QUESTIONS.md` and continue with clearly
 marked placeholders rather than invented values; never invent ORCIDs, DOIs, affiliations or grants.
 
+Some answers are decisions, not facts, and belong to the authors: above all the license, but also
+embargo and upload type. Offer a recommendation with the reason, but don't apply it until the user
+picks. A license applied by default tends to ship unnoticed, and it binds every reuser. Without an
+answer, keep the existing license (or the template's), flag it as unconfirmed in `QUESTIONS.md`
+and the README checklist, and say so in your summary.
+
+## Licenses
+
+Code and data usually need different licenses: CC licenses are not meant for software, and software
+licenses fit data poorly. The common split is MIT (or BSD/Apache) in `LICENSE` for code and
+CC-BY-4.0 in `LICENSE-DATA` for data, figures and text. Say in the README which applies to what.
+
+`.zenodo.json` (legacy schema) takes a single `license`. Ask which one the record should carry; by
+default use the license of what dominates the deposit: the data license when data or results are the
+main content, the code license when it is mainly a tool. State the split in `description`, so the
+record doesn't misrepresent the other part. Keep `CITATION.cff` and `pyproject.toml` consistent
+with that choice: `pyproject.toml` describes the code, so it carries the code license.
+
 ## New
 
 1. `git clone https://github.com/mlund/template-for-supporting-information <dir>`, remove its `.git`,
@@ -107,8 +125,6 @@ Comments say why, not what.
   only `CITATION.cff`. Both must agree.
 - The GitHub integration adds the repository link to the record itself; don't repeat it in
   `related_identifiers`.
-- Code and data often need different licenses: e.g. MIT in `LICENSE`, CC-BY-4.0 in `LICENSE-DATA`.
-  CC licenses are not meant for software.
 - Commit `uv.lock` and `.python-version`; they are what makes the environment reproducible.
 - Zenodo needs the repository to be public, and a GitHub release triggers each new version and DOI.
   Point readers at the concept DOI (all versions).

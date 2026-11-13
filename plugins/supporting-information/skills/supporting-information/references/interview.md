@@ -11,7 +11,7 @@ options so the user confirms rather than types. Record each answer where listed.
 | Creators | Full names in author order, ORCIDs, affiliations | `.zenodo.json` `creators` ("Family, Given"), `CITATION.cff` `authors` (ORCID as URL) |
 | Contributors | People who helped but aren't authors, and their role (e.g. `DataCurator`, `Researcher`) | `.zenodo.json` `contributors` |
 | Funding | Funder and grant number | `.zenodo.json` `grants` (`{"id": "<funder DOI>::<grant>"}`); ask the user to confirm the funder exists in Zenodo |
-| License | Code license and data/text license, if different | `LICENSE`, `LICENSE-DATA`, `pyproject.toml` `license`, `.zenodo.json` `license`, `CITATION.cff` `license`, README badge |
+| License | Code license; data/text license if different; which one the Zenodo record carries (it takes one). A decision: recommend, don't apply until answered | `LICENSE` (code), `LICENSE-DATA`, `pyproject.toml` `license` (code), `.zenodo.json` `license` + split stated in `description`, `CITATION.cff` `license`, README |
 | Access | Open, embargoed (until when), restricted | `.zenodo.json` `access_right`, `embargo_date` |
 | Upload type | `workflow` for notebooks + code; `dataset` when data dominates; `software` for a tool | `.zenodo.json` `upload_type` |
 | Community | Zenodo community to submit to, if any | `.zenodo.json` `communities` |

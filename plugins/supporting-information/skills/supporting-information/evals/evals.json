@@ -15,7 +15,8 @@
         ".zenodo.json passes Zenodo's legacy schema (e.g. no 'language' field)",
         "CITATION.cff agrees with .zenodo.json on title and authors",
         "No ORCID is invented for Erik Lind",
-        "Missing information (Erik Lind's ORCID, license, funding) is listed as questions"
+        "Missing information (Erik Lind's ORCID, license, funding) is listed as questions",
+        "License is not changed from the template without the user's confirmation, and is asked about in QUESTIONS.md with a recommendation"
       ]
     },
     {
@@ -23,7 +24,9 @@
       "name": "adapt-messy-dir",
       "prompt": "Turn my project in {IN}/adapt-messy-dir into supporting information for the paper described in its notes.txt, ready for Zenodo. Put the new repository at {OUT}/lyso-si.",
       "expected_output": "Original untouched; new repo from the template; duplicated rdf code turned into one tested module; trajectory kept out of git with a deposit plan; questions for missing metadata.",
-      "files": ["evals/files/adapt-messy-dir"],
+      "files": [
+        "evals/files/adapt-messy-dir"
+      ],
       "assertions": [
         "The original directory is unchanged",
         "The new repository is separate and has the template layout (pyproject.toml, uv.lock, src/, tests/, notebooks/)",
@@ -33,7 +36,9 @@
         "No absolute /home/jane paths remain in the new repository",
         "ruff check and pytest pass in the new repository",
         "md.xtc is not committed to git, and a deposit plan for it (or for extracted features instead) is given",
-        "Missing information (ORCIDs, license) is listed as questions, not invented"
+        "Missing information (ORCIDs, license) is listed as questions, not invented",
+        "License is not decided unilaterally: asked about with a recommendation, and flagged as unconfirmed",
+        "If code and data licenses are split, the .zenodo.json description states which license covers what"
       ]
     },
     {
@@ -41,7 +46,9 @@
       "name": "review-flawed-repo",
       "prompt": "We're about to release {IN}/review-flawed-repo on Zenodo. Review it and tell me what to fix. Don't change anything.",
       "expected_output": "A read-only report ranked by impact with concrete fixes.",
-      "files": ["evals/files/review-flawed-repo"],
+      "files": [
+        "evals/files/review-flawed-repo"
+      ],
       "assertions": [
         "The reviewed directory is unchanged",
         "Flags that .zenodo.json's 'language' field is rejected by Zenodo's schema",
