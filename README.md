@@ -19,6 +19,7 @@ marketplace and a Codex plugin marketplace.
 /plugin install llvm-mos
 /plugin install mega65-dev
 /plugin install tersify
+/plugin install supporting-information
 ```
 
 Update later by re-running `/plugin marketplace add mlund/claude-skills` (or pulling this repo).
@@ -186,6 +187,24 @@ Claims are checked against `mega65-core` (VHDL and `iomap.txt`), the MEGA65 Book
 and the ROM sources, in that order of authority; known contradictions between them
 are recorded rather than papered over. The skill asks for paths to those
 repositories on first use and records nothing about the local setup.
+
+### supporting-information
+
+A skill for supporting information that a stranger can find, cite and rerun. It works in
+three modes:
+
+- **New** — clone the [SI template](https://github.com/mlund/template-for-supporting-information)
+  (uv + `uv.lock`, ruff, pytest, CI with `.zenodo.json` validation, `CITATION.cff`, `AGENTS.md`)
+  and fill in the metadata.
+- **Adapt** — copy an existing project into a fresh clone, leaving the original untouched; map
+  files onto the layout, decide which large files belong in git, and refactor the analysis code
+  test-first behind characterization tests so published numbers don't shift.
+- **Review** — a read-only report ranked by impact, grouped by FAIR principle, Zenodo,
+  reproducibility and code.
+
+It reads what the files already say and asks only for what's missing (authors, ORCIDs,
+affiliations, licenses, DOIs, funding). A bundled script builds content-hashed Zenodo archives
+for large deposits, so a new version re-uploads only what changed.
 
 ### tersify
 

@@ -1,0 +1,4 @@
+Paper draft: 'Salt-specific ion accumulation around lysozyme' -- submitted to J. Phys. Chem. B
+Authors: Jane Doe (Lund University), Per Persson (Lund University)
+md.xtc is 4.2 GB (100 ns, full system with water)
+fig2 from analysis.ipynb, fig3 from plot_fig3.py

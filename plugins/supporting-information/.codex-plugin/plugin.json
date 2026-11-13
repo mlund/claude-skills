@@ -1,0 +1,34 @@
+{
+  "name": "supporting-information",
+  "version": "0.1.0",
+  "description": "Set up, restructure, or review FAIR, reproducible supporting information for a paper and deposit it on Zenodo.",
+  "author": {
+    "name": "Mikael Lund",
+    "url": "https://github.com/mlund"
+  },
+  "repository": "https://github.com/mlund/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "supporting-information",
+    "zenodo",
+    "fair",
+    "reproducibility",
+    "uv",
+    "citation"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Supporting Information",
+    "shortDescription": "FAIR, reproducible SI repositories ready for Zenodo.",
+    "longDescription": "Scaffolds new supporting-information repositories from a template, adapts existing project directories into one without touching the original, and reviews deposits against FAIR, Zenodo and reproducibility checks, including the analysis code.",
+    "developerName": "Mikael Lund",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Turn this analysis directory into supporting information for my paper and prepare it for Zenodo."
+    ]
+  }
+}

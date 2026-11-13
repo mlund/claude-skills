@@ -1,0 +1,21 @@
+{
+    "title": "Charge regulation notebooks",
+    "description": "Notebooks for the paper.",
+    "creators": [
+        {
+            "name": "John Smith",
+            "affiliation": "Somewhere"
+        }
+    ],
+    "related_identifiers": [
+        {
+            "scheme": "url",
+            "identifier": "https://github.com/jsmith/charge-reg",
+            "relation": "isSupplementTo"
+        }
+    ],
+    "language": "eng",
+    "license": "CC-BY-4.0",
+    "access_right": "open",
+    "upload_type": "workflow"
+}

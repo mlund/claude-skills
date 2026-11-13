@@ -1,0 +1,16 @@
+{
+  "name": "supporting-information",
+  "description": "Set up, restructure, or review FAIR, reproducible supporting information for a paper and deposit it on Zenodo: uv, ruff, tests, metadata, licenses, large files.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mikael Lund"
+  },
+  "keywords": [
+    "supporting-information",
+    "zenodo",
+    "fair",
+    "reproducibility",
+    "uv",
+    "citation"
+  ]
+}

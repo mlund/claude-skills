@@ -1,0 +1,60 @@
+{
+  "skill_name": "supporting-information",
+  "evals": [
+    {
+      "id": 1,
+      "name": "new-repo",
+      "prompt": "I need a supporting-information repo for our paper 'Ion-specific swelling of polyelectrolyte gels' (accepted in Soft Matter, DOI 10.1039/d6sm00123a). Authors: Anna Berg (ORCID 0000-0002-1825-0097, Lund University) and Erik Lind (Uppsala University). It'll hold Python notebooks using numpy and scipy. Create it at {OUT}/gel-swelling-si.",
+      "expected_output": "A repo scaffolded from the template with consistent metadata, scipy added via uv, and missing items asked rather than invented.",
+      "files": [],
+      "assertions": [
+        "Repository has pyproject.toml, uv.lock, .zenodo.json, CITATION.cff and AGENTS.md",
+        "scipy and numpy are dependencies in pyproject.toml and uv.lock",
+        "ruff check and pytest pass in the new repository",
+        ".zenodo.json lists both authors and Anna Berg's ORCID, and the paper DOI as isSupplementTo",
+        ".zenodo.json passes Zenodo's legacy schema (e.g. no 'language' field)",
+        "CITATION.cff agrees with .zenodo.json on title and authors",
+        "No ORCID is invented for Erik Lind",
+        "Missing information (Erik Lind's ORCID, license, funding) is listed as questions"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "adapt-messy-dir",
+      "prompt": "Turn my project in {IN}/adapt-messy-dir into supporting information for the paper described in its notes.txt, ready for Zenodo. Put the new repository at {OUT}/lyso-si.",
+      "expected_output": "Original untouched; new repo from the template; duplicated rdf code turned into one tested module; trajectory kept out of git with a deposit plan; questions for missing metadata.",
+      "files": ["evals/files/adapt-messy-dir"],
+      "assertions": [
+        "The original directory is unchanged",
+        "The new repository is separate and has the template layout (pyproject.toml, uv.lock, src/, tests/, notebooks/)",
+        "A source-to-destination mapping of the original files is given",
+        "The duplicated rdf function lives once in src/ and both figure drivers import it",
+        "Tests cover the rdf function, including one pinning its current output",
+        "No absolute /home/jane paths remain in the new repository",
+        "ruff check and pytest pass in the new repository",
+        "md.xtc is not committed to git, and a deposit plan for it (or for extracted features instead) is given",
+        "Missing information (ORCIDs, license) is listed as questions, not invented"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "review-flawed-repo",
+      "prompt": "We're about to release {IN}/review-flawed-repo on Zenodo. Review it and tell me what to fix. Don't change anything.",
+      "expected_output": "A read-only report ranked by impact with concrete fixes.",
+      "files": ["evals/files/review-flawed-repo"],
+      "assertions": [
+        "The reviewed directory is unchanged",
+        "Flags that .zenodo.json's 'language' field is rejected by Zenodo's schema",
+        "Flags the title mismatch between README and .zenodo.json",
+        "Flags missing ORCID or 'Family, Given' creator format",
+        "Flags missing related publication DOI",
+        "Flags environment.yml without pinned versions or lock file",
+        "Flags the GitHub action pinned to @main",
+        "Flags CC-BY as a license for code",
+        "Flags the absolute path in the notebook",
+        "Flags missing CITATION.cff",
+        "Findings are ranked by impact and each has a concrete fix"
+      ]
+    }
+  ]
+}

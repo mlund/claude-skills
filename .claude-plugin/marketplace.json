@@ -52,6 +52,11 @@
       "name": "tersify",
       "source": "./plugins/tersify",
       "description": "Cut code comments, docs, and commit messages to terse, why-over-what prose. Runs on Haiku."
+    },
+    {
+      "name": "supporting-information",
+      "source": "./plugins/supporting-information",
+      "description": "Set up, restructure, or review FAIR, reproducible supporting information for a paper and deposit it on Zenodo."
     }
   ]
 }
