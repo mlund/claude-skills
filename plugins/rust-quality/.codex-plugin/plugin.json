@@ -1,0 +1,36 @@
+{
+  "name": "rust-quality",
+  "version": "0.1.0",
+  "description": "Implement Rust features with explicit invariants, TDD and deep-module design, and set up the cargo quality gates (lints, cargo-deny layering bans, xtask verify) that enforce the mechanical rules.",
+  "author": {
+    "name": "Mikael Lund",
+    "url": "https://github.com/mlund"
+  },
+  "repository": "https://github.com/mlund/claude-skills",
+  "license": "MIT",
+  "keywords": [
+    "rust",
+    "cargo",
+    "invariants",
+    "tdd",
+    "clippy",
+    "cargo-deny",
+    "code-quality"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Rust Quality",
+    "shortDescription": "High-assurance Rust features: invariants first, then TDD, verify and adversarial review.",
+    "longDescription": "Two skills: rust-quality-setup moves every machine-checkable rule into cargo config (workspace lints, clippy.toml, cargo-deny bans for crate layering, a std-only cargo xtask verify/mutants), and rust-feature runs each feature through explicit invariants, deep-module design, TDD at agreed seams, the verify matrix and an adversarial review.",
+    "developerName": "Mikael Lund",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use Rust Quality to set up lints and xtask verify in this workspace.",
+      "Use Rust Quality to implement this feature with explicit invariants."
+    ]
+  }
+}

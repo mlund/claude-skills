@@ -1,0 +1,17 @@
+{
+  "name": "rust-quality",
+  "description": "Implement Rust features with explicit invariants, TDD and deep-module design, and set up the cargo quality gates (lints, cargo-deny layering bans, xtask verify) that enforce the mechanical rules.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mikael Lund"
+  },
+  "keywords": [
+    "rust",
+    "cargo",
+    "invariants",
+    "tdd",
+    "clippy",
+    "cargo-deny",
+    "code-quality"
+  ]
+}
