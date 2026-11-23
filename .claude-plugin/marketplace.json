@@ -57,6 +57,11 @@
       "name": "supporting-information",
       "source": "./plugins/supporting-information",
       "description": "Set up, restructure, or review FAIR, reproducible supporting information for a paper and deposit it on Zenodo."
+    },
+    {
+      "name": "rust-quality",
+      "source": "./plugins/rust-quality",
+      "description": "Implement Rust features with explicit invariants, TDD and deep-module design, and set up the cargo quality gates (lints, cargo-deny layering bans, xtask verify) that enforce the mechanical rules."
     }
   ]
 }

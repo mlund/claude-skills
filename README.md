@@ -20,6 +20,7 @@ marketplace and a Codex plugin marketplace.
 /plugin install mega65-dev
 /plugin install tersify
 /plugin install supporting-information
+/plugin install rust-quality
 ```
 
 Update later by re-running `/plugin marketplace add mlund/claude-skills` (or pulling this repo).
@@ -223,6 +224,30 @@ Claude Code only: Codex plugins lack agents.
 Run it with `/tersify [paths | commit ref | commit message]`, or ask for it by
 name. The skill passes the change's intent to the agent, which cannot see the
 conversation, then reviews the agent's edits before reporting.
+
+### rust-quality
+
+Two skills for high-assurance Rust work. The split follows one rule: anything a
+machine can check goes into cargo config, and only judgement stays in the prompt.
+
+- **rust-quality-setup** — a one-off per repo. Adds workspace lints (no
+  `unwrap`/`expect`/`panic` outside tests, `// SAFETY:` comments, `#[expect]`
+  with reasons, rustdoc `# Errors`/`# Panics`), `clippy.toml`, a `deny.toml`
+  whose `wrappers` bans enforce crate layering, and a std-only
+  `cargo xtask verify` / `cargo xtask mutants`. It measures lint violations and
+  agrees a rollout before turning anything on, and warns that the `#[allow]`
+  lints do nothing below MSRV 1.81.
+- **rust-feature** — the per-feature workflow: delegated reconnaissance,
+  explicit data/transition/architectural invariants with an enforcement ladder
+  (unrepresentable → encapsulated → runtime-checked → test-only), deep-module
+  interface design, TDD at agreed seams, failure-path and property tests,
+  verification on a cheaper model, then `/code-review medium`, `/simplify` and an
+  adversarial review that must back each hypothesis with a failing test.
+
+rust-feature builds on `tdd` and `codebase-design` from
+[mattpocock/skills](https://github.com/mattpocock/skills). Its review ritual uses
+Claude Code's built-in `/code-review` and `/simplify`; under Codex, substitute
+your own review step.
 
 ## Layout
 
