@@ -85,4 +85,6 @@ and a map from each topic to its documentation page and example files.
 
 - Use `spline` tabulation for performance; add `bounding_spheres: true` for rigid molecules
 - Use `replace:` for pairs that fully override `default`; `append:` for pairs that extend it
-- `!Stochastic` collections for mixed molecule types; `!Deterministic` with `repeat` for sweeps
+- `!Stochastic` collections for mixed molecule types; `!Deterministic` to run every move each cycle
+- Counters: `propagate.steps` steps per run; `cycles` draws per collection per step; `repeat` trial
+  moves per draw; LD `timesteps` per step. "Sweep" means Gibbs only (`intra_steps` steps + inter-box moves)

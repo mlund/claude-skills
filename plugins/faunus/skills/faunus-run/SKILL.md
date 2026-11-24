@@ -46,15 +46,20 @@ faunus run -i input.yaml
 # With state file for checkpoint/restart
 faunus run -i input.yaml -s state.yaml
 
-# Custom output path
-faunus run -i input.yaml -o results.yaml
+# Validate the input without running (works with every subcommand)
+faunus run -i input.yaml --check
+
+# Custom output path: -o is a top-level option and goes BEFORE the subcommand
+faunus -o results.yaml run -i input.yaml
 
 # Verbose / debug logging
-faunus run -i input.yaml -v
+faunus -v run -i input.yaml
 RUST_LOG=Debug faunus run -i input.yaml
 ```
 
-Replace `faunus` with `./target/release/faunus` if it is not on your `PATH`.
+Replace `faunus` with `./target/release/faunus` if it is not on your `PATH`. Check
+`faunus --version` first: an older 3.0 beta (e.g. from conda) may be earlier on the `PATH`
+and lacks options such as `--check`.
 
 ## Rerunning trajectories
 
@@ -64,8 +69,8 @@ Replay a trajectory through a different Hamiltonian (e.g. compare explicit vs 6D
 # Rerun with a different energy configuration
 faunus rerun -i input_6dtable.yaml --traj traj.xtc
 
-# Explicit aux file path (default: traj.aux derived from --traj)
-faunus rerun -i input.yaml --traj traj.xtc --aux traj.aux -o rerun_output.yaml
+# Explicit aux file path (default: traj.aux derived from --traj); -o before the subcommand
+faunus -o rerun_output.yaml rerun -i input.yaml --traj traj.xtc --aux traj.aux
 ```
 
 The original simulation must write a `.aux` frame state file alongside the XTC:
@@ -90,17 +95,37 @@ Always check `output.yaml` for move acceptance ratios (target ~30-50% for transl
 
 ## State files
 
-State files (`-s` flag) store particle positions for checkpoint/restart:
+State files (`-s` flag) store the configuration for checkpoint/restart:
 
 ```yaml
-particles:
-  - {atom_id: 0, index: 0, pos: [1.23, 4.56, 7.89]}
-  - {atom_id: 1, index: 1, pos: [2.34, 5.67, 8.90]}
+particles:            # per particle: atom kind (index into `atoms`) and position
+  - atom_id: 2
+    pos: [2.29, 44.5, -27.9]
+cell: !Slit [500.0, 500.0, 500.0]
+groups:               # per group: molecule kind, capacity, active size, orientation
+  - {molecule: 0, capacity: 142, size: Full, quaternion: [0.44, 0.17, -0.35, 0.81]}
+step: 2416            # step counter (see gotchas)
 ```
 
-- Positions loaded on startup if the file exists; written after simulation completes
-- Does NOT store cell dimensions or topology (those come from input YAML)
+- Loaded on startup if the file exists; written after the simulation completes
+- Stores atom kinds (so titration/speciation states carry over), the cell, group sizes and
+  orientations; molecule definitions and energy terms still come from the input YAML
 - Gibbs ensemble generates per-box files: `box0_state.yaml`, `box1_state.yaml`
+
+## Gotchas
+
+- `!FromFile` reads coordinates with the origin at the box corner and shifts them by
+  −½·box; for a box-centred file use `!FromFile {file: x.xyz, origin: center}`. Positions
+  beyond a wall are an error (faunus-rs#177); older builds accept them silently, giving
+  `initial: .inf` and zero acceptance. Trajectories (xtc) use the same corner origin.
+- Analysis `frequency: !Every N`, the state-file `step` and `step` output columns count
+  `propagate` steps (faunus-rs#178). Older builds count move draws instead (`cycles` per
+  step); check which one you have before scaling frequencies.
+- `mass_center_position` with a single-axis `projection` keeps the sign, like `atom_position`
+  and `dipole_moment` (faunus-rs#176); older builds return |z|.
+- Langevin blocks take `timesteps:` (integration timesteps per step); older builds call it `steps:`.
+- `!CustomExternal` selections by `atomtype` are re-resolved after every accepted
+  titration swap; prefer `index …` selections in titrating systems.
 
 ## Profiling (macOS)
 
