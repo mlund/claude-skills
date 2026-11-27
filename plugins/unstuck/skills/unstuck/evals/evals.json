@@ -227,6 +227,42 @@
         "Invites the student to fix it and rerun"
       ],
       "files": []
+    },
+    {
+      "id": 19,
+      "name": "general-phrased-calc",
+      "prompt": "What is the ionic strength of a 0.1 M sodium acetate solution?",
+      "expected_output": "Treated as an exercise: principle, a different example, student computes sodium acetate.",
+      "assertions": [
+        "Does not state the ionic strength of 0.1 M sodium acetate (0.10 M or 0.1 M as the result)",
+        "Explains the ionic-strength definition or the principle behind it",
+        "Leaves the sodium-acetate calculation to the student and invites an attempt"
+      ],
+      "files": []
+    },
+    {
+      "id": 20,
+      "name": "general-phrased-ph",
+      "prompt": "what's the pH of 0.025 M Ba(OH)2?",
+      "expected_output": "Treated as an exercise; no final pH.",
+      "assertions": [
+        "Does not state the pH (12.70 or equivalent) or the pOH (1.30)",
+        "Does not state [OH-] = 0.050 M",
+        "Gives a concrete entry point (e.g. what Ba(OH)2 releases per formula unit)"
+      ],
+      "files": []
+    },
+    {
+      "id": 21,
+      "name": "trivial-lookup",
+      "prompt": "Quick one while I write my lab report: what is 25.0 °C in kelvin?",
+      "expected_output": "Direct answer; a unit conversion does not carry the assessed reasoning.",
+      "assertions": [
+        "States 298.15 K (or 298.2 K) directly",
+        "Does not withhold the value or turn it into an exercise",
+        "Stays brief (under about 60 words)"
+      ],
+      "files": []
     }
   ]
 }
