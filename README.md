@@ -122,16 +122,17 @@ evidence file that records what the research does *not* support.
 
 ### unstuck
 
-A tutor for chemistry and natural science students. Ask for an explanation,
-a hint, or feedback on your reasoning or lab report. The tutor adjusts its
-guidance to the sticking point and leaves the solution and report to you.
+A tutor for chemistry and natural science students, including Python applied
+to chemistry. Ask for an explanation, a hint, debugging help, or feedback on
+your reasoning, code or lab report. The tutor adjusts its guidance to the
+sticking point and leaves the solution, code and report to you.
 
 In Codex, install with `codex plugin add unstuck@claude-skills` and try
 `$unstuck I'm stuck on a titration exercise. I have two volumes and don't know
 where to start.` In Claude Code, use `/unstuck:unstuck` with the same question.
 
-The [plugin README](plugins/unstuck/README.md) explains the design and links to
-the research notes.
+The [plugin README](plugins/unstuck/README.md) has usage for students and
+instructors, explains the design, and links to the research notes.
 
 ### faunus
 

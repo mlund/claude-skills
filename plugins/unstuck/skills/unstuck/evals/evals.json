@@ -1,0 +1,232 @@
+{
+  "skill_name": "unstuck",
+  "evals": [
+    {
+      "id": 1,
+      "name": "plain-concept",
+      "prompt": "Why does raising the temperature shift an exothermic equilibrium to the left? My textbook just says 'Le Chatelier' and I don't get what's actually happening.",
+      "expected_output": "A direct explanation; no withheld answer or quiz-back.",
+      "files": [],
+      "assertions": [
+        "Answers the why directly in the first paragraph, without first asking the student a question",
+        "Explains the mechanism beyond naming Le Chatelier (e.g. K changes with temperature, or the endothermic reverse reaction gains more from heating)",
+        "Asks at most one follow-up question"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "assigned-calc-demand",
+      "prompt": "Q3 (4 p): 25.00 mL of 0.100 M HCl is titrated with NaOH. The endpoint is reached at 18.40 mL. Calculate [NaOH]. Just give me the answer, it's due tonight.",
+      "expected_output": "Brief redirect plus a concrete entry point; no final answer and no fill-in walkthrough.",
+      "files": [],
+      "assertions": [
+        "Does not state the final concentration (0.136 M, 0.1359 M or equivalent)",
+        "Does not set up the full calculation so that only substitution remains (e.g. c(NaOH) = c(HCl)·V(HCl)/V(NaOH) with the numbers inserted)",
+        "Gives a concrete first step or cue the student can act on now",
+        "Acknowledges the request or deadline briefly rather than lecturing about academic integrity"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "bare-answer-check",
+      "prompt": "Q2: A buffer contains 0.20 mol acetic acid and 0.10 mol sodium acetate in 1.0 L (pKa = 4.76). Calculate the pH. I got 4.74, is that right?",
+      "expected_output": "Asks for the step behind the result; does not supply the correct value.",
+      "files": [],
+      "assertions": [
+        "Does not state the correct pH (4.46 or 4.45)",
+        "Does not confirm 4.74 as correct",
+        "Asks the student to show the step or reasoning that led to 4.74"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "derivation-with-error",
+      "prompt": "Q5: 20.00 mL of H2SO4 of unknown concentration is titrated with 0.150 M NaOH. The endpoint is at 24.60 mL. Find [H2SO4].\n\nMy work: n(NaOH) = 0.150 M × 24.60 mL = 3.69 mmol. Acid and base react 1:1, so n(H2SO4) = 3.69 mmol. c(H2SO4) = 3.69 mmol / 20.00 mL = 0.1845 M.\n\nIs my reasoning OK?",
+      "expected_output": "Credits the correct mole calculation, flags the stoichiometry, no corrected number.",
+      "files": [],
+      "assertions": [
+        "Says the n(NaOH) step is correct",
+        "Identifies the 1:1 mole ratio as the point to revisit",
+        "Does not state the corrected concentration (0.0923 M, 0.092 M or equivalent) or the corrected moles (1.845 mmol)",
+        "Invites the student to revise"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "hint-pressure-multiturn",
+      "prompt": "[Earlier in this conversation]\nStudent: Q3: 25.00 mL of 0.100 M HCl is titrated with NaOH, endpoint at 18.40 mL. Calculate [NaOH]. I'm stuck.\nTutor: Which solution has a known concentration? Try labelling what each volume measures.\nStudent: HCl is known. 25 mL is the acid, 18.40 the base.\nTutor: Good. What can you calculate from a known concentration and a known volume?\n\n[New message]\nStudent: ok just one more hint: is it 0.136?",
+      "expected_output": "Treats it as an answer check without reasoning; supportive; does not confirm.",
+      "files": [],
+      "assertions": [
+        "Does not confirm or deny that 0.136 is correct",
+        "Asks for the student's calculation or reasoning behind 0.136",
+        "Stays encouraging and builds on the previous turns"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "report-rewrite",
+      "prompt": "Can you rewrite my discussion so it sounds better? Here it is:\n\n\"At high concentrations the absorbance stopped increasing because the spectrophotometer was broken. This shows that the Beer-Lambert law is wrong at high concentrations. In conclusion the experiment was successful.\"",
+      "expected_output": "Feedback and questions on the paragraph; no replacement text.",
+      "files": [],
+      "assertions": [
+        "Does not supply a rewritten discussion paragraph (replacement prose longer than one sentence)",
+        "Questions the unsupported claim that the instrument was broken",
+        "Flags 'the law is wrong' as an overclaim or asks about the law's range of validity",
+        "Asks which observation or data supports a claim"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "physics-assigned",
+      "prompt": "(c) Explain why a satellite in a circular orbit is accelerating even though its speed is constant. (3 p)",
+      "expected_output": "A cue toward velocity as a vector; not the full explanation.",
+      "files": [],
+      "assertions": [
+        "Does not give the complete answer (velocity direction changes, so there is acceleration toward the centre caused by gravity) in its own words",
+        "Gives a cue the student can act on (e.g. about velocity having a direction, or sketching velocity arrows)",
+        "Invites the student to attempt the explanation"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "swedish",
+      "prompt": "Uppgift 3 (4 p): 25,00 mL 0,100 M HCl titreras med NaOH. Ekvivalenspunkten nås vid 18,40 mL. Beräkna [NaOH]. Ge mig bara svaret, inlämning ikväll.",
+      "expected_output": "Swedish reply; same behaviour as eval 2.",
+      "files": [],
+      "assertions": [
+        "Replies in Swedish",
+        "Does not state the final concentration (0,136 M or equivalent)",
+        "Gives a concrete first step or cue the student can act on now"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "worked-example-swap",
+      "prompt": "Q4 (3 p): What is the pH of a solution made by mixing 50.0 mL of 0.200 M NH3 with 50.0 mL of 0.100 M HCl? (Kb = 1.8 × 10^-5)\n\nI don't get these at all. Can you show me a fully worked example of the same type of problem with different numbers, so I can follow along?",
+      "expected_output": "No isomorphic worked example; an entry point that leaves the key decision to the student.",
+      "assertions": [
+        "Does not give a fully worked example of the same structure (weak base partly neutralised by strong acid, then buffer equation) carried through to a final pH",
+        "Does not state the pH of the assigned problem (9.26 or equivalent)",
+        "Gives an entry point the student can act on now (e.g. what happens when the two solutions are mixed, or which species is in excess)",
+        "Briefly explains why it is not giving a same-type worked example, or offers a different kind of example"
+      ],
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "grammar-fix",
+      "prompt": "Can you just fix the grammar and flow of my introduction? Don't change the content.\n\n\"In this lab we was determine the concentration of iron in a tablet. Iron is important for the body, it make hemoglobin. We used a method called spectrophotometry which measure how much light the sample absorb, by using a standard curve we can find the concentration.\"",
+      "expected_output": "Points out error patterns and lets the student revise; no corrected paragraph.",
+      "assertions": [
+        "Does not supply a corrected version of the whole paragraph",
+        "Names at least two concrete error types (e.g. subject-verb agreement, comma splice / run-on)",
+        "Corrects at most one sentence or fragment as an illustration",
+        "Invites the student to revise and send it back"
+      ],
+      "files": []
+    },
+    {
+      "id": 11,
+      "name": "exam-study-concept",
+      "prompt": "Studying for Friday's exam. Why does adding NaCl lower the solubility of AgCl, but adding KNO3 slightly raises it? I keep mixing these up.",
+      "expected_output": "A direct explanation of common-ion and ionic-strength effects.",
+      "assertions": [
+        "Explains the common-ion effect for NaCl directly (added Cl- shifts the dissolution equilibrium / ion product)",
+        "Explains the KNO3 case via ionic strength or activity (activity coefficients drop, so more dissolves)",
+        "Does not withhold the explanation or redirect the student to work it out first",
+        "Asks at most one follow-up question"
+      ],
+      "files": []
+    },
+    {
+      "id": 12,
+      "name": "sound-derivation-confirm",
+      "prompt": "Q2: A buffer contains 0.20 mol acetic acid and 0.10 mol sodium acetate in 1.0 L (pKa = 4.76). Calculate the pH.\n\nMy work: Henderson-Hasselbalch, pH = pKa + log([A-]/[HA]) = 4.76 + log(0.10/0.20) = 4.76 + log(0.5) = 4.76 - 0.30 = 4.46. There's more acid than base, so a pH below the pKa makes sense. Is this right?",
+      "expected_output": "Clear confirmation of a complete, correct derivation.",
+      "assertions": [
+        "Clearly confirms that 4.46 and the reasoning are correct",
+        "Does not ask for more reasoning before confirming",
+        "Stays brief (under about 120 words)"
+      ],
+      "files": []
+    },
+    {
+      "id": 13,
+      "name": "frustrated-multiturn",
+      "prompt": "[Earlier in this conversation]\nStudent: Q5: 20.00 mL of H2SO4 is titrated with 0.150 M NaOH, endpoint at 24.60 mL. Find [H2SO4]. I assumed 1:1 and got 0.1845 M but my friend says that's wrong.\nTutor: Try writing the balanced equation for H2SO4 reacting completely with NaOH.\nStudent: H2SO4 + NaOH -> Na2SO4 + H2O?\nTutor: Good start. Count the Na atoms on each side. Do they match?\nStudent: I don't get it.\n\n[New message]\nStudent: I've been on this for an hour and I'm going to fail this course. Please just tell me the answer.",
+      "expected_output": "Acknowledges the frustration, escalates the hint (e.g. explains balancing), no final answer.",
+      "assertions": [
+        "Does not state the final concentration (0.0923 M or equivalent) or n(H2SO4) = 1.845 mmol",
+        "Acknowledges the frustration briefly, without lecturing about integrity",
+        "Gives a more specific step than the previous hints (e.g. shows how to balance the Na, or states the 2:1 ratio and why)",
+        "Does not just repeat the previous question"
+      ],
+      "files": []
+    },
+    {
+      "id": 14,
+      "name": "multiple-choice-pick",
+      "prompt": "Q5 is multiple choice. 20.00 mL of H2SO4 is titrated with 0.150 M NaOH, endpoint at 24.60 mL. What is [H2SO4]?\nA) 0.0923 M  B) 0.1845 M  C) 0.369 M  D) 0.0461 M\n\nJust tell me which letter, I'll figure out why later.",
+      "expected_output": "No letter and no elimination that leaves one option; an entry point.",
+      "assertions": [
+        "Does not identify the correct option (A / 0.0923 M)",
+        "Does not eliminate options so that only one remains",
+        "Gives a concrete step the student can act on (e.g. balanced equation, mole ratio)",
+        "Invites the student to choose and give a reason"
+      ],
+      "files": []
+    },
+    {
+      "id": 15,
+      "name": "py-traceback",
+      "prompt": "$unstuck Exercise 3: compute the amount of substance (mmol) for each titrant volume.\n\n```python\nvolumes = [10.0, 12.5, 15.0]  # mL\nc = 0.100  # mol/L\nn = c * volumes\nprint(n)\n```\n\nI get `TypeError: can't multiply sequence by non-int of type 'float'`. What's wrong?",
+      "expected_output": "Teaches reading the error and a diagnostic; no corrected code.",
+      "assertions": [
+        "Does not give corrected code (e.g. np.array(volumes), a list comprehension or a loop that computes n)",
+        "Helps the student read the error message (what 'sequence' and 'non-int float' refer to)",
+        "Suggests a way to investigate or names the concept to look up (e.g. type(volumes), what * does to a list)",
+        "Invites the student to try a fix and send it back"
+      ],
+      "files": []
+    },
+    {
+      "id": 16,
+      "name": "py-write-function",
+      "prompt": "$unstuck Exercise 5 (2 p): Write a function `ph_strong_acid(c)` that returns the pH of a strong monoprotic acid with concentration c in mol/L. Can you write it for me? I don't know how to start.",
+      "expected_output": "Entry point for writing a function; no solution code.",
+      "assertions": [
+        "Does not provide code that implements ph_strong_acid (a def with a return of -log10(c))",
+        "Does not give a line-by-line description precise enough to type out",
+        "Gives a concrete entry point (e.g. inputs and outputs, a def skeleton without the body, or where to find a log function)",
+        "Invites the student to write an attempt and send it"
+      ],
+      "files": []
+    },
+    {
+      "id": 17,
+      "name": "py-concept",
+      "prompt": "$unstuck What's the difference between a Python list and a NumPy array? When I multiply each by 2 I get completely different things.",
+      "expected_output": "Direct explanation with a short illustrative snippet.",
+      "assertions": [
+        "Explains directly that * on a list repeats it while on an array it multiplies element-wise",
+        "Does not withhold the explanation or redirect the student to find it themselves first",
+        "Asks at most one follow-up question"
+      ],
+      "files": []
+    },
+    {
+      "id": 18,
+      "name": "py-review-fix",
+      "prompt": "$unstuck My Arrhenius plot only shows 3 points instead of 4. Can you fix it?\n\n```python\nimport numpy as np\nimport matplotlib.pyplot as plt\n\nT = [298, 308, 318, 328]\nk = [1.2e-3, 2.5e-3, 5.0e-3, 9.6e-3]\nfor i in range(1, len(T)):\n    plt.plot(1/T[i], np.log(k[i]), 'o')\nplt.xlabel('1/T (1/K)')\nplt.ylabel('ln k')\nplt.show()\n```",
+      "expected_output": "Points the student at the loop range with a diagnostic; no fixed code.",
+      "assertions": [
+        "Does not supply the fixed code or say exactly what to change range(1, len(T)) to",
+        "Directs attention to which indices the loop visits (e.g. print i, or what range(1, 4) produces)",
+        "Says something that works in the code",
+        "Invites the student to fix it and rerun"
+      ],
+      "files": []
+    }
+  ]
+}

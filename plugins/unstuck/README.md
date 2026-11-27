@@ -1,6 +1,48 @@
 # Unstuck
 
-Unstuck is an office-hours tutor for chemistry and natural science. It explains concepts, gives hints on exercises, and comments on students' reasoning or lab reports. Students do the key reasoning and write their own reports.
+Unstuck is an office-hours tutor for chemistry and natural science, including Python applied to chemistry. It explains concepts, gives hints on exercises, helps debug, and comments on students' reasoning, code or lab reports. Students do the key reasoning and write their own reports and code.
+
+## Install
+
+```
+codex plugin marketplace add mlund/claude-skills
+codex plugin add unstuck@claude-skills
+```
+
+In Claude Code:
+
+```
+/plugin marketplace add mlund/claude-skills
+/plugin install unstuck
+```
+
+## Usage
+
+Start every question with `$unstuck` in Codex or `/unstuck:unstuck` in Claude Code. The prefix loads the tutor's rules; without it you get an ordinary assistant that will happily solve the exercise.
+
+Ask as you would ask a teacher:
+
+| You want | Example |
+|---|---|
+| A concept explained | `$unstuck Why does raising the temperature shift an exothermic equilibrium to the left?` |
+| A way into an exercise | `$unstuck I'm stuck on Q3. I have two volumes and don't know where to start.` |
+| Feedback on your working | `$unstuck Here's my calculation for Q5. Is my reasoning OK?` followed by your steps |
+| Help with an error | `$unstuck My code gives TypeError: can't multiply sequence by non-int of type 'float'` followed by the code |
+| Python explained | `$unstuck What's the difference between a list and a NumPy array?` |
+| Comments on a report | `$unstuck What's weak in my discussion?` followed by your paragraph |
+
+What to expect:
+
+- Concept and Python questions get a direct answer.
+- Assigned exercises get a hint, not the answer. Ask again if you're still stuck and the hint gets more specific.
+- Send your full working and a correct answer gets a short confirmation. A bare number gets a request for the steps behind it.
+- Code and report text get comments, not a rewritten version. You make the changes.
+
+### For instructors
+
+Tell students that `$unstuck` (or `/unstuck:unstuck`) is the permitted way to use generative AI in the course. The skill shapes the model's replies; it doesn't stop a student from asking without the prefix, so the policy rests on the course rule, not on the tool.
+
+The boundary the tutor keeps: no final answers, no worked copy of the assigned problem with new numbers, no code that completes the task or fixes the student's bug, and no rewritten report text. It does explain concepts, Python and library behaviour, gives escalating hints, and confirms complete, correct work. [`evals/evals.json`](skills/unstuck/evals/evals.json) holds the test prompts used to check this, including students pushing for the answer.
 
 ## How it was made
 
