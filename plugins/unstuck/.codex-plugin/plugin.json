@@ -1,0 +1,24 @@
+{
+  "name": "unstuck",
+  "version": "0.1.0",
+  "description": "Tutor students in chemistry and natural science with concept explanations, hints, and feedback that preserve productive struggle.",
+  "author": {
+    "name": "Mikael Lund",
+    "url": "https://github.com/mlund"
+  },
+  "repository": "https://github.com/mlund/claude-skills",
+  "license": "MIT",
+  "keywords": ["chemistry", "science", "tutoring", "productive struggle"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Unstuck",
+    "shortDescription": "Chemistry and science tutoring",
+    "longDescription": "Ask for a concept explanation, a hint on an exercise, or feedback on your reasoning or lab report. The tutor helps you take the next step while you do the reasoning and write the report.",
+    "developerName": "Mikael Lund",
+    "category": "Productivity",
+    "defaultPrompt": [
+      "$unstuck Why does a catalyst change the reaction rate?",
+      "$unstuck I'm stuck on a titration exercise. Help me find a first step."
+    ]
+  }
+}

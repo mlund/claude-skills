@@ -12,6 +12,7 @@ marketplace and a Codex plugin marketplace.
 /plugin marketplace add mlund/claude-skills
 /plugin install scientific-writing
 /plugin install teaching
+/plugin install unstuck
 /plugin install scientific-plotting
 /plugin install preferential-interactions
 /plugin install speciation
@@ -38,6 +39,9 @@ Or add the GitHub marketplace directly:
 ```
 codex plugin marketplace add mlund/claude-skills
 ```
+
+To install the student tutor from this marketplace, run
+`codex plugin add unstuck@claude-skills`.
 
 The Codex marketplace is defined in `.agents/plugins/marketplace.json`. Each
 plugin also has a `.codex-plugin/plugin.json` manifest that points at the same
@@ -118,6 +122,18 @@ budget, colour and ground choices with measured contrast, progressive reveal,
 and the behaviour of puzzles, hint ladders, mastery gates and explorables —
 each grounded in multimedia-learning evidence, with a review checklist and an
 evidence file that records what the research does *not* support.
+
+### unstuck
+
+A tutor for chemistry and natural science students. Ask for an explanation,
+a hint, or feedback on your reasoning or lab report. The tutor adjusts its
+guidance to the sticking point and leaves the solution and report to you.
+
+Try `$unstuck I'm stuck on a titration exercise. I have two volumes and don't
+know where to start.` in Codex. In Claude Code, use `/unstuck:unstuck` with the
+same question.
+The plugin includes [research notes](plugins/unstuck/skills/unstuck/references/research.md)
+on productive struggle, scaffolding, and help-seeking.
 
 ### faunus
 

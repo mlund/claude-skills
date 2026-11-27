@@ -19,6 +19,11 @@
       "description": "Write and design teaching material that explains: lecture slides, notes pages, puzzles, hint ladders, explorables and their visual design."
     },
     {
+      "name": "unstuck",
+      "source": "./plugins/unstuck",
+      "description": "Tutor students in chemistry and natural science with concept explanations, hints, and feedback that preserve productive struggle."
+    },
+    {
       "name": "faunus",
       "source": "./plugins/faunus",
       "description": "Author Faunus YAML input files and build, run, profile, and debug Faunus molecular simulations."

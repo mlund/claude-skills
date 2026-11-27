@@ -29,6 +29,18 @@
       "category": "Productivity"
     },
     {
+      "name": "unstuck",
+      "source": {
+        "source": "local",
+        "path": "./plugins/unstuck"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "faunus",
       "source": {
         "source": "local",
